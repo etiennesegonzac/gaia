@@ -403,58 +403,87 @@ div.windowSprite {
 }
 
 #sleep.visible {
-  display: block;
+  pointer-events: auto;
+  display: table;
 }
 
-.sleep-menu {
-  position: absolute;
-  top: 20%;
-  left: 50%;
+.overlay-container {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.overlay-menu {
   width: 320px;
-  height: 300px;
-  margin: 0 0 0 -160px;
+  margin: auto;
+  max-height: 320px;
+  overflow: scroll;
+
   background: -moz-linear-gradient(center top , rgb(244, 244, 244), rgb(234, 234, 234)) repeat scroll 0% 0% white;
   border-radius: 8px;
   border: 1px solid hsla(0,0%,0%,0);
 }
 
-.sleep-menu div {
+.overlay-menu div {
+  width: 200px;
   height: 73px;
+  padding: 0 20px 0 100px;
+
   line-height: 73px;
   font-size: 26px;
   color: #778;
-  padding: 0 20px 0 100px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  overflow: hidden;
   border-top: 1px solid hsla(0, 0%, 100%,0.2);
   border-bottom: 1px solid hsla(0, 0%, 0%,0.4);
 }
 
-.sleep-menu div[data-value="power"] {
+.overlay-menu div[data-value="power"] {
   background: url(images/sleep/power-off.png) no-repeat 0 50%;
 }
 
-.sleep-menu div[data-value="restart"] {
+.overlay-menu div[data-value="restart"] {
   background: url(images/sleep/restart.png) no-repeat 0 50%;
 }
 
-.sleep-menu div[data-value="airplane"] {
+.overlay-menu div[data-value="airplane"] {
   background: url(images/sleep/airplane.png) no-repeat 0 50%;
 }
 
-.sleep-menu div[data-value="normal"] {
+.overlay-menu div[data-value="normal"] {
   background: url(images/sleep/normal.png) no-repeat 0 50%;
 }
 
-.sleep-menu div[data-value="silent"] {
+.overlay-menu div[data-value="silent"] {
   background: url(images/sleep/vibration.png) no-repeat 0 50%;
 }
 
-.sleep-menu div:first-child {
+.overlay-menu div:first-child {
   border-radius: 9px 9px 0 0;
   border-top-color: transparent;
 }
 
-.sleep-menu div:last-child {
+.overlay-menu div:last-child {
   border-radius: 0 0 9px 9px;
   border-bottom-color: transparent;
 }
 
+#activities {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10002;
+  pointer-events: none;
+  background-color: rgba(0,0,0,0.4);
+  -moz-transition: opacity 0.5s ease;
+  pointer-events: none;
+  display: none;
+}
+
+#activities.visible {
+  pointer-events: auto;
+  display: table;
+}

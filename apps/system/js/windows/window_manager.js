@@ -413,6 +413,8 @@ var WindowManager = (function() {
     setDisplayedApp(origin, function() {
       frame.src = url;
     });
+
+    return frame;
   }
 
 
@@ -459,6 +461,24 @@ var WindowManager = (function() {
 
       var app = Applications.getByOrigin(origin);
       appendFrame(origin, e.detail.url, app.manifest.name, app.manifest, app.manifestURL);
+    } else if (e.detail.type === 'activity-openwindow') {
+      var url = e.detail.uri;
+      var tmpA = document.createElement('a');
+      tmpA.href= url;
+      var origin = tmpA.protocol + '//' + tmpA.host;
+
+      var app = Applications.getByOrigin(origin);
+      var frame = appendFrame(origin, url, app.manifest.name, app.manifest, app.manifestURL);
+
+      var event = document.createEvent('CustomEvent');
+      event.initCustomEvent('mozContentEvent', true, true, {
+        type: 'activity-openwindow',
+        id: e.detail.id,
+        window: frame,
+        isNew: 'yes'
+      });
+
+      window.dispatchEvent(event);
     }
   });
 

@@ -3,7 +3,7 @@
 var UITest = {
   get testList() {
     delete this.testList;
-    return this.testList = document.getElementById('test-list');;
+    return this.testList = document.getElementById('test-list');
   },
   get iframe() {
     delete this.iframe;
@@ -30,7 +30,10 @@ var UITest = {
     window.removeEventListener('hashchange', this);
   },
   getNameFromHash: function ut_getNameFromHash() {
-    return (/\btest=(.+)(&|$)/.exec(window.location.hash) || [])[1];
+    var result = null;
+    if (window.location.hash)
+      result = (/\btest=(.+)(&|$)/.exec(window.location.hash) || [])[1];
+    return result;
   },
   handleEvent: function ut_handleEvent(ev) {
     switch (ev.type) {
@@ -62,7 +65,7 @@ var UITest = {
           // openTest
           this.iframe.src = './tests/' + name + '.html';
         } else {
-          // clseTest
+          // closeTest
           this.iframe.src = 'about:blank';
         }
         break;

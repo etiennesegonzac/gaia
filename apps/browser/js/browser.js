@@ -59,7 +59,19 @@ var Browser = {
     GlobalHistory.init((function() {
       this.selectTab(this.createTab());
       this.showPageScreen();
+
+      // Activity handler ready from there
+      navigator.setActivityHandler((function(pendingActivity) {
+        var url = pendingActivity.activity.data.value;
+        this.selectTab(this.createTab());
+        this.navigate(url);
+      }).bind(this));
     }).bind(this));
+
+    // Registering for viewing URLs
+    navigator.registerActivityHandler('view',
+                                      { type: 'url' },
+                                      'Browser');
   },
 
   // Clicking the page preview on the left gutter of the tab page opens
