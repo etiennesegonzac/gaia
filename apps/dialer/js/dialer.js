@@ -387,6 +387,17 @@ var CallHandler = {
   },
 
   handleEvent: function fm_handleEvent(evt) {
+    if (evt.type == 'keyup') {
+      if (evt.keyCode == evt.DOM_VK_F24) {
+        if (this.callScreen.classList.contains('incoming')) {
+          this.answer();
+        } else {
+          this.end();
+        }
+      }
+      return;
+    }
+
     switch (evt.call.state) {
       case 'connected':
         this.connected();
@@ -482,8 +493,10 @@ var CallHandler = {
     // not onCall.
     if (this._onCall) {
       ProximityHandler.enable();
+      window.addEventListener('keyup', this, true);
     } else {
       ProximityHandler.disable();
+      window.removeEventListener('keyup', this);
     }
   },
 
