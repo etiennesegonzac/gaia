@@ -1,9 +1,7 @@
 'use strict';
 
 var ProximityHandler = {
-  // XXX: due to some issue with event dispatch when the screen
-  // is disabled, we just put a black div on screen for now.
-  // See: https://bugzilla.mozilla.org/show_bug.cgi?id=753842
+  _cpuLock: null,
 
   get screenOff() {
     delete this.screenOff;
@@ -11,22 +9,29 @@ var ProximityHandler = {
   },
 
   enable: function ph_enable() {
+    console.log("+++ enabling");
+    this._cpuLock = navigator.requestWakeLock('cpu');
+
     window.addEventListener('userproximity', this);
   },
 
   disable: function ph_disable() {
+    console.log("+++ disabling");
     window.removeEventListener('userproximity', this);
-    this.screenOff.classList.remove('displayed');
+
+    navigator.mozPower.screenEnabled = true;
+
+    if (this._cpuLock) {
+      this._cpuLock.unlock();
+      this._cpuLock = null;
+    }
   },
 
   handleEvent: function ph_handleEvent(evt) {
     if (evt.type != 'userproximity')
       return;
 
-    if (evt.near) {
-      this.screenOff.classList.add('displayed');
-    } else {
-      this.screenOff.classList.remove('displayed');
-    }
+    console.log("+++ updating screen sate near -> " + evt.near);
+    navigator.mozPower.screenEnabled = !evt.near;
   }
 };
