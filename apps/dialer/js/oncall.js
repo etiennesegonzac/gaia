@@ -275,9 +275,17 @@ var OnCallHandler = {
   },
 
   _addCall: function och_addCall(call) {
+    console.log('[adding] call: ' + call.number + ' ' + call.state);
     // No more room
     if (this.handledCalls.length >= this.CALLS_LIMIT) {
       call.hangUp();
+      return;
+    }
+
+    // Fix try for 3163
+    // We already have a handled call and a 'dialing' call
+    // (not incoming) is coming. Should not happend.
+    if (this.handledCalls.length && (call.state == 'dialing')) {
       return;
     }
 
