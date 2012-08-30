@@ -69,8 +69,8 @@ suite('system/system_updater', function() {
     statusDiv = document.createElement('div');
     statusDiv.id = 'system-update-status';
     statusDiv.innerHTML = [
-      '<img src="style/system_updater/images/download.png" />',
       '<div data-l10n-id="updateProgress">System update...</div>',
+      '<div class="icon"></div>',
       '<progress value="0" max="1"></progress>'
     ].join('');
 
@@ -180,10 +180,10 @@ suite('system/system_updater', function() {
       });
 
       test('show the spinner', function() {
-        var imgEl = subject.updateStatus.querySelector('img');
+        assert.notEqual(-1, subject.updateStatus.className.indexOf('applying'));
 
-        assert.notEqual(-1, imgEl.src.indexOf('style/system_updater/images/spinner.png'));
-        assert.equal('spin', imgEl.className);
+        var textNode = subject.updateStatus.querySelector('div:first-of-type');
+        assert.equal('applying', textNode.textContent);
       });
     });
   });
@@ -203,14 +203,14 @@ suite('system/system_updater', function() {
     });
 
     test('update status hidden', function() {
-      assert.notEqual('displayed', subject.updateStatus.className);
-
       var progressEl = subject.updateStatus.querySelector('progress');
       assert.equal(0, progressEl.value);
 
-      var imgEl = subject.updateStatus.querySelector('img');
-      assert.equal(-1, imgEl.src.indexOf('style/system_updater/images/spinner.gif'));
-      assert.notEqual('spin', imgEl.className);
+      assert.equal(-1, subject.updateStatus.className.indexOf('applying'));
+      assert.equal(-1, subject.updateStatus.className.indexOf('displayed'));
+
+      var textNode = subject.updateStatus.querySelector('div:first-of-type');
+      assert.equal('updateAvailable', textNode.textContent);
     });
 
     test('dialog shown', function() {

@@ -47,25 +47,30 @@ var SystemUpdater = {
   },
 
   updateProgress: function su_updateProgress(value) {
+    var _ = navigator.mozL10n.get;
+
     var progressEl = this.updateStatus.querySelector('progress');
     progressEl.value = value;
 
     if (value === 1) {
-      var imgEl = this.updateStatus.querySelector('img');
-      imgEl.src = 'style/system_updater/images/spinner.png';
-      imgEl.classList.add('spin');
+      this.updateStatus.classList.add('applying');
+
+      var textNode = this.updateStatus.querySelector('div:first-of-type');
+      textNode.textContent = _('applying')
     }
   },
 
   hideStatus: function su_hideStatus() {
+    var _ = navigator.mozL10n.get;
+
     this.updateStatus.classList.remove('displayed');
+    this.updateStatus.classList.remove('applying');
 
     var progressEl = this.updateStatus.querySelector('progress');
     progressEl.value = 0;
 
-    var imgEl = this.updateStatus.querySelector('img');
-    imgEl.src = 'style/system_updater/images/download.png';
-    imgEl.classList.remove('spin');
+    var textNode = this.updateStatus.querySelector('div:first-of-type');
+    textNode.textContent = _('updateAvailable')
   },
 
   declineInstall: function su_declineInstall() {

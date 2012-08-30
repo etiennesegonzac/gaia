@@ -5,12 +5,6 @@
   display: none;
 }
 
-#system-update-status.notification img {
-  width: 24px;
-  height: 24px;
-  margin: 18px;
-}
-
 #system-update-status.displayed {
   display: block;
 }
@@ -27,12 +21,31 @@
   border-radius: 10px;
 }
 
+#system-update-status.applying progress {
+  display: none;
+}
+
 #system-update-status progress::-moz-progress-bar {
   border-radius: 10px;
   background-color: #52b6cc;
 }
 
-#system-update-status img.spin {
+#system-update-status .icon {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+
+  background-image: url('images/download.png');
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+#system-update-status.applying .icon {
+  background-image: url('images/spinner.png');
+
   animation: spin 1.75s infinite linear;
   transform-origin : center center;
 }
@@ -40,4 +53,9 @@
 @-moz-keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+
+#system-update-status.applying > div:first-of-type {
+  margin: 21px 0 0 56px;
 }
