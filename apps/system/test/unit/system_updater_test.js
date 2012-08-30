@@ -2,6 +2,7 @@ requireApp('system/js/system_updater.js');
 requireApp('system/test/unit/mock_chrome_event.js');
 requireApp('system/test/unit/mock_custom_dialog.js');
 requireApp('system/test/unit/mock_notification_helper.js');
+requireApp('system/test/unit/mock_utility_tray.js');
 
 // We're going to swap those with mock objects
 // so we need to make sure they are defined.
@@ -11,11 +12,17 @@ if (!this.CustomDialog) {
 if (!this.NotificationHelper) {
   this.NotificationHelper = null;
 }
+if (!this.UtilityTray) {
+  this.UtilityTray = null;
+}
 
 suite('system/system_updater', function() {
   var subject;
+  var statusDiv;
+
   var realCustomDialog;
   var realNotificationHelper;
+  var realUtilityTray;
   var realL10n;
   var realDispatchEvent;
 
@@ -29,6 +36,9 @@ suite('system/system_updater', function() {
 
     realNotificationHelper = window.NotificationHelper;
     window.NotificationHelper = MockNotificationHelper;
+
+    realUtilityTray = window.UtilityTray;
+    window.UtilityTray = MockUtilityTray;
 
     realL10n = navigator.mozL10n;
     navigator.mozL10n = {
@@ -49,24 +59,45 @@ suite('system/system_updater', function() {
   suiteTeardown(function() {
     window.CustomDialog = realCustomDialog;
     window.NotificationHelper = realNotificationHelper;
+    window.UtilityTray = realUtilityTray;
+
     navigator.mozL10n = realL10n;
     subject._dispatchEvent = realDispatchEvent;
+  });
+
+  setup(function() {
+    statusDiv = document.createElement('div');
+    statusDiv.id = 'system-update-status';
+    statusDiv.innerHTML = [
+      '<img src="style/system_updater/images/download.png" />',
+      '<div data-l10n-id="updateProgress">System update...</div>',
+      '<progress value="0" max="1"></progress>'
+    ].join('');
+
+    document.body.appendChild(statusDiv);
   });
 
   teardown(function() {
     MockCustomDialog.mTearDown();
     MockNotificationHelper.mTearDown();
+    MockUtilityTray.mTearDown();
+
+    var el = document.getElementById('system-update-status');
+    el.parentNode.removeChild(el);
   });
 
   suite('update available event', function() {
     setup(function() {
-      var event = new MockChromeEvent('update-available');
+      var event = new MockChromeEvent({
+        type: 'update-available'
+      });
       subject.handleEvent(event);
     });
 
     test('notification sent', function() {
       assert.equal('updateAvailable', MockNotificationHelper.mTitle);
       assert.equal('getIt', MockNotificationHelper.mBody);
+      assert.equal('style/system_updater/images/download.png', MockNotificationHelper.mIcon);
     });
 
     test('notification close callback', function() {
@@ -87,8 +118,8 @@ suite('system/system_updater', function() {
       assert.equal('updateAvailable', MockCustomDialog.mShowedTitle);
       assert.equal('wantToDownload', MockCustomDialog.mShowedMsg);
 
-      assert.equal('no', MockCustomDialog.mShowedCancel.title);
-      assert.equal('yes', MockCustomDialog.mShowedConfirm.title);
+      assert.equal('later', MockCustomDialog.mShowedCancel.title);
+      assert.equal('download', MockCustomDialog.mShowedConfirm.title);
     });
 
     suite('prompt handling', function() {
@@ -97,7 +128,7 @@ suite('system/system_updater', function() {
       });
 
       test('cancel callback', function() {
-        assert.equal(subject.declineDownload, MockCustomDialog.mShowedCancel.callback);
+        assert.equal(subject.declineDownload.name, MockCustomDialog.mShowedCancel.callback.name);
 
         subject.declineDownload();
         assert.isFalse(MockCustomDialog.mShown);
@@ -107,21 +138,79 @@ suite('system/system_updater', function() {
       });
 
       test('confirm callback', function() {
-        assert.equal(subject.acceptDownload, MockCustomDialog.mShowedConfirm.callback);
+        assert.equal(subject.acceptDownload.name, MockCustomDialog.mShowedConfirm.callback.name);
 
         subject.acceptDownload();
         assert.isFalse(MockCustomDialog.mShown);
 
         assert.equal('update-available-result', lastDispatchedEvent.type);
         assert.equal('download', lastDispatchedEvent.value);
+
+        assert.equal('displayed', subject.updateStatus.className);
+        assert.isTrue(MockUtilityTray.mShown);
+      });
+    });
+  });
+
+  suite('update progress event', function() {
+    setup(function() {
+      var event = new MockChromeEvent({
+        type: 'update-progress',
+        progress: 0.5,
+        total: 1
+      });
+
+      subject.handleEvent(event);
+    });
+
+    test('update the progress element', function() {
+      var progressEl = subject.updateStatus.querySelector('progress');
+      assert.equal(0.5, progressEl.value);
+    });
+
+    suite('download complete', function() {
+      setup(function() {
+        var event = new MockChromeEvent({
+          type: 'update-progress',
+          progress: 1,
+          total: 1
+        });
+
+        subject.handleEvent(event);
+      });
+
+      test('show the spinner', function() {
+        var imgEl = subject.updateStatus.querySelector('img');
+
+        assert.notEqual(-1, imgEl.src.indexOf('style/system_updater/images/spinner.png'));
+        assert.equal('spin', imgEl.className);
       });
     });
   });
 
   suite('update ready event', function() {
     setup(function() {
-      var event = new MockChromeEvent('update-ready');
+      MockUtilityTray.show();
+
+      var event = new MockChromeEvent({
+        type: 'update-ready'
+      });
       subject.handleEvent(event);
+    });
+
+    test('utility tray hidden', function() {
+      assert.isFalse(MockUtilityTray.mShown);
+    });
+
+    test('update status hidden', function() {
+      assert.notEqual('displayed', subject.updateStatus.className);
+
+      var progressEl = subject.updateStatus.querySelector('progress');
+      assert.equal(0, progressEl.value);
+
+      var imgEl = subject.updateStatus.querySelector('img');
+      assert.equal(-1, imgEl.src.indexOf('style/system_updater/images/spinner.gif'));
+      assert.notEqual('spin', imgEl.className);
     });
 
     test('dialog shown', function() {
@@ -134,7 +223,7 @@ suite('system/system_updater', function() {
     });
 
     test('cancel callback', function() {
-      assert.equal(subject.declineInstall, MockCustomDialog.mShowedCancel.callback);
+      assert.equal(subject.declineInstall.name, MockCustomDialog.mShowedCancel.callback.name);
 
       subject.declineInstall();
       assert.isFalse(MockCustomDialog.mShown);
@@ -144,7 +233,7 @@ suite('system/system_updater', function() {
     });
 
     test('confirm callback', function() {
-      assert.equal(subject.acceptDownload, MockCustomDialog.mShowedConfirm.callback);
+      assert.equal(subject.acceptInstall.name, MockCustomDialog.mShowedConfirm.callback.name);
 
       subject.acceptInstall();
       assert.isFalse(MockCustomDialog.mShown);

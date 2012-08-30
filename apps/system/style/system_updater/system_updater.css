@@ -1,0 +1,43 @@
+#system-update-status {
+  position: relative;
+  border-top-color: black;
+
+  display: none;
+}
+
+#system-update-status.notification img {
+  width: 24px;
+  height: 24px;
+  margin: 18px;
+}
+
+#system-update-status.displayed {
+  display: block;
+}
+
+#system-update-status progress {
+  position: absolute;
+  top: 35px;
+  left: 60px;
+  width: -moz-calc(100% - 105px);
+  height: 10px;
+  padding: 0;
+
+  border: 0;
+  border-radius: 10px;
+}
+
+#system-update-status progress::-moz-progress-bar {
+  border-radius: 10px;
+  background-color: #52b6cc;
+}
+
+#system-update-status img.spin {
+  animation: spin 1.75s infinite linear;
+  transform-origin : center center;
+}
+
+@-moz-keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

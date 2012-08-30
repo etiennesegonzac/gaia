@@ -3,8 +3,30 @@
 'use strict';
 
 var SystemUpdater = {
+  get updateStatus() {
+    delete this.updateStatus;
+    return this.updateStatus = document.getElementById('system-update-status');
+  },
+
   init: function su_init() {
     window.addEventListener('mozChromeEvent', this);
+  },
+
+  showDownloadPrompt: function su_showDownloadPrompt() {
+    var _ = navigator.mozL10n.get;
+
+    var cancel = {
+      title: _('later'),
+      callback: this.declineDownload.bind(this)
+    };
+
+    var confirm = {
+      title: _('download'),
+      callback: this.acceptDownload.bind(this)
+    };
+
+    CustomDialog.show(_('updateAvailable'), _('wantToDownload'),
+                      cancel, confirm);
   },
 
   declineDownload: function su_declineDownload() {
@@ -12,26 +34,38 @@ var SystemUpdater = {
     this._dispatchEvent('update-available-result', 'wait');
   },
 
-  showDownloadPrompt: function su_showDownloadPrompt() {
-    var _ = navigator.mozL10n.get;
-
-    var cancel = {
-      title: _('no'),
-      callback: this.declineDownload
-    };
-
-    var confirm = {
-      title: _('yes'),
-      callback: this.acceptDownload
-    };
-
-    CustomDialog.show(_('updateAvailable'), _('wantToDownload'),
-                      cancel, confirm);
-  },
-
   acceptDownload: function su_acceptDownload() {
     CustomDialog.hide();
     this._dispatchEvent('update-available-result', 'download');
+
+    this.showStatus();
+    UtilityTray.show();
+  },
+
+  showStatus: function su_showStatus() {
+    this.updateStatus.classList.add('displayed');
+  },
+
+  updateProgress: function su_updateProgress(value) {
+    var progressEl = this.updateStatus.querySelector('progress');
+    progressEl.value = value;
+
+    if (value === 1) {
+      var imgEl = this.updateStatus.querySelector('img');
+      imgEl.src = 'style/system_updater/images/spinner.png';
+      imgEl.classList.add('spin');
+    }
+  },
+
+  hideStatus: function su_hideStatus() {
+    this.updateStatus.classList.remove('displayed');
+
+    var progressEl = this.updateStatus.querySelector('progress');
+    progressEl.value = 0;
+
+    var imgEl = this.updateStatus.querySelector('img');
+    imgEl.src = 'style/system_updater/images/download.png';
+    imgEl.classList.remove('spin');
   },
 
   declineInstall: function su_declineInstall() {
@@ -51,25 +85,34 @@ var SystemUpdater = {
     var _ = navigator.mozL10n.get;
 
     var detail = evt.detail;
-    switch (detail) {
+    if (!detail.type)
+      return;
+
+    switch (detail.type) {
       case 'update-available':
-        NotificationHelper.send(_('updateAvailable'), _('getIt'), null,
+        NotificationHelper.send(_('updateAvailable'), _('getIt'), 'style/system_updater/images/download.png',
                                 this.showDownloadPrompt.bind(this),
                                 this.declineDownload.bind(this));
         break;
       case 'update-ready':
         var cancel = {
           title: _('no'),
-          callback: this.declineInstall
+          callback: this.declineInstall.bind(this)
         };
 
         var confirm = {
           title: _('yes'),
-          callback: this.acceptDownload
+          callback: this.acceptInstall.bind(this)
         };
 
+        UtilityTray.hide();
+        this.hideStatus();
         CustomDialog.show(_('updateReady'), _('wantToInstall'),
                           cancel, confirm);
+        break;
+      case 'update-progress':
+        var progress = detail.progress / detail.total;
+        this.updateProgress(progress);
         break;
     }
   },
