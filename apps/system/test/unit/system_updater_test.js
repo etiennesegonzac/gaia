@@ -1,16 +1,21 @@
 requireApp('system/js/system_updater.js');
 requireApp('system/test/unit/mock_chrome_event.js');
 requireApp('system/test/unit/mock_custom_dialog.js');
+requireApp('system/test/unit/mock_notification_helper.js');
 
 // We're going to swap those with mock objects
 // so we need to make sure they are defined.
 if (!this.CustomDialog) {
   this.CustomDialog = null;
 }
+if (!this.NotificationHelper) {
+  this.NotificationHelper = null;
+}
 
 suite('system/system_updater', function() {
   var subject;
   var realCustomDialog;
+  var realNotificationHelper;
   var realL10n;
   var realDispatchEvent;
 
@@ -21,6 +26,9 @@ suite('system/system_updater', function() {
 
     realCustomDialog = window.CustomDialog;
     window.CustomDialog = MockCustomDialog;
+
+    realNotificationHelper = window.NotificationHelper;
+    window.NotificationHelper = MockNotificationHelper;
 
     realL10n = navigator.mozL10n;
     navigator.mozL10n = {
@@ -40,21 +48,41 @@ suite('system/system_updater', function() {
 
   suiteTeardown(function() {
     window.CustomDialog = realCustomDialog;
+    window.NotificationHelper = realNotificationHelper;
     navigator.mozL10n = realL10n;
     subject._dispatchEvent = realDispatchEvent;
   });
 
   teardown(function() {
     MockCustomDialog.mTearDown();
+    MockNotificationHelper.mTearDown();
   });
 
-  suite('download prompt', function() {
+  suite('update available event', function() {
     setup(function() {
-      var event = new MockChromeEvent('download-prompt');
+      var event = new MockChromeEvent('update-available');
       subject.handleEvent(event);
     });
 
-    test('dialog shown', function() {
+    test('notification sent', function() {
+      assert.equal('updateAvailable', MockNotificationHelper.mTitle);
+      assert.equal('getIt', MockNotificationHelper.mBody);
+    });
+
+    test('notification close callback', function() {
+      assert.equal(subject.declineDownload.name, MockNotificationHelper.mCloseCB.name);
+
+      subject.declineDownload();
+      assert.isFalse(MockCustomDialog.mShown);
+
+      assert.equal('update-available-result', lastDispatchedEvent.type);
+      assert.equal('wait', lastDispatchedEvent.value);
+    });
+
+    test('notification click callback', function() {
+      assert.equal(subject.showDownloadPrompt.name, MockNotificationHelper.mClickCB.name);
+
+      subject.showDownloadPrompt();
       assert.isTrue(MockCustomDialog.mShown);
       assert.equal('updateAvailable', MockCustomDialog.mShowedTitle);
       assert.equal('wantToDownload', MockCustomDialog.mShowedMsg);
@@ -63,30 +91,36 @@ suite('system/system_updater', function() {
       assert.equal('yes', MockCustomDialog.mShowedConfirm.title);
     });
 
-    test('cancel callback', function() {
-      assert.equal(subject.declineDownload, MockCustomDialog.mShowedCancel.callback);
+    suite('prompt handling', function() {
+      setup(function() {
+        subject.showDownloadPrompt();
+      });
 
-      subject.declineDownload();
-      assert.isFalse(MockCustomDialog.mShown);
+      test('cancel callback', function() {
+        assert.equal(subject.declineDownload, MockCustomDialog.mShowedCancel.callback);
 
-      assert.equal('download-prompt-result', lastDispatchedEvent.type);
-      assert.equal('wait', lastDispatchedEvent.value);
-    });
+        subject.declineDownload();
+        assert.isFalse(MockCustomDialog.mShown);
 
-    test('confirm callback', function() {
-      assert.equal(subject.acceptDownload, MockCustomDialog.mShowedConfirm.callback);
+        assert.equal('update-available-result', lastDispatchedEvent.type);
+        assert.equal('wait', lastDispatchedEvent.value);
+      });
 
-      subject.acceptDownload();
-      assert.isFalse(MockCustomDialog.mShown);
+      test('confirm callback', function() {
+        assert.equal(subject.acceptDownload, MockCustomDialog.mShowedConfirm.callback);
 
-      assert.equal('download-prompt-result', lastDispatchedEvent.type);
-      assert.equal('download', lastDispatchedEvent.value);
+        subject.acceptDownload();
+        assert.isFalse(MockCustomDialog.mShown);
+
+        assert.equal('update-available-result', lastDispatchedEvent.type);
+        assert.equal('download', lastDispatchedEvent.value);
+      });
     });
   });
 
-  suite('update prompt', function() {
+  suite('update ready event', function() {
     setup(function() {
-      var event = new MockChromeEvent('update-prompt');
+      var event = new MockChromeEvent('update-ready');
       subject.handleEvent(event);
     });
 
@@ -105,7 +139,7 @@ suite('system/system_updater', function() {
       subject.declineInstall();
       assert.isFalse(MockCustomDialog.mShown);
 
-      assert.equal('update-prompt-result', lastDispatchedEvent.type);
+      assert.equal('update-ready-result', lastDispatchedEvent.type);
       assert.equal('wait', lastDispatchedEvent.value);
     });
 
@@ -115,7 +149,7 @@ suite('system/system_updater', function() {
       subject.acceptInstall();
       assert.isFalse(MockCustomDialog.mShown);
 
-      assert.equal('update-prompt-result', lastDispatchedEvent.type);
+      assert.equal('update-ready-result', lastDispatchedEvent.type);
       assert.equal('restart', lastDispatchedEvent.value);
     });
   });

@@ -9,22 +9,39 @@ var SystemUpdater = {
 
   declineDownload: function su_declineDownload() {
     CustomDialog.hide();
-    this._dispatchEvent('download-prompt-result', 'wait');
+    this._dispatchEvent('update-available-result', 'wait');
+  },
+
+  showDownloadPrompt: function su_showDownloadPrompt() {
+    var _ = navigator.mozL10n.get;
+
+    var cancel = {
+      title: _('no'),
+      callback: this.declineDownload
+    };
+
+    var confirm = {
+      title: _('yes'),
+      callback: this.acceptDownload
+    };
+
+    CustomDialog.show(_('updateAvailable'), _('wantToDownload'),
+                      cancel, confirm);
   },
 
   acceptDownload: function su_acceptDownload() {
     CustomDialog.hide();
-    this._dispatchEvent('download-prompt-result', 'download');
+    this._dispatchEvent('update-available-result', 'download');
   },
 
   declineInstall: function su_declineInstall() {
     CustomDialog.hide();
-    this._dispatchEvent('update-prompt-result', 'wait');
+    this._dispatchEvent('update-ready-result', 'wait');
   },
 
   acceptInstall: function su_acceptInstall() {
     CustomDialog.hide();
-    this._dispatchEvent('update-prompt-result', 'restart');
+    this._dispatchEvent('update-ready-result', 'restart');
   },
 
   handleEvent: function su_handleEvent(evt) {
@@ -35,20 +52,12 @@ var SystemUpdater = {
 
     var detail = evt.detail;
     switch (detail) {
-      case 'download-prompt':
-        var cancel = {
-          title: _('no'),
-          callback: this.declineDownload
-        };
-
-        var confirm = {
-          title: _('yes'),
-          callback: this.acceptDownload
-        };
-
-        CustomDialog.show(_('updateAvailable'), _('wantToDownload'), cancel, confirm);
+      case 'update-available':
+        NotificationHelper.send(_('updateAvailable'), _('getIt'), null,
+                                this.showDownloadPrompt.bind(this),
+                                this.declineDownload.bind(this));
         break;
-      case 'update-prompt':
+      case 'update-ready':
         var cancel = {
           title: _('no'),
           callback: this.declineInstall
@@ -59,7 +68,8 @@ var SystemUpdater = {
           callback: this.acceptDownload
         };
 
-        CustomDialog.show(_('updateReady'), _('wantToInstall'), cancel, confirm);
+        CustomDialog.show(_('updateReady'), _('wantToInstall'),
+                          cancel, confirm);
         break;
     }
   },

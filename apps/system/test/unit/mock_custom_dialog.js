@@ -1,5 +1,5 @@
 var MockCustomDialog = {
-  show: function (title, msg, cancel, confirm) {
+  show: function(title, msg, cancel, confirm) {
     this.mShown = true;
     this.mShowedTitle = title;
     this.mShowedMsg = msg;
