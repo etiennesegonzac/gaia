@@ -188,7 +188,7 @@ suite('system/system_updater', function() {
     });
   });
 
-  suite('update ready event', function() {
+  suite('update downloaded event', function() {
     setup(function() {
       MockUtilityTray.show();
 
@@ -218,8 +218,8 @@ suite('system/system_updater', function() {
       assert.equal('updateReady', MockCustomDialog.mShowedTitle);
       assert.equal('wantToInstall', MockCustomDialog.mShowedMsg);
 
-      assert.equal('no', MockCustomDialog.mShowedCancel.title);
-      assert.equal('yes', MockCustomDialog.mShowedConfirm.title);
+      assert.equal('later', MockCustomDialog.mShowedCancel.title);
+      assert.equal('restart', MockCustomDialog.mShowedConfirm.title);
     });
 
     test('cancel callback', function() {

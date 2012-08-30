@@ -96,12 +96,12 @@ var SystemUpdater = {
         break;
       case 'update-downloaded':
         var cancel = {
-          title: _('no'),
+          title: _('later'),
           callback: this.declineInstall.bind(this)
         };
 
         var confirm = {
-          title: _('yes'),
+          title: _('restart'),
           callback: this.acceptInstall.bind(this)
         };
 
