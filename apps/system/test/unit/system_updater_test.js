@@ -193,7 +193,7 @@ suite('system/system_updater', function() {
       MockUtilityTray.show();
 
       var event = new MockChromeEvent({
-        type: 'update-ready'
+        type: 'update-downloaded'
       });
       subject.handleEvent(event);
     });

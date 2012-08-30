@@ -94,7 +94,7 @@ var SystemUpdater = {
                                 this.showDownloadPrompt.bind(this),
                                 this.declineDownload.bind(this));
         break;
-      case 'update-ready':
+      case 'update-downloaded':
         var cancel = {
           title: _('no'),
           callback: this.declineInstall.bind(this)
