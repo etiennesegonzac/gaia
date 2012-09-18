@@ -270,3 +270,17 @@ ul li p + input[type=password] {
   color: #505859;
 }
 
+/******************************************************************************
+ * Applications Permissions
+ */
+#appPermissions ul li > a {
+  padding: 0 1rem;
+}
+
+#appPermissions ul li img {
+  float: left;
+  margin-top: 1rem;
+  margin-right: 1rem;
+  width: 4rem;
+  height: 4rem;
+}

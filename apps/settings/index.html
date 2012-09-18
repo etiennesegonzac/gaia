@@ -12,6 +12,7 @@
     <!-- Specific style -->
     <link rel="stylesheet" type="text/css" href="style/lists.css"/>
     <link rel="stylesheet" type="text/css" href="style/settings.css"/>
+    <link rel="stylesheet" type="text/css" href="style/apps.css"/>
 
     <!-- Localization -->
     <link rel="resource" type="application/l10n" href="locales/locales.ini"/>
@@ -22,6 +23,7 @@
     <script type="application/javascript" defer src="js/settings.js"></script>
     <script type="application/javascript" defer src="js/data.js"></script>
     <script type="application/javascript" defer src="js/wifi.js"></script>
+    <script type="application/javascript" defer src="js/apps.js"></script>
     <script type="application/javascript" defer src="js/bluetooth.js"></script>
     <script type="application/javascript" defer src="js/battery.js"></script>
     <script type="application/javascript" defer src="js/storage.js"></script>
@@ -966,7 +968,38 @@
 
     <!-- [TODO] Security :: Phone Lock -->
     <!-- [TODO] Security :: SIM Card Lock -->
-    <!-- [TODO] Security :: App Permissions -->
+    <!-- Security :: App Permissions -->
+    <section role="region" id="appPermissionsDetails" data-leaf>
+      <header>
+        <a href="#appPermissions"><span class="icon icon-back">back</span></a>
+        <h1>
+        </h1>
+      </header>
+      <header>
+        <h2 data-l10n-id="developer">Developer</h2>
+      </header>
+      <div id="developer-infos">
+        <h3></h3>
+        <a target="_blank"></a>
+      </div>
+      <header>
+        <h2 data-l10n-id="permissions">Permissions</h2>
+      </header>
+      <ul>
+      </ul>
+    </section>
+
+    <section role="region" id="appPermissions">
+      <header>
+        <a href="#root"><span class="icon icon-back">back</span></a>
+        <h1 data-l10n-id="appPermissions">
+          App Permissions
+        </h1>
+      </header>
+      <ul>
+      </ul>
+    </section>
+
     <!-- Security :: Do Not Track -->
     <section role="region" id="doNotTrack" data-leaf>
       <header>
@@ -1271,7 +1304,7 @@
           <small id="simCardLock-desc"></small>
           <a href="#simCardLock" data-l10n-id="simCardLock">SIM Card Lock</a>
         </li>
-        <li hidden>
+        <li>
           <a href="#appPermissions" data-l10n-id="appPermissions">App Permissions</a>
         </li>
         <li>

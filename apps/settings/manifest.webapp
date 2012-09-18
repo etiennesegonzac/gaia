@@ -8,6 +8,7 @@
   },
   "permissions": [
     "mobileconnection",
+    "webapps-manage",
     "mozBluetooth",
     "bluetooth",
     "device-storage:pictures",
@@ -16,7 +17,8 @@
     "settings",
     "wifi-manage",
     "wifi",
-    "attention"
+    "attention",
+    "permissions"
   ],
   "activities": {
     "configure": {
@@ -34,10 +36,10 @@
       "returnValue": true
     }
   },
-  "messages": ["bluetooth-requestconfirmation", 
-               "bluetooth-requestpasskey", 
-               "bluetooth-requestpincode", 
-               "bluetooth-authorize", 
+  "messages": ["bluetooth-requestconfirmation",
+               "bluetooth-requestpasskey",
+               "bluetooth-requestpincode",
+               "bluetooth-authorize",
                "bluetooth-cancel"],
   "locales": {
     "ar": {
