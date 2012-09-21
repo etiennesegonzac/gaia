@@ -34,16 +34,16 @@ section[role=region] {
 section[role="region"] {
   visibility: hidden;
   transform: translateX(100%);
-  transition: visibility 0s ease 0.3s, transform 0.3s ease;
+  transition: visibility 0s ease .5s, transform .5s ease;
 }
 
 section[role="region"]:target {
   visibility: visible;
   transform: translateX(0);
-  transition: visibility 0s ease, transform 0.3s ease;
+  transition: visibility 0s ease, transform .5s ease;
 }
 
-section[role="region"]:target ~ section[role="region"] {
+section[role="region"]:target ~ section[role="region"]:not([data-leaf]) {
   transform: translateX(-100%);
 }
 
