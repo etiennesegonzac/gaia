@@ -240,8 +240,8 @@ const IMEController = (function() {
       // fix in order to understand the real issue.
       var layout = Keyboards[navigator.language.split('-')[0]];
     } else {
-      var layout = Keyboards[_baseLayoutName][layoutName] ||
-                   Keyboards[layoutName];
+      var layout = _baseLayoutName ? Keyboards[_baseLayoutName][layoutName] : null;
+      layout = layout || Keyboards[layoutName];
     }
 
     // look for keyspace (it behaves as the placeholder for special keys)
