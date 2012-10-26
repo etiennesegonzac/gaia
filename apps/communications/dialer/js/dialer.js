@@ -60,10 +60,24 @@ var CallHandler = (function callHandler() {
 
   /* === Bluetooth Support === */
   function btCommandHandler(message) {
+    console.log("@@@ BT command " + JSON.stringify(message));
+    var command = message['bluetooth-dialer-command'];
+
+    if (command === 'BLDN') {
+      RecentsDBManager.init(function() {
+        RecentsDBManager.getLast(function(lastRecent) {
+          if (lastRecent.number) {
+            CallHandler.call(lastRecent.number);
+          }
+        });
+      });
+      return;
+    }
+
+    // Other commands needs to be handled from the call screen
     if (!callScreenWindow)
       return;
 
-    var command = message['bluetooth-dialer-command'];
     var origin = document.location.protocol + '//' +
       document.location.host;
 
