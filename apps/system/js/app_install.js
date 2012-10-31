@@ -23,6 +23,7 @@ var AppInstallManager = {
   },
 
   handleAppInstallPrompt: function ai_handleInstallPrompt(detail) {
+    var _ = navigator.mozL10n.get;
 
     // updateManifest is used by packaged apps until they are installed
     var manifest = detail.app.manifest ?
@@ -31,7 +32,6 @@ var AppInstallManager = {
     if (!manifest)
       return;
 
-    // display app install dialog
     this.dialog.classList.add('visible');
 
     var id = detail.id;
@@ -39,7 +39,7 @@ var AppInstallManager = {
     if (manifest.size) {
       this.size.textContent = this.humanizeSize(manifest.size);
     } else {
-      this.size.textContent = navigator.mozL10n.get('unknown');
+      this.size.textContent = _('unknown');
     }
 
     // Get localised name or use default
@@ -48,19 +48,23 @@ var AppInstallManager = {
     var lang = navigator.language;
     if (locales && locales[lang] && locales[lang].name)
       name = locales[lang].name;
-    var msg = navigator.mozL10n.get('install-app', {'name': name});
+    var msg = _('install-app', {'name': name});
     this.msg.textContent = msg;
 
     if (manifest.developer) {
       this.authorName.textContent = manifest.developer.name;
       this.authorUrl.textContent = manifest.developer.url;
     } else {
-      this.authorName.textContent = navigator.mozL10n.get('unknown');
+      this.authorName.textContent = _('unknown');
       this.authorUrl.textContent = '';
     }
 
     this.installCallback = (function ai_installCallback() {
       this.dispatchResponse(id, 'webapps-install-granted');
+    }).bind(this);
+
+    this.cancelCallback = (function ai_cancelCallback() {
+      this.dispatchResponse(id, 'webapps-install-denied');
     }).bind(this);
 
   },
@@ -73,6 +77,9 @@ var AppInstallManager = {
   },
 
   handleCancel: function ai_handleCancel() {
+    if (this.cancelCallback)
+      this.cancelCallback();
+    this.cancelCallback = null;
     this.dialog.classList.remove('visible');
   },
 
@@ -88,9 +95,11 @@ var AppInstallManager = {
   },
 
   humanizeSize: function ai_humanizeSize(bytes) {
+    var _ = navigator.mozL10n.get;
     var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'];
     var e = Math.floor(Math.log(bytes) / Math.log(1024));
-    return (bytes / Math.pow(1024, Math.floor(e))).toFixed(2) + ' ' + units[e];
+    return (bytes / Math.pow(1024, Math.floor(e))).toFixed(2) + ' ' +
+      _(units[e]);
   }
 
 };
