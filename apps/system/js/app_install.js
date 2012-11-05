@@ -18,8 +18,8 @@ var AppInstallManager = {
       }
     }).bind(this));
 
-    this.installButton.addEventListener('click', this.handleInstall.bind(this));
-    this.cancelButton.addEventListener('click', this.handleCancel.bind(this));
+    this.installButton.onclick = this.handleInstall.bind(this);
+    this.cancelButton.onclick = this.handleCancel.bind(this);
   },
 
   handleAppInstallPrompt: function ai_handleInstallPrompt(detail) {
