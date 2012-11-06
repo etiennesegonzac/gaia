@@ -69,11 +69,13 @@ var AppInstallManager = {
 
   },
 
-  handleInstall: function ai_handleInstall() {
+  handleInstall: function ai_handleInstall(evt) {
     if (this.installCallback)
       this.installCallback();
     this.installCallback = null;
     this.dialog.classList.remove('visible');
+
+    evt.preventDefault();
   },
 
   handleCancel: function ai_handleCancel() {
