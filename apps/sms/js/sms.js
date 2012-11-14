@@ -1544,18 +1544,32 @@ if (!window.location.hash.length) {
     // no notification needed, showing the thread directly.
     if (!document.mozHidden) {
       navigator.vibrate([200, 200, 200]);
-      showThreadFromSystemMessage(number);
-      return;
+      var currentThread = MessageManager.getNumFromHash();
+      // If we are in the same thread, only we need to vibrate
+      if(number == currentThread) {
+        return;
+      }
     }
 
-    PhoneNumberManager.init(function phoneNMReady() {
+    var notificationCallback = function() {
       navigator.mozApps.getSelf().onsuccess = function(evt) {
         var app = evt.target.result;
         var iconURL = NotificationHelper.getIconURI(app);
 
         var goToMessage = function() {
-          app.launch();
-          showThreadFromSystemMessage(number);
+          var activity = new MozActivity({
+            name: 'new',
+            data: {
+              type: 'websms/sms',
+              number: number
+            }
+          });
+          // FOR ETIENNE: Going directly with the activity is the same
+          // behaviour of the code below. That's why I think
+          // that we should use the same way from Contacts and
+          // Notification.
+          // app.launch();
+          // showThreadFromSystemMessage(number);
         };
 
         ContactDataManager.getContactData(message.sender,
@@ -1570,7 +1584,18 @@ if (!window.location.hash.length) {
           NotificationHelper.send(sender, message.body, iconURL, goToMessage);
         });
       };
-    });
+    }
+
+    if (!document.mozHidden) {
+      // If the app was in foreground, send notification
+      notificationCallback();
+    } else {
+      // If we are launching the app, we need to initialize 
+      // PhoneNumberJS for retrieving the contact.
+      PhoneNumberManager.init(function phoneNMReady() {
+        notificationCallback();
+      });
+    }
   });
 }
 
