@@ -72,7 +72,12 @@ if (DEBUG) {
 
   // Identity debug messages
   prefs.push(["toolkit.identity.debug", true]);
+
 }
+
+prefs.push(["marionette.defaultPrefs.enabled", true]);
+//prefs.push(["marionette.force-local", true]);
+prefs.push(["marionette.defaultPrefs.port", 2828]);
 
 function writePrefs() {
   let userJs = getFile(GAIA_DIR, 'profile', 'user.js');

@@ -1161,13 +1161,15 @@ var WindowManager = (function() {
     var frame =
         createFrame(origFrame, origin, url, name, manifest, manifestURL);
     var iframe = frame.firstChild;
-    frame.id = 'appframe' + nextAppId++;
+
+    frame.id = 'appframe' + nextAppId;
     iframe.dataset.frameType = 'window';
 
     // Give a name to the frame for differentiating between main frame and 
     // inline frame. With the name we can get frames of the same app using the
-    // window.open method. 
+    // window.open method.
     iframe.name = 'main';
+    iframe.id = 'appiframe' + nextAppId++;
 
     // If this frame corresponds to the homescreen, set mozapptype=homescreen
     // so we're less likely to kill this frame's process when we're running low

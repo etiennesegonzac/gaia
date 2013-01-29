@@ -195,7 +195,8 @@ var GaiaApps = {
         waitFor(
           function() {
             let app = runningApps[origin];
-            let result = {frame: app.frame.firstChild,
+            let result = {frame: app.iframe,
+                          frameId: app.iframe.id,
                           src: app.iframe.src,
                           name: app.name,
                           origin: origin};
@@ -205,20 +206,35 @@ var GaiaApps = {
               marionetteScriptFinished(result);
             }
             else {
-              // wait until the new iframe sends the mozbrowserfirstpaint event
+              // wait until the new iframe sends the apploadtime event
               let frame = runningApps[origin].frame.firstChild;
-              if (frame.dataset.unpainted) {
-                window.addEventListener('mozbrowserfirstpaint',
-                    function firstpaint() {
-                      window.removeEventListener('mozbrowserfirstpaint',
-                                                 firstpaint);
-                      marionetteScriptFinished(result);
-                });
-              }
-              else {
+              window.addEventListener('apploadtime', function launched() {
+                window.removeEventListener('apploadtime', launched);
                 marionetteScriptFinished(result);
-              }
+              });
             }
+          },
+          // wait until the app is found in the running apps list
+          function() {
+            origin = GaiaApps.getRunningAppOrigin(appName);
+            return !!origin;
+          }
+        );
+      } else {
+        marionetteScriptFinished(false);
+      }
+    });
+  },
+
+  // Launches app with the specified name (e.g., 'Calculator'); returns nothing
+  closeWithName: function(name) {
+    GaiaApps.locateWithName(name, function(app, appName, entryPoint) {
+      if (app) {
+        let origin = GaiaApps.getRunningAppOrigin(appName);
+
+        waitFor(
+          function() {
+            window.wrappedJSObject.WindowManager.kill(origin, marionetteScriptFinished);
           },
           // wait until the app is found in the running apps list
           function() {
