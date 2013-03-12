@@ -139,7 +139,15 @@ settings = {
  "wifi.notification": False,
  "wifi.connect_via_settings": False,
  "icc.displayTextTimeout": 40000,
- "icc.inputTextTimeout": 40000
+ "icc.inputTextTimeout": 40000,
+  "gaia.ui.menu": "#f7f5f3",
+  "gaia.ui.menutext": "#101010",
+  "gaia.ui.appworkspace": "#262626",
+  "gaia.ui.infobackground": "#f5f5b5",
+  "gaia.ui.buttonface": "#ece7e2",
+  "gaia.ui.window": "#efebe7",
+  "gaia.ui.windowtext": "#101010",
+  "gaia.ui.highlight": "#fad184"
 }
 
 def main():
