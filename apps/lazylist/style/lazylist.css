@@ -1,0 +1,42 @@
+html, body, section[role="region"] {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-size: 10px;
+}
+
+html, body, section[role="region"], form {
+  width: 100%;
+  height: 100%;
+}
+
+#container {
+  position: relative;
+  height: calc(100% - 5rem);
+  overflow: scroll;
+}
+
+#fill {
+  background: #bcbcbc;
+}
+
+.pane {
+  position: absolute;
+  width: 100%;
+  height: 200%;
+
+  text-align: center;
+  font-size: 20rem;
+  line-height: 52rem;
+}
+
+#one {
+  top: 0;
+  background: green;
+}
+#two {
+  background: blue;
+}
+#three {
+  background: red;
+}

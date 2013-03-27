@@ -1,0 +1,25 @@
+{
+  "name": "LazyList",
+  "default_locale": "en-US",
+  "type": "certified",
+  "description": "Gaia Lazy list",
+  "launch_path": "/index.html",
+  "locales": {
+    "en-US": {
+      "name": "LazyList",
+      "description": "Gaia Lazy list"
+    }
+  },
+  "permissions": {
+  },
+  "icons": {
+    "60": "/style/icons/60/Feedback.png"
+  },
+  "developer": {
+    "url": "https://github.com/mozilla-b2g/gaia",
+    "name": "The Gaia Team"
+  },
+  "orientation": "portrait-primary"
+}
+
+
