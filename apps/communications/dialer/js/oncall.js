@@ -402,14 +402,24 @@ var OnCallHandler = (function onCallHandler() {
     CallScreen.showIncoming();
 
     var vibrateInterval = window.setInterval(function vibrate() {
-      if ('vibrate' in navigator) {
-        navigator.vibrate([200]);
+      if ('vibrate' in navigator && activateVibration) {
+        navigator.vibrate([100]);
       }
-    }, 2000);
+    }, 4000);
+
+    // ANSI call waiting tone for a 10 sec window
+    var sequence = [[440, 440, 100],
+                    [0, 0, 100],
+                    [440, 440, 100]];
+    var toneInterval = window.setInterval(function playTone() {
+      TonePlayer.playSequence(sequence);
+    }, 10000);
+    TonePlayer.playSequence(sequence);
 
     call.addEventListener('statechange', function callStateChange() {
       call.removeEventListener('statechange', callStateChange);
       window.clearInterval(vibrateInterval);
+      window.clearInterval(toneInterval);
     });
   }
 
