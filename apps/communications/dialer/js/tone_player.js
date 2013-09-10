@@ -1,24 +1,18 @@
 'use strict';
 
-var kKeyToneFrames = 1200;
-
 var TonePlayer = {
-  _frequencies: null, // from gTonesFrequencies
-  _sampleRate: 8000, // number of frames/sec
-  _position: null, // number of frames generated
-  _intervalID: null, // id for the audio loop's setInterval
-  _stopping: false,
+  _shortPress: false,
 
   init: function tp_init(channel) {
-    this.setChannel(channel);
+    //this.setChannel(channel);
   },
 
   ensureAudio: function tp_ensureAudio() {
-   if (this._audio)
-     return;
+    if (this._audio) {
+      return;
+    }
 
-   this._audio = new Audio();
-   this._audio.volume = 0.5;
+    this._audio = new AudioContext();
   },
 
   trashAudio: function tp_trashAudio() {
@@ -26,93 +20,32 @@ var TonePlayer = {
     delete this._audio;
   },
 
-  // Generating audio frames for the 2 given frequencies
-  generateFrames: function tp_generateFrames(soundData, shortPress) {
-    var position = this._position;
-
-    var kr = 2 * Math.PI * this._frequencies[0] / this._sampleRate;
-    var kc = 2 * Math.PI * this._frequencies[1] / this._sampleRate;
-
-    for (var i = 0; i < soundData.length; i++) {
-      // Poor man's ADSR
-      // Only short press have a release phase because we don't know
-      // when the long press will end
-      var factor;
-      if (position < 200) {
-        // Attack
-        factor = position / 200;
-      } else if (position > 200 && position < 400) {
-        // Decay
-        factor = 1 - ((position - 200) / 200) * 0.3; // Decay factor
-      } else if (shortPress && position > 800) {
-        // Release, short press only
-        factor = 0.7 - ((position - 800) / 400 * 0.7);
-      } else {
-        // Sustain
-        factor = 0.7;
-      }
-
-      soundData[i] = (Math.sin(kr * position) +
-                      Math.sin(kc * position)) / 2 * factor;
-      position++;
-    }
-
-    this._position += soundData.length;
-  },
-
   start: function tp_start(frequencies, shortPress) {
-    this._frequencies = frequencies;
-    this._position = 0;
-    this._stopping = false;
+    this._shortPress = shortPress;
+    this.ensureAudio();
 
-    // Already playing
-    if (this._intervalID) {
-      return;
+    var cur = this._audio.currentTime;
+
+    var gainNode = this._audio.createGain();
+    gainNode.connect(this._audio.destination);
+    gainNode.gain.setValueAtTime(0.5, cur);
+    gainNode.gain.setTargetAtTime(0.0, cur + 0.3, 0.05);
+
+    for (var i = 0; i < frequencies.length; i++) {
+      var freq = frequencies[i];
+      var osc = this._audio.createOscillator();
+      osc.connect(gainNode);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      osc.start(cur);
+      osc.stop(cur + 0.3);
     }
-
-    this._audio.mozSetup(1, this._sampleRate);
-
-    // Writing 150ms of sound (duration for a short press)
-    var initialSoundData = new Float32Array(kKeyToneFrames);
-    this.generateFrames(initialSoundData, shortPress);
-
-    var wrote = this._audio.mozWriteAudio(initialSoundData);
-    var start = 0;
-
-    this._intervalID = setInterval((function audioLoop() {
-      start = start + wrote;
-      // Continuing playing until .stop() is called for long press in calling
-      // state. Or just play one round of data in non calling state.
-      if (this._stopping || (start == kKeyToneFrames && shortPress == true)) {
-       if (this._intervalID == null)
-         return;
-
-        clearInterval(this._intervalID);
-        this._intervalID = null;
-        return;
-      }
-
-      // If shortPress is false then we repeat the tone in call state.
-      if (start == kKeyToneFrames) {
-        start = 0;
-        // Re-generateFrames with sustaining sound.
-        this.generateFrames(initialSoundData);
-      }
-
-      if (this._audio != null)
-        wrote = this._audio.mozWriteAudio(
-          initialSoundData.subarray(start, kKeyToneFrames));
-    }).bind(this), 30); // Avoiding under-run issues by keeping this low
   },
 
   stop: function tp_stop() {
-    this._stopping = true;
-
-    clearInterval(this._intervalID);
-    this._intervalID = null;
-
-    if (this._audio != null)
-      this._audio.src = '';
+    if (this._shortPress) {
+      return;
+    }
   },
 
   // Takes an array of steps, a step being:
@@ -139,12 +72,5 @@ var TonePlayer = {
       self.stop();
       self.playSequence(sequence, (index + 1));
     }, duration, this);
-  },
-
-  setChannel: function tp_setChannel(channel) {
-    this.ensureAudio();
-    if (channel && (this._audio.mozAudioChannelType !== channel)) {
-      this._audio.mozAudioChannelType = channel;
-    }
   }
 };
