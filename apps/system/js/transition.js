@@ -71,22 +71,29 @@ var TransitionManager = (function() {
       }
       curWrapper.removeEventListener('transitionend', animWait);
 
-      setTimeout(function nextTick() {
-        document.body.classList.remove('rocketbar-freeze');
+      document.body.classList.remove('rocketbar-freeze');
 
-        if (prevWrapper) {
-          prevWrapper.classList.remove('transitioning');
-          prevWrapper.style.MozTransition = '';
-          prevWrapper.classList.remove('shadow');
-          prevWrapper.style.zIndex = '';
+      if (prevWrapper) {
+        prevWrapper.classList.remove('transitioning');
+        prevWrapper.style.MozTransition = '';
+        prevWrapper.classList.remove('shadow');
+        prevWrapper.style.zIndex = '';
+      }
+
+      curWrapper.style.MozTransition = '';
+      curWrapper.classList.remove('shadow');
+      curWrapper.classList.remove('transitioning');
+      curWrapper.style.zIndex = '';
+
+      var evt = new CustomEvent('sheetchanged', {
+        bubbles: true,
+        detail: {
+          previous: previous,
+          current: current
         }
-
-        curWrapper.style.MozTransition = '';
-        curWrapper.classList.remove('shadow');
-        curWrapper.classList.remove('transitioning');
-        curWrapper.style.zIndex = '';
       });
-    });
+      window.dispatchEvent(evt);
+    }, true);
   });
 })();
 
@@ -152,7 +159,7 @@ var PanelSwitcher = {
         if (snapBack && this.pageInfoVisible) {
           PagesIntro.show();
         }
-        
+
         var progressToAnimate = snapBack ? progress : (1 - progress);
         var durationLeft = Math.min((progressToAnimate / deltaP) * deltaT, progressToAnimate * 500);
 

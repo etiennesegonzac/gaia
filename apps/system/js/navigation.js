@@ -91,13 +91,11 @@ var WindowManager = (function() {
     },
 
     goBack: function() {
-      GroupedNavigation.getSheet(current).free();
       current--;
       declareSheetAsCurrent(GroupedNavigation.getSheet(current), false);
     },
 
     goNext: function() {
-      GroupedNavigation.getSheet(current).free();
       current++;
       declareSheetAsCurrent(GroupedNavigation.getSheet(current), true);
     },
@@ -167,11 +165,6 @@ var WindowManager = (function() {
   var current = 0;
 
   function openApp(manifestURL, origin, iframe) {
-    var currentHistory = GroupedNavigation.getSheet(current);
-    if (currentHistory) {
-      currentHistory.free();
-    }
-
     var app = Applications.getByManifestURL(manifestURL);
     if (!app)
       return;
@@ -220,11 +213,6 @@ var WindowManager = (function() {
   }
 
   function openOrigin(origin, iframe) {
-    var currentHistory = GroupedNavigation.getSheet(current);
-    if (currentHistory) {
-      currentHistory.free();
-    }
-
     var newHistory = new History(origin, 'remote');
     current = GroupedNavigation.insertSheet(current, origin, newHistory);
 
@@ -266,7 +254,6 @@ var WindowManager = (function() {
 
     var cover = document.createElement('div');
     cover.className = 'cover';
-    cover.style.display = 'block';
     wrapper.appendChild(cover);
 
     var backButton = document.createElement('button');
@@ -429,11 +416,20 @@ function declareSheetAsCurrent(history, forward, removing) {
       removing: removing
     }
   });
-
-  history.wakeUp();
-
   window.dispatchEvent(evt);
 }
+
+window.addEventListener('sheetchanged', function onSheetChanged(e) {
+  var prev = e.detail.previous;
+  var cur = e.detail.current;
+
+  if (prev) {
+    prev.free();
+  }
+  if (cur) {
+    cur.wakeUp();
+  }
+});
 
 // History object are live They listen for iframes event until this one is
 // close for any reasons. Then the state of the iframe is considered frozen
@@ -605,7 +601,81 @@ History.prototype = {
     this.iframe.stop();
   },
 
+  wakeUp: function history_wakeUp() {
+    this._awake = true;
+
+    var iframe = this.iframe;
+    if ('setVisible' in iframe) {
+      iframe.setVisible(true);
+    }
+
+    this._swapWithFrame();
+    this._invalidateScreenshotAfterDelay();
+  },
+
+  _swapWithFrame: function history_swapWithFrame() {
+    var calmPeriod = 500;
+    var calmID = null;
+
+    var iframe = this.iframe;
+
+    var removeCoverWhenPainted = (function() {
+      //iframe.removeNextPaintListener(painted);
+
+      if (!this._awake) {
+        this.free();
+        return;
+      }
+
+      var cover = this.cover;
+      cover.classList.remove('displayed');
+    }).bind(this);
+
+    function waitForCalmPeriod() {
+      if (calmID) {
+        clearTimeout(calmID);
+        calmID = null;
+      }
+
+      calmID = setTimeout(function() {
+        calmID = null;
+        removeCoverWhenPainted();
+      }, calmPeriod);
+    }
+
+    //function painted(data) {
+      //iframe.removeNextPaintListener(painted);
+
+      //waitForCalmPeriod();
+      //iframe.addNextPaintListener(painted);
+    //}
+
+    waitForCalmPeriod();
+    //if ('addNextPaintListener' in iframe) {
+      //iframe.addNextPaintListener(painted);
+    //}
+  },
+
+  _invalidateScreenshotAfterDelay: function history_invalidateScreenShot() {
+    // We invalidate the screenshot once the sheet has been displayed
+    // for 1.5sec and repainted
+    var iframe = this.iframe;
+    var self = this;
+    if (this._screenshotInvalidationID) {
+      clearTimeout(this._screenshotInvalidationID);
+    }
+    this._screenshotInvalidationID = setTimeout(function invalidate() {
+      iframe.addNextPaintListener(function invalidateShot() {
+        iframe.removeNextPaintListener(invalidateShot);
+        self._screenshotCached = false;
+        self.cover.screenshot = '';
+      });
+    }, 1500);
+  },
+
   free: function history_free() {
+    this._awake = false;
+
     this.ontitlechange = null;
     this.onlocationchange = null;
     this.onstatuschange = null;
@@ -613,7 +683,6 @@ History.prototype = {
     this.oncangoforward = null;
     this.onfirstpaint = null;
 
-    this._awake = false;
     if (!this.wrapper || !this.iframe) {
       return;
     }
@@ -646,15 +715,13 @@ History.prototype = {
       return;
     }
 
-    var cover = this.cover;
-
     var req = this.iframe.getScreenshot(window.innerWidth, window.innerHeight);
     var afterScreenshot = (function(e) {
       if (e.target.result) {
-        cover.style.backgroundImage = 'url(' + URL.createObjectURL(e.target.result) + ')';
+        this.cover.screenshot = URL.createObjectURL(e.target.result);
         this._screenshotCached = true;
       } else {
-        cover.style.backgroundImage = '';
+        this.cover.screenshot = '';
       }
 
       this._swapWithCover();
@@ -665,54 +732,18 @@ History.prototype = {
   },
 
   _swapWithCover: function history_swapWithCover() {
-    var iframe = this.iframe;
-
-    setTimeout((function bitLater() {
-      this.cover.style.display = 'block';
-      if ('setVisible' in iframe) {
-        iframe.setVisible(false);
-      }
-
-      // Wow, the window was awaken while we were screenshoting
-      if (this._awake) {
-        this.wakeUp();
-      }
-    }).bind(this), 1000); // The duration of the sheet transition
-  },
-
-  wakeUp: function history_wakeUp() {
-    this._awake = true;
-
-    var iframe = this.iframe;
-    if ('setVisible' in iframe) {
-      iframe.setVisible(true);
-    }
-
-    var cover = this.cover;
-    var removeCoverWhenPainted = function() {
-      setTimeout(function bitLater() {
-        cover.style.display = '';
-      }, 250);
-    }
-
-    if (!('addNextPaintListener' in iframe)) {
-      removeCoverWhenPainted();
+    if (this._awake) {
+      this.wakeUp();
       return;
     }
 
+    this.cover.style.backgroundImage = 'url(' + this.cover.screenshot + ')';
+    this.cover.classList.add('displayed');
 
-    iframe.addNextPaintListener(function paintWait() {
-      iframe.removeNextPaintListener(paintWait);
-      removeCoverWhenPainted();
-    });
-
-    // We invalidate the screenshot once the sheet has been displayed
-    // for 1.5sec
-    this._screenshotInvalidationID = setTimeout((function invalidate() {
-      this._screenshotCached = false;
-      this.cover.style.backgroundImage = '';
-    }).bind(this), 1500);
-
+    var iframe = this.iframe;
+    if ('setVisible' in iframe) {
+      iframe.setVisible(false);
+    }
   },
 
   ontitlechange: null,

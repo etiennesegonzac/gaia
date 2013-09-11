@@ -67,7 +67,12 @@
   background-position: center center;
   pointer-events: none;
 
-  display: none;
+  transition: opacity 0.3s linear;
+  opacity: 0;
+}
+
+.window-wrapper .cover.displayed {
+  opacity: 1;
 
   /*outline: 10px solid red;*/
   /*outline-offset: -10px;*/
