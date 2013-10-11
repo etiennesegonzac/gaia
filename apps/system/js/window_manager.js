@@ -296,6 +296,7 @@ var WindowManager = (function() {
   function windowClosed(frame) {
     var iframe = frame.firstChild;
     var origin = iframe.dataset.frameOrigin;
+    var app = runningApps[origin];
 
     frame.classList.remove('active');
 
@@ -305,12 +306,27 @@ var WindowManager = (function() {
     // we don't need to check trusted ui state here anymore.
     // We do this because we don't want the trustedUI opener
     // is killed in background due to OOM.
-    if ('setVisible' in iframe && !TrustedUIManager.hasTrustedUI(origin)) {
-      iframe.setVisible(false);
+    if (!TrustedUIManager.hasTrustedUI(origin)) {
+      app.setVisible(false, true);
     }
 
     // Inform keyboardmanager that we've finished the transition
     iframe.dispatchEvent(new CustomEvent('appclose'));
+  }
+
+  function setActiveApp(config) {
+    var openedApp = runningApps[config.origin];
+    var closedApp = runningApps[displayedApp];
+    var closedFrame = closedApp.frame;
+
+    displayedApp = config.origin;
+    openedApp.setVisible(true);
+
+    windowOpened(openedApp.frame);
+    windowClosed(closedFrame);
+
+    var wrapper = ('wrapper' in openedApp.frame.dataset);
+    wrapperFooter.classList.toggle('visible', wrapper);
   }
 
   windows.addEventListener('mozbrowserloadend', function loadend(evt) {
@@ -559,8 +575,10 @@ var WindowManager = (function() {
     var currentApp = displayedApp, newApp = origin ||
       HomescreenLauncher.origin;
 
-    if (newApp === HomescreenLauncher.origin)
+    if (newApp === HomescreenLauncher.origin) {
       HomescreenLauncher.getHomescreen();
+      window.dispatchEvent(new Event('homescreen-displayed'));
+    }
 
     // Cancel transitions waiting to be started.
     transitionOpenCallback = null;
@@ -1132,6 +1150,7 @@ var WindowManager = (function() {
       // Set the window name in order to reuse this app if we try to open
       // a new window with same name
       app.windowName = config.windowName;
+      runningApps[config.origin] = app;
     } else {
       iframe = app.iframe;
 
@@ -1239,6 +1258,7 @@ var WindowManager = (function() {
       return runningApps;
     },
     setDisplayedApp: setDisplayedApp,
+    setActiveApp: setActiveApp,
     getCurrentDisplayedApp: function() {
       return runningApps[displayedApp];
     },
