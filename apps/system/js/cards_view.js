@@ -346,6 +346,13 @@ var CardsView = (function() {
       cardsList.removeChild(element);
       closeApp(element, true);
     } else if ('origin' in e.target.dataset) {
+      var evt = document.createEvent('CustomEvent');
+      evt.initCustomEvent('launchedfromcardview', true, false, {
+        detail: {
+          stayBackground: false
+        }
+      });
+      window.dispatchEvent(evt);
       WindowManager.launch(e.target.dataset.origin);
     }
   }
