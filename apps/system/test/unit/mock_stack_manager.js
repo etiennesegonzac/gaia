@@ -2,6 +2,9 @@ var MockStackManager = {
   init: function sm_init() {
   },
 
+  getAllOrigins: function sm_getAllOrigins() {
+  },
+
   getCurrent: function sm_getCurrent() {
   },
   getPrev: function sm_getPrev() {

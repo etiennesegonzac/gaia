@@ -21,6 +21,14 @@ suite('system/StackManager >', function() {
     window.dispatchEvent(evt);
   }
 
+  function cardLaunch(origin) {
+    var evt = document.createEvent('CustomEvent');
+    evt.initCustomEvent('launchedfromcardview', true, false, {
+      origin: origin
+    });
+    window.dispatchEvent(evt);
+  }
+
   function wrapperLaunch(config) {
     var evt = document.createEvent('CustomEvent');
     evt.initCustomEvent('launchwrapper', true, false, config);
@@ -62,6 +70,19 @@ suite('system/StackManager >', function() {
     url: 'http://google.com/index.html',
     origin: 'http://google.com'
   };
+
+  suite('Exposing the stack', function() {
+    setup(function() {
+      appLaunch(dialer);
+      appLaunch(contact);
+      appLaunch(settings);
+    });
+
+    test('getAllOrigins() should return the ordered origins', function() {
+      var expected = [dialer.origin, contact.origin, settings.origin];
+      assert.deepEqual(StackManager.getAllOrigins(), expected);
+    });
+  });
 
   suite('Moving through history', function() {
     setup(function() {
@@ -187,6 +208,27 @@ suite('system/StackManager >', function() {
       test('it should not go in the stack', function() {
         assert.deepEqual(StackManager.getCurrent(), dialer);
         assert.equal(StackManager.length, 1);
+      });
+    });
+
+    suite('if it\'s launched from the card view', function() {
+      setup(function() {
+        appLaunch(contact);
+        appLaunch(settings);
+      });
+
+      test('it should not go on top of the stack', function() {
+        cardLaunch(dialer.origin);
+
+        var expected = [dialer.origin, contact.origin, settings.origin];
+        assert.deepEqual(StackManager.getAllOrigins(), expected);
+      });
+
+      test('it should just move the current cursor', function() {
+        cardLaunch(dialer.origin);
+        assert.isUndefined(StackManager.getPrev());
+        assert.deepEqual(StackManager.getCurrent(), dialer);
+        assert.deepEqual(StackManager.getNext(), contact);
       });
     });
   });

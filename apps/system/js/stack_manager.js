@@ -5,7 +5,14 @@ var StackManager = {
     window.addEventListener('launchapp', this);
     window.addEventListener('launchwrapper', this);
     window.addEventListener('appterminated', this);
+    window.addEventListener('launchedfromcardview', this);
     window.addEventListener('home', this);
+  },
+
+  getAllOrigins: function sm_getAll() {
+    return this._stack.map(function(sheet) {
+      return sheet.origin;
+    });
   },
 
   getCurrent: function sm_getCurrent() {
@@ -38,6 +45,16 @@ var StackManager = {
     this._current++;
   },
 
+  goTo: function sm_goTo(origin) {
+    this._stack.some(function(sConfig, idx) {
+      if (sConfig.origin == origin) {
+        this._current = idx;
+        return true;
+      }
+      return false;
+    }, this);
+  },
+
   get length() {
     return this._stack.length;
   },
@@ -54,6 +71,10 @@ var StackManager = {
         if (!config.stayBackground) {
           this._insertOrMoveToTop(config);
         }
+        break;
+      case 'launchedfromcardview':
+        var origin = e.detail.origin;
+        this.goTo(origin);
         break;
       case 'home':
         if (this._stack.length > 1) {

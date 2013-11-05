@@ -9,6 +9,7 @@ requireApp('system/test/unit/mock_screen_layout.js');
 requireApp('system/test/unit/mock_trusted_ui_manager.js');
 requireApp('system/test/unit/mock_utility_tray.js');
 requireApp('system/test/unit/mock_window_manager.js');
+requireApp('system/test/unit/mock_stack_manager.js');
 requireApp('system/test/unit/mock_lock_screen.js');
 requireApp('system/test/unit/mock_sleep_menu.js');
 requireApp('system/test/unit/mock_popup_manager.js');
@@ -19,6 +20,7 @@ var mocksForCardsView = new MocksHelper([
   'TrustedUIManager',
   'UtilityTray',
   'WindowManager',
+  'StackManager',
   'LockScreen',
   'SleepMenu',
   'PopupManager'
@@ -59,6 +61,11 @@ suite('cards view >', function() {
   });
 
   setup(function() {
+    var origins = ['http://sms.gaiamobile.org', 'http://game.gaiamobile.org',
+                   'http://game2.gaiamobile.org', 'http://game3.gaiamobile.org',
+                   'http://game4.gaiamobile.org'];
+    this.sinon.stub(MockStackManager, 'getAllOrigins').returns(origins);
+
     MockWindowManager.mRunningApps = {
       'http://sms.gaiamobile.org': {
         launchTime: 5,

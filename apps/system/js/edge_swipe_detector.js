@@ -9,6 +9,7 @@ var EdgeSwipeDetector = {
     window.addEventListener('appopen', this);
     window.addEventListener('launchapp', this);
     window.addEventListener('launchwrapper', this);
+    window.addEventListener('launchedfromcardview', this);
 
     ['touchstart', 'touchmove', 'touchend'].forEach(function(e) {
       this.previous.addEventListener(e, this);
@@ -25,6 +26,10 @@ var EdgeSwipeDetector = {
         document.getElementById('screen').classList.remove('edges');
         this.previous.classList.add('disabled');
         this.next.classList.add('disabled');
+        break;
+      case 'launchedfromcardview':
+        this.previous.classList.remove('disabled');
+        this.next.classList.remove('disabled');
         break;
       case 'launchapp':
       case 'launchwrapper':

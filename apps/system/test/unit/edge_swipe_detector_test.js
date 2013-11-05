@@ -110,6 +110,30 @@ suite('system/EdgeSwipeDetector >', function() {
         assert.isFalse(screen.classList.contains('edges'));
       });
     });
+
+    suite('from the card view', function() {
+      function cardLaunch(origin) {
+        var evt = document.createEvent('CustomEvent');
+        evt.initCustomEvent('launchedfromcardview', true, false, {
+          origin: origin
+        });
+        window.dispatchEvent(evt);
+      }
+
+      test('the edges should be enabled', function() {
+        cardLaunch(dialer.origin);
+        var previous = EdgeSwipeDetector.previous;
+        assert.isFalse(previous.classList.contains('disabled'));
+        assert.isFalse(EdgeSwipeDetector.next.classList.contains('disabled'));
+      });
+
+      test('the screen should go into edges mode after the transition',
+      function() {
+        cardLaunch(dialer.origin);
+        launchTransitionEnd();
+        assert.isTrue(screen.classList.contains('edges'));
+      });
+    });
   });
 
   suite('When a wrapper is launched', function() {
