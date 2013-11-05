@@ -5,7 +5,12 @@ var StackManager = {
     window.addEventListener('launchapp', this);
     window.addEventListener('launchwrapper', this);
     window.addEventListener('appterminated', this);
+    window.addEventListener('launchedfromcardview', this);
     window.addEventListener('home', this);
+  },
+
+  getAll: function sm_getAll() {
+    return this._stack;
   },
 
   getCurrent: function sm_getCurrent() {
@@ -38,6 +43,16 @@ var StackManager = {
     this._current++;
   },
 
+  goTo: function sm_goTo(position) {
+    var newApp = this._stack[position];
+    if (!newApp) {
+      return;
+    }
+
+    WindowManager.setActiveApp(newApp);
+    this._current = position;
+  },
+
   get length() {
     return this._stack.length;
   },
@@ -53,6 +68,12 @@ var StackManager = {
         var config = e.detail;
         if (!config.stayBackground) {
           this._insertOrMoveToTop(config);
+        }
+        break;
+      case 'launchedfromcardview':
+        var config = e.detail;
+        if (!config.stayBackground) {
+          this.goTo(config.position);
         }
         break;
       case 'home':

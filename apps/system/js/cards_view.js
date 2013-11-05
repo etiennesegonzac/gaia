@@ -113,34 +113,26 @@ var CardsView = (function() {
     WindowManager.launch(null);
     cardsViewShown = true;
 
+    // Display card switcher background first to make user focus on the
+    // frame closing animation without disturbing by homescreen display.
+    setTimeout(function showCards() {
+      screenElement.classList.add('cards-view');
+      cardsView.classList.add('active');
+    });
+
     // If user is not able to sort apps manualy,
     // display most recetly active apps on the far left
     if (!USER_DEFINED_ORDERING) {
-      var sortable = [];
-      for (var origin in runningApps)
-        sortable.push({origin: origin, app: runningApps[origin]});
-
-      sortable.sort(function(a, b) {
-        return b.app.launchTime - a.app.launchTime;
+      var currentAppOrigin = runningApps[displayedApp].origin;
+      var count = 0;
+      StackManager.getAll().forEach(function(element) {
+        var origin = element.origin;
+        if (origin === currentAppOrigin) {
+          currentDisplayed = count;
+        }
+        addCard(origin, runningApps[origin]);
+        count++;
       });
-      runningApps = {};
-
-      // I assume that object properties are enumerated in
-      // the same order they were defined.
-      // There is nothing about that in spec, but I've never
-      // seen any unexpected behavior.
-      sortable.forEach(function(element) {
-        runningApps[element.origin] = element.app;
-      });
-
-      // First add an item to the cardsList for each running app
-      for (var origin in runningApps) {
-        addCard(origin, runningApps[origin], function showCards() {
-          screenElement.classList.add('cards-view');
-          cardsView.classList.add('active');
-        });
-      }
-
     } else { // user ordering
 
       // first run
@@ -158,10 +150,7 @@ var CardsView = (function() {
       }
 
       userSortedApps.forEach(function(origin) {
-        addCard(origin, runningApps[origin], function showCards() {
-          screenElement.classList.add('cards-view');
-          cardsView.classList.add('active');
-        });
+        addCard(origin, runningApps[origin]);
       });
 
       cardsView.addEventListener('contextmenu', CardsView);
@@ -192,12 +181,7 @@ var CardsView = (function() {
 
     window.addEventListener('tap', CardsView);
 
-    function addCard(origin, app, displayedAppCallback) {
-      // Display card switcher background first to make user focus on the
-      // frame closing animation without disturbing by homescreen display.
-      if (displayedApp == origin && displayedAppCallback) {
-        setTimeout(displayedAppCallback);
-      }
+    function addCard(origin, app) {
       // Not showing homescreen
       if (app.frame.classList.contains('homescreen')) {
         return;
@@ -346,6 +330,14 @@ var CardsView = (function() {
       cardsList.removeChild(element);
       closeApp(element, true);
     } else if ('origin' in e.target.dataset) {
+      var evt = document.createEvent('CustomEvent');
+      evt.initCustomEvent('launchedfromcardview', true, false, {
+        detail: {
+          position: currentDisplayed,
+          stayBackground: false
+        }
+      });
+      window.dispatchEvent(evt);
       WindowManager.launch(e.target.dataset.origin);
     }
   }
