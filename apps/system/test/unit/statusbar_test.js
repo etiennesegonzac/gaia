@@ -9,6 +9,7 @@ requireApp('system/test/unit/mock_navigator_moz_telephony.js');
 requireApp('system/test/unit/mock_lock_screen.js');
 requireApp('system/test/unit/mock_simslot.js');
 requireApp('system/test/unit/mock_simslot_manager.js');
+requireApp('system/test/unit/mock_app_window_manager.js');
 requireApp('system/js/statusbar.js');
 requireApp('system/js/lockscreen.js');
 
@@ -16,12 +17,13 @@ var mocksForStatusBar = new MocksHelper([
   'SettingsListener',
   'MobileOperator',
   'LockScreen',
-  'SIMSlotManager'
+  'SIMSlotManager',
+  'AppWindowManager'
 ]).init();
 
 suite('system/Statusbar', function() {
   var mobileConnectionCount = 2;
-  var fakeStatusBarNode;
+  var fakeStatusBarNode, fakeTopPanel;
   var realMozL10n, realMozMobileConnections, realMozTelephony, fakeIcons = [];
 
   mocksForStatusBar.attachTestHelpers();
@@ -47,6 +49,10 @@ suite('system/Statusbar', function() {
     fakeStatusBarNode = document.createElement('div');
     fakeStatusBarNode.id = 'statusbar';
     document.body.appendChild(fakeStatusBarNode);
+
+    fakeTopPanel = document.createElement('div');
+    fakeTopPanel.id = 'top-panel';
+    document.body.appendChild(fakeTopPanel);
 
     StatusBar.ELEMENTS.forEach(function testAddElement(elementName) {
       var elt;
@@ -1001,6 +1007,118 @@ suite('system/Statusbar', function() {
       });
       StatusBar.handleEvent(evt);
       assert.equal(StatusBar.icons.playing.hidden, false);
+    });
+  });
+
+  suite('fullscreen mode >', function() {
+    function fakeDispatch(type, x, y) {
+      var touch = document.createTouch(window, null, 42, x, y,
+                                       x, y, x, y,
+                                       0, 0, 0, 0);
+      var touchList = document.createTouchList(touch);
+      var touches = (type == 'touchstart' || type == 'touchmove') ?
+                         touchList : null;
+      var changed = (type == 'touchmove') ?
+                         null : touchList;
+
+      var e = document.createEvent('TouchEvent');
+      e.initTouchEvent(type, true, true,
+                       null, null, false, false, false, false,
+                       touches, null, changed);
+
+      StatusBar.panelTouchHandler(e);
+    }
+
+    var app;
+    setup(function() {
+      app = {
+        isFullScreen: function() {
+          return true;
+        },
+        iframe: {
+          sendTouchEvent: function() {}
+        }
+      };
+
+      this.sinon.stub(MockAppWindowManager, 'getActiveApp').returns(app);
+
+      StatusBar.screen = document.createElement('div');
+    });
+
+    test('the status bar should open when the utilitytray is shown',
+    function() {
+      StatusBar.hide();
+
+      var evt = new CustomEvent('utilitytrayshow');
+      StatusBar.handleEvent(evt);
+
+      assert.isFalse(StatusBar.element.classList.contains('invisible'));
+    });
+
+    test('the status bar should close when the utilitytray is hidden',
+    function() {
+      StatusBar.show();
+
+      var evt = new CustomEvent('utilitytrayhide');
+      StatusBar.handleEvent(evt);
+
+      assert.isTrue(StatusBar.element.classList.contains('invisible'));
+    });
+
+    test('the status bar should not close if the current app is not fullscreen',
+    function() {
+      this.sinon.stub(app, 'isFullScreen').returns(false);
+      StatusBar.show();
+
+      var evt = new CustomEvent('utilitytrayhide');
+      StatusBar.handleEvent(evt);
+
+      assert.isFalse(StatusBar.element.classList.contains('invisible'));
+    });
+
+    test('the status bar should open when the rocketbar is shown',
+    function() {
+      StatusBar.hide();
+
+      var evt = new CustomEvent('rocketbarshown');
+      StatusBar.handleEvent(evt);
+
+      assert.isFalse(StatusBar.element.classList.contains('invisible'));
+    });
+
+    test('the status bar should close when the rocketbar is hidden',
+    function() {
+      StatusBar.show();
+
+      var evt = new CustomEvent('rocketbarhidden');
+      StatusBar.handleEvent(evt);
+
+      assert.isTrue(StatusBar.element.classList.contains('invisible'));
+    });
+
+    test('it should forward all touch events to the fullscreen app',
+    function() {
+      var sendSpy = this.sinon.spy(app.iframe, 'sendTouchEvent');
+      fakeDispatch('touchstart', 100, 0);
+      fakeDispatch('touchmove', 100, 100);
+      fakeDispatch('touchend', 100, 100);
+
+      assert.isTrue(sendSpy.calledThrice);
+
+      var touchstart = sendSpy.getCall(0);
+      assert.equal(touchstart.args[0], 'touchstart');
+      assert.deepEqual(touchstart.args[2], [100]);
+      assert.deepEqual(touchstart.args[3], [0]);
+
+      var touchmove = sendSpy.getCall(1);
+      assert.equal(touchmove.args[0], 'touchmove');
+      assert.deepEqual(touchmove.args[2], [100]);
+      assert.deepEqual(touchmove.args[3], [100]);
+
+      var touchend = sendSpy.getCall(2);
+      assert.equal(touchend.args[0], 'touchend');
+      assert.deepEqual(touchend.args[2], [100]);
+      assert.deepEqual(touchend.args[3], [100]);
     });
   });
 });

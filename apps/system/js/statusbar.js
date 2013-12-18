@@ -194,6 +194,12 @@ var StatusBar = {
     // Listen to 'attentionscreenshow/hide' from attention_screen.js
     window.addEventListener('attentionscreenshow', this);
     window.addEventListener('attentionscreenhide', this);
+
+    window.addEventListener('utilitytrayshow', this);
+    window.addEventListener('utilitytrayhide', this);
+    window.addEventListener('rocketbarshown', this);
+    window.addEventListener('rocketbarhidden', this);
+
     // Listen to 'screenchange' from screen_manager.js
     window.addEventListener('screenchange', this);
 
@@ -229,6 +235,11 @@ var StatusBar = {
     window.addEventListener('appopened', this);
     window.addEventListener('homescreenopened', this.show.bind(this));
 
+    var touchEvents = ['touchstart', 'touchmove', 'touchend'];
+    touchEvents.forEach(function bindEvents(name) {
+      this.topPanel.addEventListener(name, this.panelTouchHandler.bind(this));
+    }, this);
+
     this.systemDownloadsCount = 0;
     this.setActive(true);
   },
@@ -255,6 +266,17 @@ var StatusBar = {
       case 'unlock':
         // Display the clock in the statusbar when screen is unlocked
         this.toggleTimeLabel(true);
+        break;
+      case 'utilitytrayshow':
+      case 'rocketbarshown':
+        this.show();
+        break;
+      case 'utilitytrayhide':
+      case 'rocketbarhidden':
+        var app = AppWindowManager.getActiveApp();
+        if (app && app.isFullScreen()) {
+          this.hide();
+        }
         break;
 
       case 'lockpanelchange':
@@ -349,6 +371,86 @@ var StatusBar = {
         this.update.networkActivity.call(this);
         break;
     }
+  },
+
+  _forwardDestination: null,
+  _startY: null,
+  _closeTimeout: null,
+  panelTouchHandler: function sb_panelTouchHandler(evt) {
+    switch (evt.type) {
+      case 'touchstart':
+        this._forwardDestination = AppWindowManager.getActiveApp().iframe;
+        this._sendTouchEvent(evt);
+
+        if (this._closeTimeout) {
+          clearTimeout(this._closeTimeout);
+        }
+
+        var touch = evt.changedTouches[0];
+        this._startY = touch.screenY;
+        this.element.style.transition = 'transform';
+
+        break;
+      case 'touchmove':
+        this._sendTouchEvent(evt);
+
+        var touch = evt.touches[0];
+        var deltaY = touch.screenY - this._startY;
+
+        var translate = Math.min(deltaY, this.height);
+
+        this.element.style.transform =
+          'translateY(calc(' + translate + 'px - 100%)';
+        break;
+      case 'touchend':
+        this._sendTouchEvent(evt);
+        this._forwardDestination = null;
+
+        if (this._closeTimeout) {
+          clearTimeout(this._closeTimeout);
+        }
+        this._closeTimeout = setTimeout(function() {
+          this.element.style.transform = '';
+          this.element.style.transition = '';
+          this._closeTimeout = null;
+        }.bind(this), 2000);
+        break;
+    }
+  },
+
+  _sendTouchEvent: function sb_sendTouchEvent(e) {
+    if (!this._forwardDestination) {
+      return;
+    }
+
+    this._forwardDestination.sendTouchEvent.apply(null,
+                                                  this._unSynthetizeEvent(e));
+  },
+
+  _unSynthetizeEvent: function sb_unSynthetizeEvent(e) {
+    var type = e.type;
+    var relevantTouches = (type == 'touchmove') ? e.touches : e.changedTouches;
+    var identifiers = [];
+    var xs = [];
+    var ys = [];
+    var rxs = [];
+    var rys = [];
+    var rs = [];
+    var fs = [];
+
+    for (var i = 0; i < relevantTouches.length; i++) {
+      var t = relevantTouches[i];
+
+      identifiers.push(t.identifier);
+      xs.push(t.pageX);
+      ys.push(t.pageY);
+      rxs.push(t.radiusX);
+      rys.push(t.radiusY);
+      rs.push(t.rotationAngle);
+      fs.push(t.force);
+    }
+
+    return [type, identifiers, xs, ys, rxs, rys, rs, fs, xs.length];
   },
 
   setActive: function sb_setActive(active) {
@@ -909,6 +1011,8 @@ var StatusBar = {
     this.element = document.getElementById('statusbar');
     this.screen = document.getElementById('screen');
     this.attentionBar = document.getElementById('attention-bar');
+
+    this.topPanel = document.getElementById('top-panel');
   }
 };
 
