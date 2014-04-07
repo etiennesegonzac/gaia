@@ -1,6 +1,6 @@
 'use strict';
 
-/* global SettingsListener, SettingsURL */
+/* global SettingsListener, SettingsURL, AttentionScreen, lockScreen */
 
 (function(exports) {
   /**
@@ -26,6 +26,9 @@
    * @class    DialerRinger
    *
    **/
+
+  var CSORIGIN = 'app://callscreen.gaiamobile.org/';
+
   var DialerRinger = function DialerRinger() {
     var telephony = navigator.mozTelephony;
     if (!telephony) {
@@ -46,6 +49,8 @@
     this._player.mozAudioChannelType = 'ringer';
     this._player.preload = 'metadata';
     this._player.loop = true;
+
+    this._callScreen = this._createCallScreen();
   };
 
   DialerRinger.prototype.start = function dr_start() {
@@ -85,6 +90,9 @@
     window.addEventListener('sleep', this);
     window.addEventListener('volumedown', this);
 
+    this._callScreen.src = CSORIGIN + 'index.html';
+    AttentionScreen.attentionScreen.appendChild(this._callScreen);
+
     return this;
   };
 
@@ -110,12 +118,32 @@
       return;
     }
 
-    if (this._alerting || evt.type !== 'callschanged') {
+    if (evt.type !== 'callschanged') {
       return;
     }
 
     var calls = this._telephony.calls;
-    if (calls.length !== 1 || calls[0].state !== 'incoming') {
+    if (calls.length !== 1) {
+      return;
+    }
+
+    if (calls[0].state === 'incoming' || calls[0].state === 'dialing') {
+      //TODO: locked state
+      this._callScreen.src = this._callScreen.src.split('#')[0] + '#' +
+                             (LockScreen.locked ? 'locked' : '');
+      var asRequest = {
+        target: this._callScreen,
+        stopPropagation: function() {},
+        detail: {
+          features: 'attention',
+          name: 'callscreen',
+          frameElement: this._callScreen
+        }
+      };
+      AttentionScreen.open(asRequest);
+    }
+
+    if (this._alerting || calls[0].state !== 'incoming') {
       return;
     }
 
@@ -150,6 +178,18 @@
     this._player.pause();
     this._player.currentTime = 0;
     window.clearInterval(this._vibrateInterval);
+  };
+
+  DialerRinger.prototype._createCallScreen = function dr_createCallScreen() {
+    var iframe = document.createElement('iframe');
+    iframe.setAttribute('mozbrowser', 'true');
+    iframe.setAttribute('remote', 'false');
+    iframe.setAttribute('mozapp', CSORIGIN + 'manifest.webapp');
+    iframe.dataset.frameOrigin = CSORIGIN;
+    iframe.setAttribute('mozapptype', 'critical');
+    iframe.dataset.hidden = 'hidden';
+
+    return iframe;
   };
 
   exports.DialerRinger = DialerRinger;
