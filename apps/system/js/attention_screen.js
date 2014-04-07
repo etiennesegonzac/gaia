@@ -203,6 +203,7 @@ var AttentionScreen = {
 
     // Remove the frame
     var origin = evt.target.dataset.frameOrigin;
+    evt.target.src = ''; // cocotte
     this.attentionScreen.removeChild(evt.target);
 
     // We've just removed the focused window leaving the system

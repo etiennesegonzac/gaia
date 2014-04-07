@@ -1,6 +1,6 @@
 'use strict';
 
-/* global SettingsListener, SettingsURL */
+/* global SettingsListener, SettingsURL, AttentionScreen, lockScreen */
 
 (function(exports) {
   /**
@@ -28,6 +28,9 @@
    * @requires SettingsURL
    *
    **/
+
+  var CSORIGIN = 'app://callscreen.gaiamobile.org/';
+
   var DialerRinger = function DialerRinger() {
     var telephony = navigator.mozTelephony;
     if (!telephony) {
@@ -49,6 +52,8 @@
     player.mozAudioChannelType = 'ringer';
     player.preload = 'metadata';
     player.loop = true;
+
+    this._callScreen = this._createCallScreen();
   };
 
   DialerRinger.prototype.start = function dr_start() {
@@ -113,12 +118,31 @@
       return;
     }
 
-    if (this._alerting || evt.type !== 'callschanged') {
+    if (evt.type !== 'callschanged') {
       return;
     }
 
     var calls = this._telephony.calls;
-    if (calls.length !== 1 || calls[0].state !== 'incoming') {
+    if (calls.length !== 1) {
+      return;
+    }
+
+    if (calls[0].state === 'incoming' || calls[0].state === 'dialing') {
+      this._callScreen.src = CSORIGIN + 'index.html#' +
+                             (lockScreen.locked ? 'locked' : '');
+      var asRequest = {
+        target: this._callScreen,
+        stopPropagation: function() {},
+        detail: {
+          features: 'attention',
+          name: 'callscreen',
+          frameElement: this._callScreen
+        }
+      };
+      AttentionScreen.open(asRequest);
+    }
+
+    if (this._alerting || calls[0].state !== 'incoming') {
       return;
     }
 
@@ -158,6 +182,17 @@
     }
 
     window.clearInterval(this._vibrateInterval);
+  };
+
+  DialerRinger.prototype._createCallScreen = function dr_createCallScreen() {
+    var iframe = document.createElement('iframe');
+    iframe.setAttribute('mozbrowser', 'true');
+    iframe.setAttribute('remote', 'false');
+    iframe.setAttribute('mozapp', CSORIGIN + 'manifest.webapp');
+    iframe.dataset.frameOrigin = CSORIGIN;
+    iframe.setAttribute('mozapptype', 'critical');
+
+    return iframe;
   };
 
   exports.DialerRinger = DialerRinger;
