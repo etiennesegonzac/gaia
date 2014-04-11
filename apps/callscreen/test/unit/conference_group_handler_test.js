@@ -1,11 +1,11 @@
 'use strict';
 
-requireApp('communications/dialer/test/unit/mock_moztelephony.js');
-requireApp('communications/dialer/test/unit/mock_call.js');
-requireApp('communications/dialer/test/unit/mock_handled_call.js');
-requireApp('communications/dialer/test/unit/mock_call_screen.js');
-requireApp('communications/dialer/test/unit/mock_calls_handler.js');
-requireApp('communications/dialer/test/unit/mock_l10n.js');
+requireApp('callscreen/test/unit/mock_moztelephony.js');
+requireApp('callscreen/test/unit/mock_call.js');
+requireApp('callscreen/test/unit/mock_handled_call.js');
+requireApp('callscreen/test/unit/mock_call_screen.js');
+requireApp('callscreen/test/unit/mock_calls_handler.js');
+requireApp('callscreen/test/unit/mock_l10n.js');
 
 // The ConferenceGroupHandler binds stuff when evaluated so we load it
 // after the mocks and we don't want it to show up as a leak.
@@ -65,7 +65,7 @@ suite('conference group handler', function() {
     fakeDurationChildNode =
         document.querySelector('#group-call > .duration > span');
 
-    requireApp('communications/dialer/js/conference_group_handler.js', done);
+    require('/js/conference_group_handler.js', done);
   });
 
   suiteTeardown(function() {

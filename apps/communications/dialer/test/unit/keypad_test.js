@@ -5,7 +5,7 @@
 
 'use strict';
 
-requireApp('communications/dialer/js/keypad.js');
+require('/shared/js/dialer/keypad.js');
 
 requireApp('communications/dialer/test/unit/mock_lazy_loader.js');
 requireApp('communications/dialer/test/unit/mock_utils.js');
