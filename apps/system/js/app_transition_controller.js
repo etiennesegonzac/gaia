@@ -56,6 +56,7 @@
       this.app.element.addEventListener('_closing', this);
       this.app.element.addEventListener('_opened', this);
       this.app.element.addEventListener('_closed', this);
+      this.app.element.addEventListener('_loaded', this);
       this.app.element.addEventListener('_opentransitionstart', this);
       this.app.element.addEventListener('_closetransitionstart', this);
       this.app.element.addEventListener('_openingtimeout', this);
@@ -72,6 +73,7 @@
     this.app.element.removeEventListener('_closing', this);
     this.app.element.removeEventListener('_opened', this);
     this.app.element.removeEventListener('_closed', this);
+    this.app.element.removeEventListener('_loaded', this);
     this.app.element.removeEventListener('_opentransitionstart', this);
     this.app.element.removeEventListener('_closetransitionstart', this);
     this.app.element.removeEventListener('_openingtimeout', this);
@@ -198,6 +200,15 @@
       this.app.element.classList.remove('active');
     };
 
+  AppTransitionController.prototype.handle_loaded =
+    function atc_handle_closed() {
+      if (!this.app || !this.app.element) {
+        return;
+      }
+
+      this.resetTransition();
+    };
+
   AppTransitionController.prototype.handle_opening =
     function atc_handle_opening() {
       if (!this.app || !this.app.element) {
@@ -307,6 +318,9 @@
           break;
         case '_closed':
           this.handle_closed();
+          break;
+        case '_loaded':
+          this.handle_loaded();
           break;
         case '_closing':
           this.handle_closing();
