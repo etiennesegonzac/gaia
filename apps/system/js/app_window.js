@@ -805,6 +805,10 @@
   AppWindow.prototype._handle_mozbrowsertitlechange =
     function aw__handle_handle_mozbrowsertitlechange(evt) {
       this.title = evt.detail;
+      if (!this.loaded) {
+       // we ignore title changes during the cold loading phase
+        return;
+      }
       this.publish('titlechange');
 
       if (this.identificationTitle) {
