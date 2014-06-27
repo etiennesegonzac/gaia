@@ -1049,7 +1049,7 @@ var WindowManager = (function() {
           // so Cards View will get a correct screenshot of the frame
           if (config.stayBackground) {
             app.resize();
-            app.setVisible(false, true /*screenshot*/);
+            app.setVisible(false, false /*screenshot*/);
           }
         } else {
           HomescreenLauncher.getHomescreen().ensure();
