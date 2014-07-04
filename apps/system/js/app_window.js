@@ -882,7 +882,16 @@
 
   AppWindow.prototype._handle_mozbrowsermedia =
     function aw__handle_mozbrowsermedia(evt) {
-      console.log("+++ got a mozbrowsermedia event");
+      if (evt.detail.type == 'playing') {
+        window.dispatchEvent(new CustomEvent('mediaplaying'));
+      }
+      if (evt.detail.type == 'pause') {
+        window.dispatchEvent(new CustomEvent('mediapause'));
+      }
+      if (evt.detail.type == 'ended') {
+        window.dispatchEvent(new CustomEvent('mediaended'));
+      }
+      console.log("+++ got a mozbrowsermedia event", evt.detail.type);
     };
 
   AppWindow.prototype._handle_mozbrowsericonchange =

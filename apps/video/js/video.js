@@ -36,6 +36,14 @@ ids.forEach(function createElementRef(name) {
 
 dom.player.mozAudioChannelType = 'content';
 
+dom.player.addEventListener('playing', function() {
+  setControlsVisibility(false);
+});
+
+dom.player.addEventListener('ended', function() {
+  setControlsVisibility(true);
+});
+
 var playing = false;
 
 // if this is true then the video tag is showing

@@ -108,6 +108,9 @@
       window.addEventListener('mozfullscreenchange', this);
       window.addEventListener('homegesture-enabled', this);
       window.addEventListener('homegesture-disabled', this);
+      window.addEventListener('mediaplaying', this);
+      window.addEventListener('mediapause', this);
+      window.addEventListener('mediaended', this);
 
       return this;
     },
@@ -165,7 +168,17 @@
     handleEvent: function(evt) {
       switch (evt.type) {
         case 'touchstart':
-          this.publish('home-button-press');
+          if (evt.target === this.homeButton ||
+              evt.target === this.fullscreenHomeButton) {
+            this.publish('home-button-press');
+            return;
+          }
+
+          if (!this.enabled || !document.mozFullScreenElement) {
+            return;
+          }
+
+          this.fullscreenHomeButton.classList.toggle('fade');
           break;
         case 'touchend':
           this.publish('home-button-release');
@@ -191,9 +204,24 @@
 
           if (document.mozFullScreenElement) {
             this.fullscreenHomeButton.classList.add('visible');
+            window.addEventListener('touchstart', this);
+            this.fullscreenHomeButton.removeEventListener('touchstart', this);
           } else {
             this.fullscreenHomeButton.classList.remove('visible');
+            window.removeEventListener('touchstart', this);
+            this.fullscreenHomeButton.addEventListener('touchstart', this);
           }
+
+          break;
+
+        case 'mediaplaying':
+          this.fullscreenHomeButton.classList.add('fade');
+          break;
+        case 'mediapause':
+          this.fullscreenHomeButton.classList.remove('fade');
+          break;
+        case 'mediaended':
+          this.fullscreenHomeButton.classList.remove('fade');
           break;
       }
     }
