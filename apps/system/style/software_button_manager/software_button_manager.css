@@ -30,14 +30,14 @@
 @media (min-resolution: 1.5dppx) {
   #software-home-button,
   #fullscreen-software-home-button {
-    background: transparent url(/shared/resources/branding/browser_84.png) no-repeat center center / 4rem;
+    /*background: transparent url(/shared/resources/branding/browser_84.png) no-repeat center center / 4rem;*/
   }
 }
 
 @media (min-resolution: 2dppx) {
   #software-home-button,
   #fullscreen-software-home-button {
-    background: transparent url(/shared/resources/branding/browser_126.png) no-repeat center center / 4rem;
+    /*background: transparent url(/shared/resources/branding/browser_126.png) no-repeat center center / 4rem;*/
   }
 }
 
@@ -51,4 +51,13 @@
 
 #fullscreen-software-home-button.visible {
   display: block;
+}
+
+@media (orientation: landscape) {
+  #fullscreen-software-home-button {
+    position: absolute;
+    top: calc(50% - 2.5rem);
+    left: auto;
+    right: 0.5rem;
+  }
 }

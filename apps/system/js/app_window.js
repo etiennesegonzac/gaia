@@ -643,7 +643,7 @@
     ['mozbrowserclose', 'mozbrowsererror', 'mozbrowservisibilitychange',
      'mozbrowserloadend', 'mozbrowseractivitydone', 'mozbrowserloadstart',
      'mozbrowsertitlechange', 'mozbrowserlocationchange',
-     'mozbrowsericonchange', 'mozbrowserasyncscroll',
+     'mozbrowsericonchange', 'mozbrowserasyncscroll', 'mozbrowsermedia',
      '_localized', '_swipein', '_swipeout', '_kill_suspended',
      'popupterminated', 'activityterminated', 'activityclosing',
      'popupclosing', 'activityopened', '_orientationchange', '_focus'];
@@ -878,6 +878,11 @@
       // Integration test needs to locate the frame by this attribute.
       this.browser.element.dataset.url = evt.detail;
       this.publish('locationchange');
+    };
+
+  AppWindow.prototype._handle_mozbrowsermedia =
+    function aw__handle_mozbrowsermedia(evt) {
+      console.log("+++ got a mozbrowsermedia event");
     };
 
   AppWindow.prototype._handle_mozbrowsericonchange =
