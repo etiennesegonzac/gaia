@@ -107,6 +107,9 @@ document.addEventListener('visibilitychange', function visibilityChange() {
 
     if (playerShowing)
       releaseVideo();
+
+    // Not a trusted event so we wont be able to request fullscreen again...
+    hidePlayer(false);
   }
   else {
     if (playerShowing) {
@@ -359,6 +362,13 @@ function handleScreenLayoutChange() {
                             currentVideo.metadata.rotation || 0);
   }
 }
+
+window.addEventListener('resize', function() {
+  if (dom.player.readyState !== HAVE_NOTHING) {
+    VideoUtils.fitContainer(dom.videoContainer, dom.player,
+                            currentVideo.metadata.rotation || 0);
+  }
+});
 
 function switchLayout(mode) {
   var oldMode = currentLayoutMode;
@@ -993,6 +1003,7 @@ function showPlayer(video, autoPlay, enterFullscreen, keepControls) {
 
     dom.play.classList.remove('paused');
     playerShowing = true;
+    dom.playerView.mozRequestFullScreen();
 
     var rotation;
     if ('metadata' in currentVideo) {
@@ -1039,6 +1050,7 @@ function hidePlayer(updateVideoMetadata, callback) {
 
     dom.play.classList.remove('paused');
     playerShowing = false;
+    document.mozCancelFullScreen();
     updateDialog();
 
     // Unload the video. This releases the video decoding hardware
