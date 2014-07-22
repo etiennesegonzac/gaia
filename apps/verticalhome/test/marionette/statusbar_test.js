@@ -30,6 +30,7 @@ marionette('Statusbar', function() {
       actions.flick(body, 200, 300, 200, 200);
       actions.perform();
       client.helper.wait(2000); // Waiting for scroll animation
+      assert.equal(home.getThemeColor(), 'black');
       client.switchToFrame();
       client.waitFor(function() {
         return home.containsClass(System.Selector.statusbarBackground,
@@ -41,6 +42,7 @@ marionette('Statusbar', function() {
       var settingsOrigin = 'app://settings.gaiamobile.org';
       var icon = home.getIcon(settingsOrigin + '/manifest.webapp');
       icon.tap();
+      assert.equal(home.getThemeColor(), 'black');
       client.switchToFrame();
       client.waitFor(function() {
         return home.containsClass(System.Selector.statusbarBackground,
@@ -59,6 +61,10 @@ marionette('Statusbar', function() {
         actions.flick(body, 200, 200, 200, 300);
         actions.perform();
 
+        client.waitFor(function() {
+          return (home.getThemeColor() == 'transparent');
+        });
+        assert.ok(true, 'meta updated');
         client.switchToFrame();
         return !home.containsClass(System.Selector.statusbarBackground,
                'opaque');
