@@ -68,6 +68,7 @@ var UtilityTray = {
 
   startY: undefined,
   lastDelta: undefined,
+  isTap: false,
   screenWidth: 0,
   screenHeight: 0,
   grippyHeight: 0,
@@ -221,8 +222,8 @@ var UtilityTray = {
                                   [touch.rotationAngle], [touch.force], 1);
       }
     }
-    this.screen.classList.add('utility-tray');
-    this.notifications.classList.add('visible');
+
+    this.isTap = true;
 
     window.dispatchEvent(new CustomEvent('utility-tray-overlayopening'));
   },
@@ -240,6 +241,13 @@ var UtilityTray = {
     var dy = -(this.startY - y);
     this.lastDelta = dy;
 
+    // Tap threshold
+    if (dy > 5) {
+      this.isTap = false;
+      this.screen.classList.add('utility-tray');
+      this.notifications.classList.add('visible');
+    }
+
     if (this.shown) {
       dy += screenHeight;
     }
@@ -256,6 +264,11 @@ var UtilityTray = {
   },
 
   onTouchEnd: function ut_onTouchEnd(touch) {
+    // Only the left half of the screen tiggers search
+    if (this.isTap && (touch.pageX < (window.innerWidth / 2))) {
+      window.dispatchEvent(new CustomEvent('global-search-request'));
+    }
+
     // Prevent utility tray shows while the screen got black out.
     if (window.System.locked) {
       this.hide(true);
@@ -267,6 +280,7 @@ var UtilityTray = {
     }
     this.startY = undefined;
     this.lastDelta = undefined;
+    this.isTap = false;
   },
 
   hide: function ut_hide(instant) {
