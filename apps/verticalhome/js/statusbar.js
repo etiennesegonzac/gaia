@@ -121,7 +121,7 @@
       if (value == APPEARANCE.OPAQUE) {
         meta.content = 'black';
       } else {
-        meta.content = 'rgba(0, 0, 0, 0.1)';
+        meta.content = 'transparent';
       }
     }
   };
