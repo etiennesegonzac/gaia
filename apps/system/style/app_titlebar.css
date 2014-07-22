@@ -16,7 +16,7 @@
 }
 
 .titlebar .title {
-  width: calc(45% - 1rem);
+  width: calc(40% - 1.8rem);
   height: 1.8rem;
   margin-top: 0.28rem;
   margin-left: 0.5rem;
