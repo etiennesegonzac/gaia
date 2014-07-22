@@ -7,8 +7,12 @@
   overflow: hidden;
 
   background-color: black;
-  background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1));
+  background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), -moz-element(#statusbar);
   transition: background-color 0.5s ease;
+}
+
+#screen.utility-tray .appWindow .titlebar {
+  visibility: hidden;
 }
 
 .titlebar .title {
