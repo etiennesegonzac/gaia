@@ -36,3 +36,17 @@
 .homescreen .titlebar .title {
   visibility: hidden;
 }
+
+.appWindow.lockScreenWindow .titlebar {
+  background-color: transparent;
+  z-index: 1;
+}
+
+#screen.attention .appWindow.lockScreenWindow .titlebar {
+  background-color: black;
+}
+
+.lockScreenWindow .titlebar .title {
+  display: none;
+}
+
