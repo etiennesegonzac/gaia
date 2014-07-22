@@ -717,7 +717,7 @@
         this.appChrome = new self.AppChrome(this);
       }
 
-      if (!this.config.chome || !this.config.chome.titlebar) {
+      if (!this.config.chrome || !this.config.chome.titlebar) {
         this.appTitleBar = new self.AppTitleBar(this);
       }
     };
