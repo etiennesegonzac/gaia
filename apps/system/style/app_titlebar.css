@@ -7,7 +7,7 @@
   overflow: hidden;
 
   background-color: black;
-  background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), -moz-element(#statusbar);
+  background-image: -moz-element(#statusbar), linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1));
   transition: background-color 0.5s ease;
 }
 
