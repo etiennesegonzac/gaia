@@ -4,10 +4,12 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% + 1.5rem);
   -moz-user-select: none;
-  overflow: hidden;
+  overflow-x: scroll;
+  overflow-y: hidden;
   background-color: black;
+  will-change: scroll-position;
 }
 
 @media not all and (-moz-physical-home-button) {
@@ -63,10 +65,9 @@
 
 #cards-view ul {
   list-style: none;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
+  margin: 0 auto;
+  padding: 0 25%;
+  height: calc(100% - 1.5rem);
   white-space: nowrap;
   text-align: center;
 }
@@ -75,14 +76,8 @@
 /* Cards */
 
 #cards-view .card {
-  position: absolute;
-  top: 26%;
-  left: 26%;
-  width: 48%;
-  height: 48%;
-
-  margin: 0;
-  will-change: transform;
+  position: relative;
+  float: left;
 }
 
 #cards-view .card > * {
@@ -99,6 +94,7 @@
   width: 100%;
   height: 100%;
   position: relative;
+  border-radius: 0.5rem;
 }
 
 #cards-view .screenshotView.maximized {
@@ -167,6 +163,8 @@
   box-sizing: border-box;
   color: #fff;
   background-color: #f4f4f4;
+
+  border-radius: 0 0 0.5rem 0.5rem;
 }
 
 #cards-view .card-tray > menu.buttonbar {

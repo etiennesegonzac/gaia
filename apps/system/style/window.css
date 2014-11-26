@@ -92,7 +92,7 @@
 }
 
 @keyframes openAppFromCardView {
-  0%   { transform: scale(0.48); }
+  0%   { transform: scale(0.5); }
   100% { transform: scale(1.0); }
 }
 
@@ -191,7 +191,7 @@
 
 @keyframes closeAppTowardsCardView {
   0%   { transform: scale(1.0); }
-  100% { transform: scale(0.48); }
+  100% { transform: scale(0.5); }
 }
 
 .appWindow.back {

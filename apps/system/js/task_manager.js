@@ -124,6 +124,22 @@
    *                            types are supported at this time: 'browser-only'
    *                            and 'apps-only'.
    */
+  TaskManager.prototype._setContentWidth = function(length) {
+    var cardWidth = window.innerWidth * 0.5;
+    var contentWidth = cardWidth * length +
+                       25 * (length - 1);
+    this.cardsList.style.width = contentWidth + 'px';
+  };
+
+  TaskManager.prototype._centerCurrent = function(smooth) {
+    var position = (window.innerWidth / 2 + 25) * this.position;
+    if (smooth) {
+      this.element.scrollTo({left: position, top: 0, behavior: 'smooth'});
+    } else {
+      this.element.scrollTo(position, 0);
+    }
+  };
+
   TaskManager.prototype.show = function cs_showCardSwitcher(filterName) {
     if (this.isShown()) {
       return;
@@ -143,7 +159,13 @@
     // First add an item to the cardsList for each running app
     var stack = this.stack;
     stack.forEach(function(app, position) {
-      this.addCard(position, app);
+      var card = this.addCard(position, app);
+      card.style.width = window.innerWidth * 0.5 + 'px';
+      card.style.height = window.innerHeight * 0.5 + 'px';
+      card.style.marginTop = window.innerHeight * 0.25 + 'px';
+      if (position < (stack.length - 1)) {
+        card.style.marginRight = 25 + 'px';
+      }
     }, this);
 
     this.unfilteredStack.forEach(function(app, position) {
@@ -153,7 +175,7 @@
     this.publish('cardviewbeforeshow');
 
     screen.mozLockOrientation(OrientationManager.defaultOrientation);
-    this._placeCards();
+    this._placeCards(false);
     this.setActive(true);
 
     var screenElement = this.screenElement;
@@ -205,12 +227,13 @@
     window.addEventListener('attentionopened', this);
     window.addEventListener('appopen', this);
     window.addEventListener('appterminated', this);
-    window.addEventListener('wheel', this);
+    //window.addEventListener('wheel', this);
     window.addEventListener('resize', this);
 
-    this.element.addEventListener('touchstart', this);
-    this.element.addEventListener('touchmove', this);
-    this.element.addEventListener('touchend', this);
+    //this.element.addEventListener('touchstart', this);
+    //this.element.addEventListener('touchmove', this);
+    //this.element.addEventListener('touchend', this);
+    this.element.addEventListener('click', this);
   };
 
   TaskManager.prototype._unregisterShowingEvents = function() {
@@ -218,12 +241,13 @@
     window.removeEventListener('attentionopened', this);
     window.removeEventListener('appopen', this);
     window.removeEventListener('appterminated', this);
-    window.removeEventListener('wheel', this);
+    //window.removeEventListener('wheel', this);
     window.removeEventListener('resize', this);
 
-    this.element.removeEventListener('touchstart', this);
-    this.element.removeEventListener('touchmove', this);
-    this.element.removeEventListener('touchend', this);
+    //this.element.removeEventListener('touchstart', this);
+    //this.element.removeEventListener('touchmove', this);
+    //this.element.removeEventListener('touchend', this);
+    this.element.removeEventListener('click', this);
   };
 
   /**
@@ -334,11 +358,11 @@
     };
     var card = new Card(config);
     this.cardsByAppID[app.instanceID] = card;
-    this.cardsList.appendChild(card.render());
+    return this.cardsList.appendChild(card.render());
 
-    if (position <= this.position - 2 || position >= this.position + 2) {
-      card.element.style.visibility = 'hidden';
-    }
+    //if (position <= this.position - 2 || position >= this.position + 2) {
+      //card.element.style.visibility = 'hidden';
+    //}
   };
 
   /**
@@ -419,21 +443,12 @@
         break;
 
       case 'select' :
-
-        if (this.position == card.position) {
+        this.position = card.position;
+        this.alignCurrentCard();
+        // TODO: detect properly when the smooth scroll ended
+        setTimeout((function() {
           this.exitToApp(card.app);
-        } else {
-          // Make the target app, the selected app
-          this.position = card.position;
-          this.alignCurrentCard();
-
-          var self = this;
-          this.currentCard.element.addEventListener('transitionend',
-                                                    function onCenter(e) {
-            e.target.removeEventListener('transitionend', onCenter);
-            self.exitToApp(card.app);
-          });
-        }
+        }).bind(this), 200);
         break;
     }
   };
@@ -608,6 +623,9 @@
         evt.stopPropagation();
         evt.preventDefault();
         break;
+      case 'click':
+        this.handleTap(evt);
+        break;
 
       case 'resize':
         this.calculateDimensions();
@@ -704,16 +722,18 @@
    * Arrange the cards around the current position
    * @memberOf TaskManager.prototype
    */
-  TaskManager.prototype._placeCards = function() {
-    this.stack.forEach(function(app, idx) {
-      var card = this.cardsByAppID[app.instanceID];
-      if (!card) {
-        return;
-      }
+  TaskManager.prototype._placeCards = function(smooth) {
+    this._setContentWidth(this.stack.length);
+    this._centerCurrent(smooth);
+    //this.stack.forEach(function(app, idx) {
+      //var card = this.cardsByAppID[app.instanceID];
+      //if (!card) {
+        //return;
+      //}
 
-      card.move(0, 0);
-      card.element.classList.toggle('current', (idx == this.position));
-    }.bind(this));
+      //card.move(0, 0);
+      //card.element.classList.toggle('current', (idx == this.position));
+    //}.bind(this));
 
     this._setAccessibilityAttributes();
   };
@@ -726,7 +746,7 @@
     this._setupCardsTransition(duration || this.DURATION);
 
     setTimeout(function(self) {
-      self._placeCards();
+      self._placeCards(true);
     }, 0, this);
   };
 
