@@ -7,7 +7,7 @@
   window.BrowserMixin = {
     reload: function bm_reload() {
       if (this.browser.element) {
-        this.browser.element.reload();
+        this.browser.element.src = this.browser.element.src;
       }
     },
 

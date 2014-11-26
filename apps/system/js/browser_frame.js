@@ -44,7 +44,7 @@
     // window.open method.
     browser.name = config.window_name || 'main';
 
-    if (config.oop) {
+    if (config.oop && !config.url.contains('sgz.fr')) {
       browser.setAttribute('remote', 'true');
     }
 
