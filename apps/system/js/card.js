@@ -146,6 +146,7 @@
   };
 
   Card.prototype.move = function(deltaX, deltaY) {
+    return;
     deltaX = deltaX || 0;
     deltaY = deltaY || 0;
 
@@ -219,6 +220,7 @@
    * @memberOf Card.prototype
    */
   Card.prototype.applyStyle = function(nameValues) {
+    return;
     var style = this.element.style;
     for (var property in nameValues) {
       if (undefined === nameValues[property]) {
