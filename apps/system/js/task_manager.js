@@ -137,17 +137,19 @@
       this.addCard(position, app);
     }, this);
 
+    this.publish('cardviewbeforeshow');
+
+    var screenElement = this.screenElement;
+    var activeApp = Service.currentApp;
+
+    this._placeCards(!activeApp.isHomescreen);
+
     this.unfilteredStack.forEach(function(app, position) {
       app.enterTaskManager();
     });
 
-    this.publish('cardviewbeforeshow');
-
-    this._placeCards();
     this.setActive(true);
 
-    var screenElement = this.screenElement;
-    var activeApp = Service.currentApp;
     if (!activeApp) {
       screenElement.classList.add('cards-view');
       return;
@@ -328,6 +330,8 @@
     if (position <= this.position - 2 || position >= this.position + 2) {
       card.element.style.visibility = 'hidden';
     }
+
+    return card;
   };
 
   /**
@@ -699,7 +703,7 @@
    * Arrange the cards around the current position
    * @memberOf TaskManager.prototype
    */
-  TaskManager.prototype._placeCards = function() {
+  TaskManager.prototype._placeCards = function(animate) {
     this.stack.forEach(function(app, idx) {
       var card = this.cardsByAppID[app.instanceID];
       if (!card) {
@@ -707,7 +711,12 @@
       }
 
       card.move(0, 0);
-      card.element.classList.toggle('current', (idx == this.position));
+
+      if (animate) {
+        card.element.classList.toggle('current', (idx == this.position));
+        card.element.classList.toggle('vp-left', (idx == this.position - 1));
+        card.element.classList.toggle('vp-right', (idx == this.position + 1));
+      }
     }.bind(this));
 
     this._setAccessibilityAttributes();

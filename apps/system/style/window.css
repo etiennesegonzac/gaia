@@ -178,7 +178,7 @@
 
 .appWindow.to-cardview {
   overflow: hidden;
-  animation: closeAppTowardsCardView 0.3s forwards cubic-bezier(0.7, 0.0, 1.0, 1.0);
+  animation: closeAppTowardsCardView 0.4s forwards cubic-bezier(0.7, 0.0, 1.0, 1.0);
 }
 
 @keyframes closeApp {

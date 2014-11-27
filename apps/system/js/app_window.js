@@ -194,7 +194,7 @@
    * during switching from one to another,
    * many event listener & callbacks are employed.
    *
-   * When 'cardviewbeforeshow' is received, the screenshotOverlay is shown.
+   * When 'cardviewshown' is received, the screenshotOverlay is shown.
    *
    * When 'cardviewclosed' is received, the screenshotOverlay is hidden.
    *
@@ -740,7 +740,8 @@
      'mozbrowsermetachange', 'mozbrowsericonchange', 'mozbrowserasyncscroll',
      '_localized', '_swipein', '_swipeout', '_kill_suspended',
      '_orientationchange', '_focus', '_blur',  '_hidewindow', '_sheetdisplayed',
-     '_sheetsgestureend', '_cardviewbeforeshow', '_cardviewclosed',
+     '_inscope', '_outofscope',
+     '_sheetsgestureend', '_cardviewshown', '_cardviewclosed',
      '_closed', '_shrinkingstart', '_shrinkingstop'];
 
   AppWindow.SUB_COMPONENTS = {
@@ -1883,12 +1884,26 @@
     this._showScreenshotOverlay();
   };
 
+  AppWindow.prototype._handle__inscope = function aw_inscope() {
+    if (this.isActive()) {
+      return;
+    }
+    this._showScreenshotOverlay();
+  };
+
   AppWindow.prototype._handle__sheetsgestureend = function aw_sgend() {
     this.debug('hiding screenshot on sheetsgestureend');
     this._hideScreenshotOverlay();
   };
 
-  AppWindow.prototype._handle__cardviewbeforeshow = function aw_cvbeforeshow() {
+  AppWindow.prototype._handle__outofscope = function aw_outofscope() {
+    if (this.isActive()) {
+      return;
+    }
+    this._hideScreenshotOverlay();
+  };
+
+  AppWindow.prototype._handle__cardviewshown = function aw_cvshown() {
     this.debug('showing screenshot for cardsview.');
     this._showScreenshotOverlay();
   };

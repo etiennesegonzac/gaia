@@ -1,0 +1,9 @@
+{
+  "command": {
+    "path": "/usr/bin/make",
+    "env": ["APP=system"],
+    "cwd": "../.."
+  },
+  "stage": "../../build_stage/system/",
+  "appId": "system.gaiamobile.org"
+}

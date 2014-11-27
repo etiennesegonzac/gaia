@@ -311,7 +311,7 @@
       } else {
         this.element.classList.remove('slow-transition');
       }
-      window.addEventListener('cardviewbeforeshow', this);
+      window.addEventListener('cardviewshown', this);
       window.addEventListener('cardviewclosed', this);
       window.addEventListener('launchapp', this);
       window.addEventListener('appcreated', this);
@@ -350,6 +350,7 @@
       window.addEventListener('appopening', this);
       window.addEventListener('localized', this);
       window.addEventListener('taskmanager-activated', this);
+      window.addEventListener('stackchanged', this);
 
       this._settingsObserveHandler = {
         // continuous transition controlling
@@ -405,7 +406,7 @@
      * @memberOf module:AppWindowManager
      */
     stop: function awm_stop() {
-      window.removeEventListener('cardviewbeforeshow', this);
+      window.removeEventListener('cardviewshown', this)
       window.removeEventListener('cardviewclosed', this);
       window.removeEventListener('launchapp', this);
       window.removeEventListener('appcreated', this);
@@ -635,11 +636,11 @@
           this.launch(config);
           break;
 
-        case 'cardviewbeforeshow':
+        case 'cardviewshown':
           if (this._activeApp) {
             this._activeApp.getTopMostWindow().blur();
           }
-          this.broadcastMessage('cardviewbeforeshow');
+          this.broadcastMessage('cardviewshown');
           break;
 
         case 'cardviewclosed':
@@ -668,6 +669,18 @@
         case 'taskmanager-activated':
           this.activated = false;
           this.publish(this.EVENT_PREFIX + '-deactivated');
+          break;
+
+        case 'stackchanged':
+          var stack = evt.detail.sheets;
+          var position = evt.detail.position;
+          stack.forEach(function(app, idx) {
+            if (idx == position - 1 || idx == position + 1) {
+              app.broadcast('inscope');
+            } else {
+              app.broadcast('outofscope');
+            }
+          });
           break;
       }
     },

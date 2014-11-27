@@ -85,6 +85,40 @@
   will-change: transform;
 }
 
+.card.vp-left {
+  animation: scaleTabLeft .4s   forwards cubic-bezier(0.7, 0.0, 1.0, 1.0);
+  animation-fill-mode: none;
+}
+
+.card.vp-right {
+  animation: scaleTabRight .4s forwards cubic-bezier(0.7, 0.0, 1.0, 1.0);
+  animation-fill-mode: none;
+}
+
+@keyframes scaleTabLeft {
+  0% {
+    transform: translateX(-238.45%) scale(2.08);
+  }
+  0.1% {
+    transform: translateX(-238.4%) scale(2.08);
+  }
+  100% {
+    transform: translateX(-114.6%) scale(1);
+  }
+}
+
+@keyframes scaleTabRight {
+  0% {
+    transform: translateX(238.45%) scale(2.08);
+  }
+  0.1% {
+    transform: translateX(238.4%) scale(2.08);
+  }
+  100% {
+    transform: translateX(114.6%) scale(1);
+  }
+}
+
 #cards-view .card > * {
   pointer-events: none;
 }
