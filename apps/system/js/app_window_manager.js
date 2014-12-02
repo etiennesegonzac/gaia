@@ -307,6 +307,7 @@
         this.element.classList.remove('slow-transition');
       }
       window.addEventListener('cardviewbeforeshow', this);
+      window.addEventListener('cardviewclosed', this);
       window.addEventListener('launchapp', this);
       window.addEventListener('appcreated', this);
       window.addEventListener('appterminated', this);

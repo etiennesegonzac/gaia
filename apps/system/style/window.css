@@ -209,7 +209,7 @@
 }
 
 .appWindow.homescreen.fadeout .fade-overlay {
-  opacity: 1;
+  opacity: 0;
 }
 
 .appWindow > .touch-blocker {

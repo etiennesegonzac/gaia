@@ -290,7 +290,10 @@
    * @returns true if a filter was applied, false if not.
    */
   TaskManager.prototype.filter = function cs_filterCardStack(filterName) {
-    var unfilteredStack = this.unfilteredStack = StackManager.snapshot();
+    var homescreen = homescreenLauncher.getHomescreen();
+    var completeStack = StackManager.snapshot();
+    completeStack.push(homescreen);
+    var unfilteredStack = this.unfilteredStack = completeStack;
 
     var noRecentWindows = document.getElementById('cards-no-recent-windows');
     switch (filterName) {

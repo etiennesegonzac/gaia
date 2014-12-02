@@ -328,6 +328,13 @@
         '-moz-element(#' + this.app.instanceID + ')';
     }
 
+    if (this.app.isHomescreen) {
+      var systemBackground = document.getElementById('screen').style.backgroundImage;
+      var homescreenBackground = screenshotView.style.backgroundImage;
+      screenshotView.style.backgroundImage = homescreenBackground + ',' +
+                                             systemBackground;
+    }
+
   };
 
   Card.prototype._fetchElements = function c__fetchElements() {

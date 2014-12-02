@@ -253,10 +253,6 @@
     this.browser.element.classList.remove('hidden');
     this._setVisible(true);
 
-    if (this.isHomescreen) {
-      return;
-    }
-
     // Getting a new screenshot to force compositing before
     // removing the screenshot overlay if it exists.
     if (this.screenshotOverlay &&
@@ -1860,13 +1856,28 @@
   };
 
   AppWindow.prototype._handle__closed = function aw_closed() {
-    if (Service.isBusyLoading() && this.getBottomMostWindow().isHomescreen) {
-      // We will eventually get screenshot when being requested from
-      // task manager.
-      return;
-    }
     // Update screenshot blob here to avoid slowing down closing transitions.
-    this.getScreenshot();
+    var finish = (function () {
+      this.getScreenshot(() => {
+        if (!this.screenshotOverlay) {
+          return;
+        }
+
+        if (this.screenshotOverlay.classList.contains('visible')) {
+          var screenshotURL = this.requestScreenshotURL();
+          this.screenshotOverlay.style.backgroundImage =
+            'url(' + screenshotURL + ')';
+        }
+      });
+    }).bind(this);
+    if (Service.isBusyLoading()) {
+      window.addEventListener('appopened', function loadWait() {
+        window.removeEventListener('appopened', loadWait);
+        finish();
+      });
+    } else {
+      finish();
+    }
   };
 
   AppWindow.prototype._handle__kill_suspended = function aw() {
