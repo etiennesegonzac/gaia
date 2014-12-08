@@ -1,0 +1,9 @@
+{
+  "command": {
+    "path": "/usr/bin/make",
+    "env": ["APP=actionhome"],
+    "cwd": "../.."
+  },
+  "stage": "../../build_stage/actionhome/",
+  "appId": "actionhome.gaiamobile.org"
+}
