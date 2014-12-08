@@ -1868,8 +1868,11 @@
       // task manager.
       return;
     }
+
+    // Single use only apps
+    this.kill();
     // Update screenshot blob here to avoid slowing down closing transitions.
-    this.getScreenshot();
+    //this.getScreenshot();
   };
 
   AppWindow.prototype._handle__kill_suspended = function aw() {
