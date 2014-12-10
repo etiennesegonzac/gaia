@@ -88,8 +88,8 @@
 
   AppTransitionController.prototype._transitionState = 'closed';
   AppTransitionController.prototype._waitingForLoad = false;
-  AppTransitionController.prototype.openAnimation = 'enlarge';
-  AppTransitionController.prototype.closeAnimation = 'reduce';
+  AppTransitionController.prototype.openAnimation = 'slide-from-bottom';
+  AppTransitionController.prototype.closeAnimation = 'slide-to-bottom';
   AppTransitionController.prototype.OPENING_TRANSITION_TIMEOUT = 350;
   AppTransitionController.prototype.CLOSING_TRANSITION_TIMEOUT = 350;
   AppTransitionController.prototype.SLOW_TRANSITION_TIMEOUT = 3500;

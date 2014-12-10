@@ -735,8 +735,8 @@
     'statusbar': window.AppStatusbar
   };
 
-  AppWindow.prototype.openAnimation = 'enlarge';
-  AppWindow.prototype.closeAnimation = 'reduce';
+  AppWindow.prototype.openAnimation = 'slide-from-bottom';
+  AppWindow.prototype.closeAnimation = 'slide-to-bottom';
 
   /**
    * Install sub components belong to this window instance.

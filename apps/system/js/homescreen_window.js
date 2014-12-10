@@ -115,8 +115,8 @@
     'statusbar': window.AppStatusbar
   };
 
-  HomescreenWindow.prototype.openAnimation = 'zoom-out';
-  HomescreenWindow.prototype.closeAnimation = 'zoom-in';
+  HomescreenWindow.prototype.openAnimation = 'slide-from-top';
+  HomescreenWindow.prototype.closeAnimation = 'slide-to-top';
 
   HomescreenWindow.prototype._handle__opening = function hw__handle__opening() {
     this.ensure();
