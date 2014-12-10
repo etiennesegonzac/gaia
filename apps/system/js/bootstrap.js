@@ -159,7 +159,7 @@ window.addEventListener('load', function startup() {
   window.dialerAgent = new DialerAgent();
   window.dialerAgent.start();
   window.edgeSwipeDetector = new EdgeSwipeDetector();
-  window.edgeSwipeDetector.start();
+  //window.edgeSwipeDetector.start();
   window.externalStorageMonitor = new ExternalStorageMonitor();
   window.externalStorageMonitor.start();
   window.homeGesture = new HomeGesture();
