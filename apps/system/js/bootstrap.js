@@ -232,9 +232,9 @@ window.usbStorage = new UsbStorage();
 
 // Define the default background to use for all homescreens
 window.addEventListener('wallpaperchange', function(evt) {
-  document.getElementById('screen').style.backgroundImage =
-    'linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),' +
-    'url(' + evt.detail.url + ')';
+  //document.getElementById('screen').style.backgroundImage =
+    //'linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),' +
+    //'url(' + evt.detail.url + ')';
 });
 
 window.browserSettings = new BrowserSettings();
