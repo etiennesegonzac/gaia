@@ -5,21 +5,23 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
     <meta name="theme-color" content="#00539F">
     <link rel="stylesheet" type="text/css" href="style/list.css">
+    <script defer src="js/launcher.js"></script>
     <title>FirefoxOS Action home</title>
   </head>
   <body>
     <ul>
-      <li class='message notification'>New text from Fabien</li>
-      <li class='message'>Text Claire</li>
-      <li class='search'>Search Wikipedia</li>
-      <li class='geo'>Find Food Nearby</li>
-      <li class='search'>Find Contact</li>
-      <li class='pined'>Bugzilla Dashboard</li>
-      <li class='message'>Text David</li>
-      <li class='geo'>Check weather</li>
-      <li class='geo'>Movies Tonight</li>
+      <li class='message notification' data-number='11111'>New message from Fabien</li>
+      <li class='message' data-number='12345'>Send message to Claire</li>
+      <li class='search' data-url='http://wikipedia.org'>Search Wikipedia</li>
+      <li class='camera'>Take Picture</li>
+      <li class='geo' data-url='http://m.yelp.com/search?cflt=restaurants#state=map'>Find Food Nearby</li>
+      <li class='search' data-app='contact'>Find Contact</li>
+      <li class='pined' data-url='http://bugzilla.mozilla.org'>Bugzilla Dashboard</li>
+      <li class='message' data-number='424242'>Send message to David</li>
+      <li class='geo' data-url='http://m.weather.com'>Local weather</li>
+      <li class='geo' data-url='http://m.allocine.fr'>Movies Tonight</li>
       <li class='flash'>Flash light</li>
-      <li class='dial'>Call Claire</li>
+      <li class='dial' data-number='888'>Call Claire</li>
     </ul>
   </body>
 </html>

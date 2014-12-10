@@ -49,7 +49,11 @@ li.message::before {
 }
 
 li.dial::before {
-  content: '📞';
+  content: '📱';
+}
+
+li.camera::before {
+  content: '📷';
 }
 
 li.geo::before {

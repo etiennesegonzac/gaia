@@ -15,7 +15,9 @@
     "storage": {},
     "webapps-manage": {},
     "systemXHR": {},
-    "settings":{ "access": "readwrite" }
+    "settings":{ "access": "readwrite" },
+    "telephony":{},
+    "camera":{}
   },
   "default_locale": "en-US",
   "locales": {
