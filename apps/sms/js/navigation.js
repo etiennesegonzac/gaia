@@ -309,6 +309,8 @@ var Navigation = window.Navigation = {
       // We have 2 panels, so we get 2 transitionend for each step
       var trEndCount = 0;
 
+      resolve();
+      return;
       wrapper.addEventListener('transitionend', function trWait(e) {
         trEndCount++;
 
