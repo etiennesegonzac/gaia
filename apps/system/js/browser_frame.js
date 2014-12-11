@@ -45,7 +45,7 @@
     browser.name = config.window_name || 'main';
 
     if (config.oop) {
-      browser.setAttribute('remote', 'true');
+      //browser.setAttribute('remote', 'true');
     }
 
     if (config.isPrivate) {
