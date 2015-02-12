@@ -54,10 +54,10 @@
                                           window.innerHeight);
           break;
         case 'touchstart':
-          evt.target.classList.add('choice');
+          evt.target.classList.add('pulse');
           break;
         case 'touchend':
-          evt.target.classList.remove('choice');
+          evt.target.classList.remove('pulse');
           break;
         case 'click':
           evt.target.classList.add('choice');
