@@ -241,6 +241,11 @@
   z-index: 1024;
 }
 
+#screen > [data-z-index-level="launcher"] {
+  z-index: 1024;
+}
+
+
 /* Level 8 */
 /**
  *#screen > [data-z-index-level="app"] {

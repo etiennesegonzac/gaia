@@ -63,6 +63,8 @@
     <script defer src="shared/js/simslot.js"></script>
     <script defer src="shared/js/simslot_manager.js"></script>
 
+    <link rel="stylesheet" type="text/css" href="style/launcher.css">
+
     <!-- Wrapper -->
     <link rel="stylesheet" type="text/css" href="style/wrapper/wrapper.css">
     <link rel="stylesheet" type="text/css" href="style/chrome/chrome.css">
@@ -382,6 +384,7 @@
     <script defer src="js/popup_window.js"></script>
     <script defer src="js/browser_mixin.js"></script>
     <script defer src="js/wrapper_factory.js"></script>
+    <script defer src="js/launcher.js"></script>
     <script defer src="js/homescreen_window.js"></script>
     <script defer src="js/homescreen_launcher.js"></script>
     <script defer src="js/homescreen_window_manager.js"></script>
@@ -632,6 +635,10 @@
 
       <div id="windows" data-z-index-level="app">
         <!-- application windows are added here -->
+      </div>
+      <div id="launcher" data-z-index-level="launcher">
+        <ul>
+        </ul>
       </div>
 
       <!-- XXX: Before we can make LockScree as a iframe or app, we need this to split LockScreen and System part in this way (Bug 1057198) -->

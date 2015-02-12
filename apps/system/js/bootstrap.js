@@ -2,7 +2,7 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
 /*global ActivityWindowManager, Browser, SecureWindowFactory,
-         SecureWindowManager, HomescreenLauncher, HomescreenWindowManager,
+         SecureWindowManager, Launcher,
          FtuLauncher, SourceView, ScreenManager, Places, Activities,
          DeveloperHUD, DialerAgent, RemoteDebugger, HomeGesture,
          VisibilityManager, UsbStorage, TaskManager,
@@ -14,7 +14,7 @@
          LockScreenPasscodeValidator,
          ExternalStorageMonitor, TrustedWindowManager,
          BrowserSettings, AppMigrator, SettingsMigrator,
-         CpuManager, CellBroadcastSystem, EdgeSwipeDetector, QuickSettings,
+         CpuManager, CellBroadcastSystem, QuickSettings,
          BatteryOverlay, BaseModule, AppWindowManager, KeyboardManager,
          DevToolsAuth */
 'use strict';
@@ -84,18 +84,20 @@ window.addEventListener('load', function startup() {
   }
 
   function safelyLaunchFTU() {
-    window.addEventListener('homescreen-ready', function onHomescreenReady() {
-      window.removeEventListener('homescreen-ready', onHomescreenReady);
+    //window.addEventListener('homescreen-ready', function onHomescreenReady() {
+      //window.removeEventListener('homescreen-ready', onHomescreenReady);
       FtuLauncher.retrieve();
-    });
+    //});
     /** @global */
     if (!window.homescreenLauncher) {
       // We may have application.ready = true while reloading at firefox nightly
       // browser. In this case, the window.homescreenLauncher haven't been
       // created. We should create it and start it in this case.
-      window.homescreenLauncher = new HomescreenLauncher();
+      //window.homescreenLauncher = new HomescreenLauncher();
     }
-    window.homescreenLauncher.start();
+    //window.homescreenLauncher.start();
+    window.launcher = new Launcher();
+    window.launcher.start();
   }
 
   if (applications.ready) {
@@ -134,8 +136,8 @@ window.addEventListener('load', function startup() {
 
   // To make sure homescreen window manager can intercept webapps-launch event,
   // we need to move the code here.
-  window.homescreenWindowManager = new HomescreenWindowManager();
-  window.homescreenWindowManager.start();
+  //window.homescreenWindowManager = new HomescreenWindowManager();
+  //window.homescreenWindowManager.start();
 
   // Please sort it alphabetically
   window.activities = new Activities();
@@ -163,8 +165,8 @@ window.addEventListener('load', function startup() {
   window.globalOverlayWindowManager.start();
   window.dialerAgent = new DialerAgent();
   window.dialerAgent.start();
-  window.edgeSwipeDetector = new EdgeSwipeDetector();
-  window.edgeSwipeDetector.start();
+  //window.edgeSwipeDetector = new EdgeSwipeDetector();
+  //window.edgeSwipeDetector.start();
   window.externalStorageMonitor = new ExternalStorageMonitor();
   window.externalStorageMonitor.start();
   window.homeGesture = new HomeGesture();
@@ -173,7 +175,7 @@ window.addEventListener('load', function startup() {
     // If application.ready is true, we already create homescreenLauncher in
     // safelyLaunchFTU(). We should use it. If it is false, we should create it
     // here.
-    window.homescreenLauncher = new HomescreenLauncher();
+    //window.homescreenLauncher = new HomescreenLauncher();
   }
   window.lockScreenPasscodeValidator = new LockScreenPasscodeValidator();
   window.lockScreenPasscodeValidator.start();
@@ -234,11 +236,11 @@ window.addEventListener('load', function startup() {
 window.usbStorage = new UsbStorage();
 
 // Define the default background to use for all homescreens
-window.addEventListener('wallpaperchange', function(evt) {
-  document.getElementById('screen').style.backgroundImage =
-    'linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),' +
-    'url(' + evt.detail.url + ')';
-});
+//window.addEventListener('wallpaperchange', function(evt) {
+  //document.getElementById('screen').style.backgroundImage =
+    //'linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),' +
+    //'url(' + evt.detail.url + ')';
+//});
 
 
 window.browser = new Browser();

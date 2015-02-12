@@ -44,13 +44,13 @@
       this.app = app;
       this.app.debug('default animation:',
         this.app.openAnimation, this.app.closeAnimation);
-      if (this.app.openAnimation) {
-        this.openAnimation = this.app.openAnimation;
-      }
+      //if (this.app.openAnimation) {
+        //this.openAnimation = this.app.openAnimation;
+      //}
 
-      if (this.app.closeAnimation) {
-        this.closeAnimation = this.app.closeAnimation;
-      }
+      //if (this.app.closeAnimation) {
+        //this.closeAnimation = this.app.closeAnimation;
+      //}
 
       if (this.app.CLASS_NAME == 'AppWindow') {
         this.OPENING_TRANSITION_TIMEOUT = 2500;
@@ -88,8 +88,8 @@
 
   AppTransitionController.prototype._transitionState = 'closed';
   AppTransitionController.prototype._waitingForLoad = false;
-  AppTransitionController.prototype.openAnimation = 'enlarge';
-  AppTransitionController.prototype.closeAnimation = 'reduce';
+  AppTransitionController.prototype.openAnimation = 'immediate';
+  AppTransitionController.prototype.closeAnimation = 'immediate';
   AppTransitionController.prototype.OPENING_TRANSITION_TIMEOUT = 350;
   AppTransitionController.prototype.CLOSING_TRANSITION_TIMEOUT = 350;
   AppTransitionController.prototype.SLOW_TRANSITION_TIMEOUT = 3500;
@@ -300,7 +300,7 @@
   };
 
   AppTransitionController.prototype.requireOpen = function(animation) {
-    this.currentAnimation = animation || this.openAnimation;
+    this.currentAnimation = this.openAnimation;
     this.app.debug('open with ' + this.currentAnimation);
     if (this.currentAnimation == 'immediate') {
       this.changeTransitionState('immediate-open');
@@ -310,7 +310,7 @@
   };
 
   AppTransitionController.prototype.requireClose = function(animation) {
-    this.currentAnimation = animation || this.closeAnimation;
+    this.currentAnimation = this.closeAnimation;
     this.app.debug('close with ' + this.currentAnimation);
     if (this.currentAnimation == 'immediate') {
       this.changeTransitionState('immediate-close');
