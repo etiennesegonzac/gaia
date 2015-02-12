@@ -1,7 +1,7 @@
 .appWindow:not(.bar) > .chrome {
   pointer-events: none;
-  top: 0;
-  height: calc(var(--statusbar-height) + var(--rocketbar-urlbar-height));
+  display: none;
+  bottom: 0;
   transform: scaleY(var(--rocketbar-scale)) translateY(calc(var(--statusbar-height) * -1));
   transform-origin: top left;
   transition: transform 0.2s ease-in-out, background-color 0.5s ease;
@@ -29,16 +29,17 @@
 }
 
 .appWindow:not(.bar) > .chrome.maximized {
+  display: block;
   transform: scaleY(1) translateY(0);
 }
 
 .appWindow.fullscreen-app:not(.bar) > .chrome:not(.maximized) {
   height: var(--statusbar-height);
-  top: 0;
+  bottom: 0;
 }
 
 .appWindow:not(.bar).fullscreen-app > .chrome.maximized {
-  top: 0;
+  bottom: 0;
   transform: scaleY(1) translateY(-7.6rem);
 }
 

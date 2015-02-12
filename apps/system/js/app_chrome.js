@@ -324,6 +324,9 @@
   AppChrome.prototype.handleScrollEvent = function ac_handleScrollEvent(evt) {
     if (!this.containerElement.classList.contains('scrollable')) {
       return;
+    } else {
+      // Kill this function.
+      return;
     }
 
     // Ideally we'd animate based on scroll position, but until we have
