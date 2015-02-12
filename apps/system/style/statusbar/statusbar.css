@@ -12,12 +12,13 @@
 }
 
 #statusbar {
-  position: fixed;
+  position: absolute;
   width: 100%;
   height: var(--statusbar-height);
-  top: 0;
+  bottom: -3rem;
   left: 0;
   pointer-events: none;
+  background-color: blue;
 }
 
 .statusbar > div,
@@ -50,6 +51,7 @@
   visibility: visible;
 }
 
+/*
 #screen:not(.locked):not(.minimized-tray):not(.rocketbar-focused):not(.utility-tray) #statusbar.fullscreen,
 #screen:not(.locked):not(.minimized-tray):not(.rocketbar-focused):not(.utility-tray) #statusbar.fullscreen-layout,
 #screen.locked.secure-app:not(.minimized-tray):not(.rocketbar-focused):not(.utility-tray).fullscreen-app #statusbar,
@@ -68,6 +70,7 @@
   opacity: 1;
   visibility: visible;
 }
+*/
 
 #screen:not(.locked).utility-tray #statusbar-minimized-wrapper {
   opacity: 0;
@@ -86,16 +89,17 @@
   }
 }
 
-#screen.utility-tray #statusbar,
 #screen.attention #statusbar {
   top: 0;
-  background-color: black;
+  background-color: transparent;
 }
 
+/*
 #screen.utility-tray #statusbar {
-  background-color: transparent;
+  background-color: blue;
   top: -3rem;
 }
+*/
 
 /* When the utility tray is displayed, the title bar is hidden, so we only show
  the maximised status bar. */

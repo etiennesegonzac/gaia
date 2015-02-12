@@ -68,7 +68,7 @@ var NotificationScreen = {
       document.getElementById('desktop-notifications-container');
     this.lockScreenContainer = this.getLockScreenContainer();
     this.toaster = document.getElementById('notification-toaster');
-    this.ambientIndicator = document.getElementById('ambient-indicator');
+    // this.ambientIndicator = document.getElementById('ambient-indicator');
     this.toasterIcon = document.getElementById('toaster-icon');
     this.toasterTitle = document.getElementById('toaster-title');
     this.toasterDetail = document.getElementById('toaster-detail');
@@ -664,15 +664,15 @@ var NotificationScreen = {
       if (Service.query('isFtuRunning')) {
         return;
       }
-      this.ambientIndicator.classList.add('unread');
-      navigator.mozL10n.setAttributes(
-        this.ambientIndicator,
-        'statusbarNotifications-unread',
-        {n: this.unreadNotifications.length}
-      );
+      // this.ambientIndicator.classList.add('unread');
+      //navigator.mozL10n.setAttributes(
+      //  this.ambientIndicator,
+      //  'statusbarNotifications-unread',
+      //  {n: this.unreadNotifications.length}
+      //);
     } else {
-      this.ambientIndicator.classList.remove('unread');
-      this.ambientIndicator.removeAttribute('aria-label');
+      // this.ambientIndicator.classList.remove('unread');
+      // this.ambientIndicator.removeAttribute('aria-label');
     }
 
     UtilityTray.updateNotificationCount();

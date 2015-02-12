@@ -18,7 +18,7 @@ window.UtilityTray = {
 
   topPanel: document.getElementById('top-panel'),
 
-  ambientIndicator: document.getElementById('ambient-indicator'),
+  // ambientIndicator: document.getElementById('ambient-indicator'),
 
   grippy: document.getElementById('utility-tray-grippy'),
 
@@ -294,7 +294,7 @@ window.UtilityTray = {
     }
 
     if (refresh || !this.ambientHeight) {
-      this.ambientHeight = this.ambientIndicator.clientHeight || 0;
+      // this.ambientHeight = this.ambientIndicator.clientHeight || 0;
     }
 
     if (refresh || !this.screenWidth) {
@@ -494,11 +494,11 @@ window.UtilityTray = {
   },
 
   makeAmbientIndicatorActive: function ut_makeAmbientIndicatorActive() {
-    this.ambientIndicator.classList.add('active');
+    // this.ambientIndicator.classList.add('active');
   },
 
   makeAmbientIndicatorInactive: function ut_makeAmbientIndicatorInactive() {
-    this.ambientIndicator.classList.remove('active');
+    // this.ambientIndicator.classList.remove('active');
   },
 
   _pdIMESwitcherShow: function ut_pdIMESwitcherShow(evt) {
