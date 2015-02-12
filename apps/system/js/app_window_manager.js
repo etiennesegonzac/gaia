@@ -165,11 +165,11 @@
     display: function awm_display(newApp, openAnimation, closeAnimation,
                                   eventType) {
       this._dumpAllWindows();
-      var appCurrent = this._activeApp, appNext = newApp ||
-        homescreenWindowManager.getHomescreen('home' === eventType);
+      var appCurrent = this._activeApp, appNext = newApp;
 
       if (!appNext) {
         this.debug('no next app.');
+        this.switchApp(appCurrent);
         return;
       }
 
@@ -241,6 +241,11 @@
     switchApp: function awm_switchApp(appCurrent, appNext, switching,
                                       openAnimation, closeAnimation) {
       this.debug('before ready check' + appCurrent + appNext);
+      if (!appNext) {
+        setTimeout(appCurrent.close.bind(appCurrent, 'immediate'), 350);
+        this._activeApp = null;
+        return;
+      }
       appNext.ready(function() {
         if (appNext.isDead()) {
           if (!appNext.isHomescreen) {
@@ -451,17 +456,7 @@
     },
 
     _handle_home: function(evt) {
-      // XXX: FtuLauncher should become submodule of AppWindowManager.
-      if (FtuLauncher.respondToHierarchyEvent(evt)) {
-        if (!homescreenWindowManager.ready ||
-            (window.taskManager && window.taskManager.isActive())) {
-          return true;
-        }
-        this.display(null, null, null, 'home');
-        return false;
-      } else {
-        return false;
-      }
+      this.display(null, null, null, 'home');
     },
 
     _handle_holdhome: function(evt) {
@@ -555,7 +550,7 @@
         case 'homescreenopened':
           // Someone else may open the app,
           // so we need to update active app.
-          this._updateActiveApp(evt.detail.instanceID);
+          //this._updateActiveApp(evt.detail.instanceID);
           break;
 
         case 'homescreencreated':
@@ -901,17 +896,17 @@
       // a re-usable function. To avoid people get confused with other
       // homescreen related methods, this should not be moved out to
       // be a method of AWM.
-      var launchHomescreen = () => {
-        // jshint ignore:line
-        var home = homescreenWindowManager.getHomescreen();
-        if (home) {
-          if (home.isActive()) {
-            home.setVisible(true);
-          } else {
-            this.display();
-          }
-        }
-      };
+      //var launchHomescreen = () => {
+        //// jshint ignore:line
+        //var home = homescreenWindowManager.getHomescreen();
+        //if (home) {
+          //if (home.isActive()) {
+            //home.setVisible(true);
+          //} else {
+            //this.display();
+          //}
+        //}
+      //};
       detail = detail ? detail : {};  // Give an empty object if it's null.
 
       // In this statement we can add more possible slots when it's required.
@@ -931,7 +926,7 @@
           if (activity) {
             this.fireActivity(activity);
           } else if (notificationId){
-            launchHomescreen();
+            //launchHomescreen();
             this.fireNotificationClicked(notificationId);
           }
         }
@@ -939,7 +934,7 @@
         if (activeApp && !activeApp.isHomescreen) {
           activeApp.setVisible(true);
         } else {
-          launchHomescreen();
+          //launchHomescreen();
         }
       }
     },

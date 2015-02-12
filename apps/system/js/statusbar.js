@@ -670,6 +670,11 @@ var StatusBar = {
   },
 
   setAppearance: function(app, useBottomWindow) {
+    if (!app) {
+      this.element.classList.add('maximized');
+      this.element.classList.remove('light');
+      return;
+    }
     // The statusbar is always maximised when the phone is locked.
     if (this._inLockScreenMode) {
       this.element.classList.add('maximized');
