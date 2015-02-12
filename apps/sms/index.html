@@ -119,12 +119,7 @@
 
   <body role="application" class="skin-comms theme-communications">
     <article id="main-wrapper" class="wrapper" data-position='right'>
-      <section id="thread-list" class="panel" role="region">
-        <gaia-header class="view-header regular-header">
-          <h1 data-l10n-id="messages"></h1>
-          <a href="#composer" id="threads-composer-link" data-icon="compose"></a>
-          <a id="threads-options-button" data-icon="more"></a>
-        </gaia-header>
+      <section style="height: -moz-calc(100% - 5rem);" id="thread-list" class="panel" role="region">
         <article id="threads-container" class="view-body edit-container" data-type="list">
         </article>
 
@@ -159,14 +154,14 @@
         </section>
 
         <div id="sticky"></div>
+        <gaia-header class="view-header regular-header">
+          <h1 data-l10n-id="messages"></h1>
+          <a href="#composer" id="threads-composer-link" data-icon="compose"></a>
+          <a id="threads-options-button" data-icon="more"></a>
+        </gaia-header>
       </section>
 
       <section id="thread-messages" class="panel editable-select-mode" role="region" aria-hidden="true">
-        <gaia-header id="messages-header" class="view-header regular-header" action="back">
-          <h1 id="messages-header-text" aria-hidden="true"></h1>
-          <button id="messages-call-number-button" data-icon="call" class="hide"></button>
-          <button id="messages-options-button" data-icon="more"></button>
-        </gaia-header>
         <div id="messages-subheader" class="subheader">
           <section id="messages-to-field">
             <section data-l10n-id="to" id="to-label">
@@ -236,6 +231,11 @@
         <article id="composer-container" class="view-body">
           <div class="flex-composer">
             <div id="messages-container" data-type="list" class="article-list"></div>
+              <gaia-header id="messages-header" class="view-header regular-header" action="back">
+                <h1 id="messages-header-text" aria-hidden="true"></h1>
+                <button id="messages-call-number-button" data-icon="call" class="hide"></button>
+                <button id="messages-options-button" data-icon="more"></button>
+              </gaia-header>
             <form id="messages-compose-form" role="search" class="bottom" data-message-type="sms">
               <section class="mms-label-line">
                 <section class="subject-composer js-subject-composer hide">

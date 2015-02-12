@@ -908,7 +908,8 @@ section[role="region"].new .article-list[data-type="list"]  li {
                  the input form, 10 is the z-index for the header */
   left: 0;
   right: 0;
-  top: 5rem;
+  top: 0;
+  /* top: 5rem; */
 }
 
 body[role="application"] form[role="dialog"][data-type="action"] > header:first-child{
