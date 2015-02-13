@@ -1,4 +1,4 @@
-/* global Service, applications */
+/* global Service, applications, layoutManager, inputWindowManager */
 'use strict';
 
 (function(exports) {
@@ -15,20 +15,18 @@
       this.element.addEventListener('touchstart', this);
       this.element.addEventListener('touchend', this);
 
-      window.removeEventListener('system-resize', this);
-      document.body.style.setProperty('--screen-height',
-                                      window.innerHeight + 'px');
+      this.updateHeightCSSVar();
 
-      var index = 0;
-      for (var manifest in applications.installedApps) {
-        var li = document.createElement('li');
-        li.dataset.index = index;
-        li.dataset.manifestURL = manifest;
-        li.textContent = applications.installedApps[manifest].manifest.name;
+      //var index = 0;
+      //for (var manifest in applications.installedApps) {
+        //var li = document.createElement('li');
+        //li.dataset.index = index;
+        //li.dataset.manifestURL = manifest;
+        //li.textContent = applications.installedApps[manifest].manifest.name;
 
-        this.list.appendChild(li);
-        index++;
-      }
+        //this.list.appendChild(li);
+        //index++;
+      //}
     },
 
     isActive: function() {
@@ -36,7 +34,15 @@
     },
 
     respondToHierarchyEvent: function(evt) {
+      if (evt.type == 'system-resize') {
+        this.updateHeightCSSVar();
+      }
+
       if (evt.type == 'home') {
+        if (layoutManager.keyboardEnabled) {
+          inputWindowManager.hideInputWindowImmediately();
+        }
+
         this.element.classList.remove('hide');
         this.element.classList.remove('expand');
 
@@ -47,15 +53,12 @@
           window.dispatchEvent(new CustomEvent('homescreenopened'));
         });
       }
+
       return true;
     },
 
     handleEvent: function(evt) {
       switch (evt.type) {
-        case 'system-resize':
-          document.body.style.setProperty('--screen-height',
-                                          window.innerHeight);
-          break;
         case 'touchstart':
           evt.target.classList.add('pulse');
           break;
@@ -70,7 +73,8 @@
           this.element.classList.add('expand');
 
           var app = applications.installedApps[evt.target.dataset.manifestURL];
-          app.launch();
+          var entryPoint = evt.target.dataset.entryPoint || '';
+          app.launch(entryPoint);
 
           var transitioned = false, ready = false;
 
@@ -137,6 +141,11 @@
         item.classList.remove('top');
         item.classList.remove('bottom');
       }
+    },
+
+    updateHeightCSSVar: function() {
+      document.body.style.setProperty('--screen-height',
+                                      window.innerHeight + 'px');
     }
   };
 

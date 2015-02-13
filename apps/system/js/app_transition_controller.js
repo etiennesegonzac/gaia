@@ -44,13 +44,13 @@
       this.app = app;
       this.app.debug('default animation:',
         this.app.openAnimation, this.app.closeAnimation);
-      //if (this.app.openAnimation) {
-        //this.openAnimation = this.app.openAnimation;
-      //}
+      if (this.app.openAnimation) {
+        this.openAnimation = this.app.openAnimation;
+      }
 
-      //if (this.app.closeAnimation) {
-        //this.closeAnimation = this.app.closeAnimation;
-      //}
+      if (this.app.closeAnimation) {
+        this.closeAnimation = this.app.closeAnimation;
+      }
 
       if (this.app.CLASS_NAME == 'AppWindow') {
         this.OPENING_TRANSITION_TIMEOUT = 2500;
