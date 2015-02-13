@@ -242,8 +242,10 @@
                                       openAnimation, closeAnimation) {
       this.debug('before ready check' + appCurrent + appNext);
       if (!appNext) {
-        setTimeout(appCurrent.close.bind(appCurrent, 'immediate'), 350);
-        this._activeApp = null;
+        if (appCurrent) {
+          setTimeout(appCurrent.close.bind(appCurrent, 'immediate'), 350);
+        }
+        this._updateActiveApp(null);
         return;
       }
       appNext.ready(function() {
@@ -291,7 +293,7 @@
         if (appCurrent && appCurrent.instanceID !== appNext.instanceID) {
           appCurrent.close(immediateTranstion ? 'immediate' :
             ((switching === true) ? 'invoking' : closeAnimation));
-        } else {
+        } else if (!appNext) {
           this.debug('No current running app!');
         }
       }.bind(this));
@@ -446,7 +448,8 @@
 
     '_handle_system-resize': function() {
       if (this._activeApp) {
-        this.debug(' Resizing ' + this._activeApp.name);
+        this.debug(' Resizing ' + this._activeApp.name,
+                   this._activeApp.isTransitioning());
         if (!this._activeApp.isTransitioning()) {
           this._activeApp.resize();
           return false;
@@ -547,10 +550,7 @@
 
         case 'appopening':
         case 'appopened':
-        case 'homescreenopened':
-          // Someone else may open the app,
-          // so we need to update active app.
-          //this._updateActiveApp(evt.detail.instanceID);
+          this._updateActiveApp(evt.detail.instanceID);
           break;
 
         case 'homescreencreated':

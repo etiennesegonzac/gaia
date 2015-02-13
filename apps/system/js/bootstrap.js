@@ -194,7 +194,7 @@ window.addEventListener('load', function startup() {
   window.softwareButtonManager.start();
   window.sourceView = new SourceView();
   window.taskManager = new TaskManager();
-  window.taskManager.start();
+  //window.taskManager.start();
   window.ttlView = new TTLView();
   window.visibilityManager = new VisibilityManager();
   window.visibilityManager.start();
