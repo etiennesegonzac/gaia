@@ -19,11 +19,15 @@
       document.body.style.setProperty('--screen-height',
                                       window.innerHeight + 'px');
 
+      var index = 0;
       for (var manifest in applications.installedApps) {
         var li = document.createElement('li');
+        li.dataset.index = index;
         li.dataset.manifestURL = manifest;
         li.textContent = applications.installedApps[manifest].manifest.name;
+
         this.list.appendChild(li);
+        index++;
       }
     },
 
@@ -35,10 +39,9 @@
       if (evt.type == 'home') {
         this.element.classList.remove('hide');
         this.element.classList.remove('expand');
-        var selected = this.element.querySelector('.choice');
-        if (selected) {
-          selected.classList.remove('choice');
-        }
+
+        this.removeClassesOnItems();
+
         this.nextTransition().then(() => {
           this.element.style.overflow = '';
           window.dispatchEvent(new CustomEvent('homescreenopened'));
@@ -60,7 +63,9 @@
           evt.target.classList.remove('pulse');
           break;
         case 'click':
-          evt.target.classList.add('choice');
+          var selected = parseInt(evt.target.dataset.index);
+          this.setClassesOnItemsFor(selected);
+
           this.element.style.overflow = 'hidden';
           this.element.classList.add('expand');
 
@@ -107,6 +112,32 @@
         });
       });
     },
+
+    setClassesOnItemsFor: function(selected) {
+      var items = this.list.querySelectorAll('li');
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        if (i == selected) {
+          item.classList.add('choice');
+        }
+        if ((i < selected) && (i >= (selected - 7))) {
+          item.classList.add('top');
+        }
+        if ((i > selected) && (i <= (selected + 7))) {
+          item.classList.add('bottom');
+        }
+      }
+    },
+
+    removeClassesOnItems: function() {
+      var items = this.list.querySelectorAll('li');
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        item.classList.remove('choice');
+        item.classList.remove('top');
+        item.classList.remove('bottom');
+      }
+    }
   };
 
   exports.Launcher = Launcher;
