@@ -121,7 +121,10 @@
   top: 0;
   left: 0;
   width: 100%;
-  /* height: 100%; */
+  height: 100%;
+}
+
+.appWindow[data-manifest-name="Browser"] > div > iframe {
   height: calc(100% - var(--rocketbar-urlbar-height));
 }
 
