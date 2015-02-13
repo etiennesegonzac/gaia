@@ -64,11 +64,11 @@
   background-color: transparent;
 }
 
-#launcher.expand li:not(.choice) {
+#launcher.expand li.top {
   transform: translateY(calc(var(--screen-height) * (-1)));
 }
 
-#launcher.expand li.choice ~ li {
+#launcher.expand li.bottom {
   transform: translateY(var(--screen-height));
 }
 
