@@ -17,7 +17,6 @@
   height: var(--statusbar-height);
   bottom: -3rem;
   left: 0;
-  pointer-events: none;
   background-color: #00689B;
 }
 

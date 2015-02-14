@@ -99,6 +99,7 @@ window.UtilityTray = {
 
   startY: undefined,
   lastDelta: undefined,
+  yThreshold: 0,
   isTap: false,
   screenWidth: 0,
   screenHeight: 0,
@@ -217,7 +218,7 @@ window.UtilityTray = {
         if (target !== this.overlay && target !== this.grippy &&
             evt.currentTarget !== this.statusbarIcons &&
             evt.currentTarget !== this.topPanel) {
-          return;
+          //return;
         }
 
         if (target === this.statusbarIcons || target === this.grippy) {
@@ -308,6 +309,10 @@ window.UtilityTray = {
     if (refresh || !this.grippyHeight) {
       this.grippyHeight = this.grippy.clientHeight || 0;
     }
+
+    if (refresh || !this.yThreshold) {
+      this.yThreshold = window.getComputedStyle(this.overlay).height;
+    }
   },
 
   onTouchStart: function ut_onTouchStart(touch) {
@@ -349,7 +354,7 @@ window.UtilityTray = {
 
     this.validateCachedSizes();
     this.overlay.classList.add('visible');
-    var screenHeight = this.screenHeight;
+    // var screenHeight = this.screenHeight;
 
     var y = touch.pageY;
 
@@ -362,25 +367,25 @@ window.UtilityTray = {
     }
 
     if (this.shown) {
-      dy += screenHeight;
+      dy += this.yThreshold;
     }
 
     dy = Math.max(0, dy);
-    dy = Math.min(screenHeight, dy);
+    dy = Math.min(this.yThreshold, dy);
 
-    if (dy >= this.grippyHeight) {
-      this.screen.classList.add('utility-tray');
-    } else {
-      this.screen.classList.remove('utility-tray');
-    }
+    //if (dy >= this.grippyHeight) {
+    //  this.screen.classList.add('utility-tray');
+    //} else {
+    //  this.screen.classList.remove('utility-tray');
+    //}
 
     var style = this.overlay.style;
     style.MozTransition = '';
     style.MozTransform = 'translateY(' + dy + 'px)';
 
-    this.notifications.style.transition = '';
-    this.notifications.style.transform =
-      'translateY(' + (this.screenHeight - dy) + 'px)';
+    //this.notifications.style.transition = '';
+    //this.notifications.style.transform =
+    //  'translateY(' + (this.screenHeight - dy) + 'px)';
   },
 
   onTouchEnd: function ut_onTouchEnd(touch) {
@@ -431,7 +436,7 @@ window.UtilityTray = {
 
     style.MozTransition = instant ? '' : '-moz-transform 0.2s linear';
     this.notifications.style.transition = style.MozTransition;
-    this.screen.classList.remove('utility-tray');
+    // this.screen.classList.remove('utility-tray');
 
     // If the transition has not started yet there won't be any transitionend
     // event so let's not wait in order to remove the utility-tray class.
@@ -467,7 +472,7 @@ window.UtilityTray = {
       instant ? '' : 'transform 0.2s linear';
     this.notifications.style.transform = '';
 
-    this.screen.classList.add('utility-tray');
+    // this.screen.classList.add('utility-tray');
 
     if (!this.shown) {
       this.shown = true;

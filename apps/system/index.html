@@ -483,7 +483,7 @@
       <div id="rocketbar-results" class="hidden" data-z-index-level="rocketbar-results"></div>
 
       <div id="utility-tray" data-z-index-level="utility-tray">
-        <div id="notifications">
+        <div id="notifications" style="display: none">
           <!-- Notifications -->
           <div id="utility-tray-notifications" data-l10n-id="utilityTray" role="dialog" aria-label="Utility tray" data-z-index-level="utility-tray-notifications">
             <div id="statusbar-tray">
@@ -573,7 +573,21 @@
           </div>
         </div>
 
-        <div id="utility-tray-grippy"></div>
+        <div id="utility-tray-toggles">
+          <div class="utility-item" id="toggle-wifi"></div>
+          <div class="utility-item" id="toggle-airplane"></div>
+          <div class="utility-item" id="toggle-bluetooth"></div>
+          <div class="utility-item" id="toggle-quiet"></div>
+        </div>
+
+        <div id="utility-tray-launcher">
+          <div class="utility-item" id="launch-flashlight"></div>
+          <div class="utility-item" id="launch-screenlock"></div>
+          <div class="utility-item" id="launch-camera"></div>
+          <div class="utility-item" id="launch-settings"></div>
+        </div>
+
+        <div style="display: none" id="utility-tray-grippy"></div>
         <!--
         <div class="ambient-indicator" id="ambient-indicator" data-z-index-level="notification-toaster">
             <div class="handle handle1"></div>
