@@ -2,7 +2,7 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
 /*global ActivityWindowManager, Browser, SecureWindowFactory,
-         SecureWindowManager, Launcher,
+         SecureWindowManager, Launcher, EdgeSwipeDetector,
          FtuLauncher, SourceView, ScreenManager, Places, Activities,
          DeveloperHUD, DialerAgent, RemoteDebugger, HomeGesture,
          VisibilityManager, UsbStorage, TaskManager,
@@ -165,8 +165,8 @@ window.addEventListener('load', function startup() {
   window.globalOverlayWindowManager.start();
   window.dialerAgent = new DialerAgent();
   window.dialerAgent.start();
-  //window.edgeSwipeDetector = new EdgeSwipeDetector();
-  //window.edgeSwipeDetector.start();
+  window.edgeSwipeDetector = new EdgeSwipeDetector();
+  window.edgeSwipeDetector.start();
   window.externalStorageMonitor = new ExternalStorageMonitor();
   window.externalStorageMonitor.start();
   window.homeGesture = new HomeGesture();

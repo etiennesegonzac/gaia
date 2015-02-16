@@ -15,8 +15,8 @@ var SheetsTransition = {
     this._cleanupPreviousTransitions();
     // Ask Homescreen App to fade out when sheets begin moving.
     // Homescreen App would fade in next time it's opened automatically.
-    var home = homescreenLauncher.getHomescreen();
-    home && home.fadeOut();
+    //var home = homescreenLauncher.getHomescreen();
+    //home && home.fadeOut();
     var currentApp = StackManager.getCurrent();
     var newApp = (direction == 'ltr') ?
       StackManager.getPrev() : StackManager.getNext();
