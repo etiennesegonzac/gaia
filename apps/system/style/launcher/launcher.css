@@ -1,10 +1,42 @@
-#launcher {
+#launcher-panes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  overflow-x: scroll;
+  overflow-y: hidden;
+}
+
+.pane {
   position: absolute;
   top: 0;
   width: 100%;
   height: 100%;
+}
+
+#people {
+  left: 0;
+  background: green;
+}
+
+#browser {
+  left: 200%;
+  background: gray;
+}
+
+#browser > iframe {
+  border: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#launcher {
+  left: 100%;
   background: linear-gradient(130deg, #00689b, #2f8db9);
 
+  overflow-x: hidden;
   overflow-y: scroll;
   transition: opacity 0.3s linear;
 }
