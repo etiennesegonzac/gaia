@@ -15,6 +15,8 @@
       this.element.addEventListener('touchstart', this);
       this.element.addEventListener('touchend', this);
 
+      window.addEventListener('appopened', this);
+
       this.updateHeightCSSVar();
 
       //var index = 0;
@@ -59,6 +61,9 @@
 
     handleEvent: function(evt) {
       switch (evt.type) {
+        case 'appopened':
+          this.updateChoice(evt.detail);
+          break;
         case 'touchstart':
           evt.target.classList.add('pulse');
           break;
@@ -96,6 +101,31 @@
           });
           break;
       }
+    },
+
+    updateChoice: function(app) {
+      var selector = 'li[data-manifest-u-r-l="' + app.manifestURL + '"]';
+      var matching = this.element.querySelectorAll(selector);
+      var target;
+      // entry points :/
+      if (matching.length > 1) {
+        for (var i = 0; i < matching.length; i++) {
+          var el = matching[i];
+          if (app.origin.indexOf(el.dataset.entryPoint) !== -1) {
+            target = el;
+          }
+        }
+      } else if (matching.length === 1) {
+        target = matching[0];
+      }
+
+      if (!target || target.classList.contains('choice')) {
+        return;
+      }
+
+      this.removeClassesOnItems();
+      this.element.scrollTo(0, target.offsetTop);
+      this.setClassesOnItemsFor(target.dataset.index);
     },
 
     nextTransition: function() {
