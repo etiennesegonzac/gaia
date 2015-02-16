@@ -1,16 +1,91 @@
-#launcher {
+#launcher-tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 42px;
+  z-index: 100;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: no-wrap;
+  align-content: space-around;
+
+  background-color: rgba(0, 0, 0, 0.5);
+
+  transition: transform 0.2s ease;
+}
+
+#launcher-tabs.slide {
+  transform: translateY(100%);
+}
+
+#launcher-tabs > div {
+  position: relative;
+  flex: 1 0;
+  line-height: 42px;
+  text-align: center;
+}
+
+#launcher-tabs > div::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  content: '';
+
+  background-color: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#launcher-tabs > div.pulse::before {
+  animation: pulse 0.3s ease 0s 1;
+}
+
+#launcher-panes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+  transition: opacity 0.3s linear;
+}
+
+#launcher-panes.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#screen.software-button-enabled #launcher-panes {
+  height: calc(100% - var(--software-home-button-height));
+}
+
+.pane {
   position: absolute;
   top: 0;
   width: 100%;
   height: 100%;
+}
+
+#people {
+  left: 0;
+  background: green;
+}
+
+#browser {
+  left: 200%;
+  background: gray;
+}
+
+#launcher {
+  left: 100%;
   background: linear-gradient(130deg, #00689b, #2f8db9);
 
   overflow-y: scroll;
-  transition: opacity 0.3s linear;
-}
-
-#screen.software-button-enabled #launcher {
-  height: calc(100% - var(--software-home-button-height));
 }
 
 #launcher ul {
@@ -80,9 +155,4 @@
 
 #launcher.expand li.bottom {
   transform: translateY(var(--screen-height));
-}
-
-#launcher.hide {
-  opacity: 0;
-  pointer-events: none;
 }

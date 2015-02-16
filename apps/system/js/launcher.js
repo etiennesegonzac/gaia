@@ -6,11 +6,18 @@
   Launcher.prototype = {
     name: 'Launcher',
     EVENT_PREFIX: 'launcher',
+    tabs: document.getElementById('launcher-tabs'),
+    panes: document.getElementById('launcher-panes'),
     element: document.getElementById('launcher'),
     list: document.querySelector('#launcher > ul'),
 
     start: function() {
       Service.request('registerHierarchy', this);
+
+      this.tabs.addEventListener('click', this);
+      this.tabs.addEventListener('touchstart', this);
+      this.tabs.addEventListener('touchend', this);
+
       this.element.addEventListener('click', this);
       this.element.addEventListener('touchstart', this);
       this.element.addEventListener('touchend', this);
@@ -18,6 +25,7 @@
       window.addEventListener('appopened', this);
 
       this.updateHeightCSSVar();
+      this.panes.scrollTo(window.innerWidth, 0);
 
       //var index = 0;
       //for (var manifest in applications.installedApps) {
@@ -45,8 +53,9 @@
           inputWindowManager.hideInputWindowImmediately();
         }
 
-        this.element.classList.remove('hide');
+        this.panes.classList.remove('hide');
         this.element.classList.remove('expand');
+        this.tabs.classList.remove('slide');
 
         this.removeClassesOnItems();
 
@@ -72,10 +81,17 @@
           break;
         case 'click':
           var selected = parseInt(evt.target.dataset.index);
+
+          if (evt.target.parentNode == this.tabs) {
+            this.scrollToPane(selected);
+            break;
+          }
+
           this.setClassesOnItemsFor(selected);
 
           this.element.style.overflow = 'hidden';
           this.element.classList.add('expand');
+          this.tabs.classList.add('slide');
 
           var app = applications.installedApps[evt.target.dataset.manifestURL];
           var entryPoint = evt.target.dataset.entryPoint || '';
@@ -89,14 +105,14 @@
             app.ready(() => {
               ready = true;
               if (transitioned) {
-                this.element.classList.add('hide');
+                this.panes.classList.add('hide');
               }
             });
           });
           this.nextTransition().then(() => {
             transitioned = true;
             if (ready) {
-              this.element.classList.add('hide');
+              this.panes.classList.add('hide');
             }
           });
           break;
@@ -128,6 +144,18 @@
       this.setClassesOnItemsFor(target.dataset.index);
     },
 
+    scrollToPane: function(index) {
+      var destination = index * window.innerWidth;
+      this.panes.style.overflowX = 'scroll';
+      this.panes.scrollTo({
+        left: destination,
+        behavior: 'smooth'
+      });
+      this.nextScrollTo(destination).then(() => {
+        this.panes.style.overflowX = '';
+      });
+    },
+
     nextTransition: function() {
       var el = this.element;
       return new Promise(function(resolve, reject) {
@@ -143,6 +171,18 @@
         window.addEventListener('launchapp', function launchWait(evt) {
           window.removeEventListener('launchapp', launchWait);
           resolve(evt.detail);
+        });
+      });
+    },
+
+    nextScrollTo: function(destination) {
+      var panes = this.panes;
+      return new Promise(function(resolve, reject) {
+        panes.addEventListener('scroll', function onScroll() {
+          if (panes.scrollLeft == destination) {
+            panes.removeEventListener('scroll', onScroll);
+            resolve();
+          }
         });
       });
     },
