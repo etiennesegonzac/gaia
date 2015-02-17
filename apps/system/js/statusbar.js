@@ -806,10 +806,15 @@ var StatusBar = {
   },
 
   _getWidthFromDomElementWidth: function sb_getWidthFromDomElementWidth(icon) {
+    if (icon._cachedWidth) {
+      return icon._cachedWidth;
+    }
     var style = window.getComputedStyle(icon);
     var iconWidth = icon.clientWidth +
       parseInt(style.marginLeft, 10) +
       parseInt(style.marginRight, 10);
+
+    icon._cachedWidth = iconWidth;
 
     return iconWidth;
   },

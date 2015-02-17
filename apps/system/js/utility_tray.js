@@ -433,6 +433,7 @@ window.UtilityTray = {
   },
 
   hide: function ut_hide(instant) {
+    instant = false;
     if (!this.active) {
       window.dispatchEvent(new CustomEvent('utilitytraywillhide'));
     }
@@ -472,6 +473,7 @@ window.UtilityTray = {
   },
 
   show: function ut_show(instant) {
+    instant = false;
     this.validateCachedSizes();
     var style = this.overlay.style;
     style.MozTransition = instant ? '' : '-moz-transform 0.2s linear';

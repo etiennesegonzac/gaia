@@ -88,20 +88,6 @@
   100% { transform: scaleX(4.0); opacity: 0;}
 }
 
-
-@media (orientation: portrait) {
-  #screen.software-button-enabled #utility-tray {
-    top: calc(-100% + .2rem + var(--software-home-button-height));
-    height: calc(100% - var(--software-home-button-height));
-  }
-}
-
-@media (orientation: landscape) {
-  #screen.software-button-enabled #utility-tray {
-    width: calc(100% - var(--software-home-button-height));
-  }
-}
-
 #notifications {
   height: calc(100% - 2rem);
   overflow: hidden;
@@ -196,6 +182,8 @@
   z-index: 16384;
   pointer-events: none;
   opacity: 0;
+  transition: opacity 0s linear;
+  will-change: opacity;
 }
 
 #utility-tray-underlay.visible {
