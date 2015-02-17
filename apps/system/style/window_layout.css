@@ -101,10 +101,12 @@
 
 .appWindow > div {
   position: absolute;
-  top: var(--statusbar-height);
+  /* top: var(--statusbar-height); */
+  top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - var(--statusbar-height));
+  /* height: calc(100% - var(--statusbar-height)); */
+  height: 100%;
 }
 .appWindow > div.chrome {
   top: auto;

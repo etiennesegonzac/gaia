@@ -383,6 +383,7 @@ window.UtilityTray = {
     dy = Math.max(0, dy);
     dy = Math.min(this.yThreshold, dy);
 
+    this.underlay.style.MozTransition = 'opacity 0s linear';
     this.underlay.style.opacity =
       Math.max(0, (dy / this.yThreshold) * this.maxUnderlayOpacity);
 

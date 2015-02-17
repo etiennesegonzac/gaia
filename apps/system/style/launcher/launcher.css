@@ -1,8 +1,8 @@
 #launcher {
   position: absolute;
-  top: var(--statusbar-height);
+  top: 0;
   width: 100%;
-  height: calc(100% - var(--statusbar-height));
+  height: 100%;
   background: linear-gradient(130deg, #00689b, #2f8db9);
 
   overflow-y: scroll;
@@ -10,7 +10,7 @@
 }
 
 #screen.software-button-enabled #launcher {
-  height: calc(100% - var(--statusbar-height) - var(--software-home-button-height));
+  height: calc(100% - var(--software-home-button-height));
 }
 
 #launcher ul {

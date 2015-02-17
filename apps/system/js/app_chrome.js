@@ -508,56 +508,56 @@
   AppChrome.prototype.setThemeColor = function ac_setThemColor(color) {
 
     // Do not set theme color for private windows
-    if (this.app.isPrivateBrowser()) {
-      return;
-    }
+    // if (this.app.isPrivateBrowser()) {
+    //   return;
+    // }
 
-    this.element.style.backgroundColor = color;
+    // this.element.style.backgroundColor = color;
 
-    if (!this.app.isHomescreen) {
-      this.scrollable.style.backgroundColor = color;
-    }
+    // if (!this.app.isHomescreen) {
+    //   this.scrollable.style.backgroundColor = color;
+    // }
 
-    if (color === 'transparent' || color === '') {
-      this.app.element.classList.remove('light');
-      this.app.publish('titlestatechanged');
-      return;
-    }
+    // if (color === 'transparent' || color === '') {
+    //   this.app.element.classList.remove('light');
+    //   this.app.publish('titlestatechanged');
+    //   return;
+    // }
 
-    var self = this;
-    var finishedFade = false;
-    var endBackgroundFade = function() {
-      finishedFade = true;
-      self.element.removeEventListener('transitionend', endBackgroundFade);
-    };
-    this.element.addEventListener('transitionend', endBackgroundFade);
-    eventSafety(this.element, 'transitionend', endBackgroundFade, 1000);
+    // var self = this;
+    // var finishedFade = false;
+    // var endBackgroundFade = function() {
+    //   finishedFade = true;
+    //   self.element.removeEventListener('transitionend', endBackgroundFade);
+    // };
+    // this.element.addEventListener('transitionend', endBackgroundFade);
+    // eventSafety(this.element, 'transitionend', endBackgroundFade, 1000);
 
-    window.requestAnimationFrame(function updateAppColor() {
-      if (finishedFade || !self.element) {
-        return;
-      }
+    // window.requestAnimationFrame(function updateAppColor() {
+    //   if (finishedFade || !self.element) {
+    //     return;
+    //   }
 
-      var computedColor = window.getComputedStyle(self.element).backgroundColor;
-      var colorCodes = /rgb\((\d+), (\d+), (\d+)\)/.exec(computedColor);
-      if (!colorCodes || colorCodes.length === 0) {
-        return;
-      }
+    //var computedColor = window.getComputedStyle(self.element).backgroundColor;
+    //   var colorCodes = /rgb\((\d+), (\d+), (\d+)\)/.exec(computedColor);
+    //   if (!colorCodes || colorCodes.length === 0) {
+    //     return;
+    //   }
 
-      var r = parseInt(colorCodes[1]);
-      var g = parseInt(colorCodes[2]);
-      var b = parseInt(colorCodes[3]);
-      var brightness =
-        Math.sqrt((r*r) * 0.241 + (g*g) * 0.691 + (b*b) * 0.068);
+    //   var r = parseInt(colorCodes[1]);
+    //   var g = parseInt(colorCodes[2]);
+    //   var b = parseInt(colorCodes[3]);
+    //   var brightness =
+    //     Math.sqrt((r*r) * 0.241 + (g*g) * 0.691 + (b*b) * 0.068);
 
-      var wasLight = self.app.element.classList.contains('light');
-      var isLight  = brightness > 200;
-      if (wasLight != isLight) {
-        self.app.element.classList.toggle('light', isLight);
-        self.app.publish('titlestatechanged');
-      }
-      window.requestAnimationFrame(updateAppColor);
-    });
+    //   var wasLight = self.app.element.classList.contains('light');
+    //   var isLight  = brightness > 200;
+    //   if (wasLight != isLight) {
+    //     self.app.element.classList.toggle('light', isLight);
+    //     self.app.publish('titlestatechanged');
+    //   }
+    //   window.requestAnimationFrame(updateAppColor);
+    // });
   };
 
   AppChrome.prototype.render = function() {
