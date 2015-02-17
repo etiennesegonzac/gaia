@@ -211,9 +211,9 @@ window.UtilityTray = {
         }
 
         // Prevent swipe down gesture when already opened.
-        if (target !== this.grippy && this.shown) {
-          return;
-        }
+        //if (target !== this.grippy && this.shown) {
+        //  return;
+        //}
 
         if (target !== this.overlay && target !== this.grippy &&
             evt.currentTarget !== this.statusbarIcons &&
@@ -311,7 +311,7 @@ window.UtilityTray = {
     }
 
     if (refresh || !this.yThreshold) {
-      this.yThreshold = window.getComputedStyle(this.overlay).height;
+      this.yThreshold = screenRect.height;
     }
   },
 
