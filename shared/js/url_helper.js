@@ -13,6 +13,12 @@ var UrlHelper = {
     return this.a.href;
   },
 
+  getOriginFromInput: function urlHelper_getOriginFromInput(input) {
+    this.a = this.a || document.createElement('a');
+    this.a.href = input;
+    return this.a.origin;
+  },
+
   _getScheme: function(input) {
     // This function returns one of followings
     // - scheme + ':' (ex. http:)
