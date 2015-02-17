@@ -381,7 +381,7 @@ window.UtilityTray = {
     dy = Math.max(0, dy);
     dy = Math.min(this.yThreshold, dy);
 
-    this.underlay.style.opacity = Math.max(0, (dy / this.yThreshold) - 0.15);
+    this.underlay.style.opacity = Math.max(0, (dy / this.yThreshold) - 0.65);
 
     //if (dy >= this.grippyHeight) {
     //  this.screen.classList.add('utility-tray');
@@ -487,7 +487,7 @@ window.UtilityTray = {
     //  instant ? '' : 'transform 0.2s linear';
     //this.notifications.style.transform = '';
     this.underlay.style.transition = 'opacity 0.2s linear';
-    this.underlay.style.opacity = 0.85;
+    this.underlay.style.opacity = 0.35;
 
     // this.screen.classList.add('utility-tray');
 
