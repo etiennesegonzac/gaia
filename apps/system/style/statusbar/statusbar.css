@@ -18,6 +18,7 @@
   bottom: -3rem;
   left: 0;
   background-color: #00689B;
+  border-bottom: 1px solid #004b70;
 }
 
 .statusbar > div,

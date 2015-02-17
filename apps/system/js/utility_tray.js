@@ -90,6 +90,10 @@ window.UtilityTray = {
 
     this.overlay.addEventListener('transitionend', this);
 
+    this.underlay.addEventListener('touchstart', () => {
+      this.hide();
+    });
+
     window.addEventListener('software-button-enabled', this);
     window.addEventListener('software-button-disabled', this);
 
@@ -377,7 +381,7 @@ window.UtilityTray = {
     dy = Math.max(0, dy);
     dy = Math.min(this.yThreshold, dy);
 
-    this.underlay.style.opacity = Math.max(0, (dy / this.yThreshold) - 0.2);
+    this.underlay.style.opacity = Math.max(0, (dy / this.yThreshold) - 0.15);
 
     //if (dy >= this.grippyHeight) {
     //  this.screen.classList.add('utility-tray');
@@ -443,8 +447,8 @@ window.UtilityTray = {
 
     style.MozTransition = instant ? '' : '-moz-transform 0.2s linear';
     // this.notifications.style.transition = style.MozTransition;
-    this.underlay.style.transition = style.MozTransition;
     // this.screen.classList.remove('utility-tray');
+    this.underlay.style.transition = 'opacity 0.2s linear';
     this.underlay.style.opacity = 0;
 
     // If the transition has not started yet there won't be any transitionend
@@ -482,8 +486,8 @@ window.UtilityTray = {
     //this.notifications.style.transition =
     //  instant ? '' : 'transform 0.2s linear';
     //this.notifications.style.transform = '';
-    this.underlay.style.transition = style.MozTransition;
-    this.underlay.style.opacity = 0.8;
+    this.underlay.style.transition = 'opacity 0.2s linear';
+    this.underlay.style.opacity = 0.85;
 
     // this.screen.classList.add('utility-tray');
 

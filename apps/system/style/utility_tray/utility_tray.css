@@ -177,7 +177,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  color: rgba(255, 255, 255, .9);
+  color: #b2d5ee;
   background-color: white;
   z-index: 16384;
   pointer-events: none;
