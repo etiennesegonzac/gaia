@@ -104,7 +104,13 @@
         case 'activityrequesting':
           // The request may come from the top most window
           // or the system app, but we don't care here.
-          var caller = Service.currentApp.getTopMostWindow();
+          var caller = Service.currentApp &&
+                       Service.currentApp.getTopMostWindow();
+          if (!caller) {
+            caller = {
+              instanceID: 'launcher'
+            };
+          }
           if (!this.activityPool.size) {
             this.activityPool.set(caller.instanceID, true);
           } else {

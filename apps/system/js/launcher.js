@@ -1,4 +1,5 @@
-/* global Service, applications, layoutManager, inputWindowManager */
+/* global Service, applications, layoutManager, inputWindowManager, places,
+   UrlHelper, MozActivity */
 'use strict';
 
 (function(exports) {
@@ -29,6 +30,11 @@
         //this.list.appendChild(li);
         //index++;
       //}
+
+      places.getStore().then(store => {
+        store.onchange = this.fillHistory.bind(this);
+      });
+      this.fillHistory();
     },
 
     isActive: function() {
@@ -77,6 +83,25 @@
           this.element.style.overflow = 'hidden';
           this.element.classList.add('expand');
 
+          if (evt.target.dataset.url) {
+            var activity = new MozActivity({
+              name: 'view',
+              data: {
+                type: 'url',
+                url: evt.target.dataset.url
+              }
+            });
+
+            activity.onsuccess = function() {
+              // TODO
+            };
+
+            this.nextTransition().then(() => {
+              this.element.classList.add('hide');
+            });
+            return;
+          }
+
           var app = applications.installedApps[evt.target.dataset.manifestURL];
           var entryPoint = evt.target.dataset.entryPoint || '';
           app.launch(entryPoint);
@@ -105,6 +130,7 @@
 
     updateChoice: function(app) {
       var selector = 'li[data-manifest-u-r-l="' + app.manifestURL + '"]';
+      selector += ', li[data-url="' + app.url + '"]';
       var matching = this.element.querySelectorAll(selector);
       var target;
       // entry points :/
@@ -176,6 +202,98 @@
     updateHeightCSSVar: function() {
       document.body.style.setProperty('--screen-height',
                                       window.innerHeight + 'px');
+    },
+
+    fillHistory: function() {
+      this._historyItems = [];
+      places.getStore().then(store => {
+        this.addHistoryItem(store.sync());
+      });
+    },
+
+    _historyItems: [],
+    addHistoryItem: function(cursor) {
+      cursor.next().then(task => {
+        if (task.operation == 'done') {
+          this.renderHistory();
+          return;
+        }
+
+        if (task.operation == 'add') {
+          this._historyItems.push(task.data);
+        }
+
+        this.addHistoryItem(cursor);
+      });
+    },
+
+    renderHistory: function() {
+      var previous = this.list.querySelectorAll('li.history');
+      var selectedURL = null;
+      for (var i = 0; i < previous.length; i++) {
+        var item = previous[i];
+        if (item.classList.contains('choice')) {
+          selectedURL = item.dataset.url;
+        }
+        item.parentNode.removeChild(item);
+      }
+
+      // Shapping it up, need work
+      this._historyItems.sort((a, b) => {
+        return a.visits[a.visits.length - 1] < b.visits[b.visits.length - 1];
+      }).map(history => {
+        var origin = UrlHelper.getOriginFromInput(history.url).split('//')[1];
+        return {
+          origin: origin,
+          url: history.url
+        };
+      }).reduce((acc, history) => {
+        var previousFromDomain = acc.find(i => {
+          return i.origin == history.origin;
+        });
+        if (previousFromDomain) {
+          previousFromDomain.url = history.url;
+        } else {
+          acc.push(history);
+        }
+        return acc;
+      }, []).slice(0, 3).reverse().forEach(history => {
+        var li = document.createElement('li');
+        li.classList.add('history');
+        li.dataset.url = history.url;
+        if (history.url == selectedURL) {
+          li.classList.add('choice');
+        }
+        var img = document.createElement('img');
+        img.src = 'style/launcher/icons/history.svg';
+        li.appendChild(img);
+
+        var span = document.createElement('span');
+        span.textContent = history.origin;
+        li.appendChild(span);
+
+        this.list.insertBefore(li, this.list.firstElementChild);
+      });
+
+      this.updateIndices();
+    },
+
+    updateIndices: function() {
+      var items = this.list.querySelectorAll('li');
+      var selected = -1;
+      this.list.style.height = (items.length * 90) + 'px';
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        item.dataset.index = i;
+        item.style.top = (i * 90) + 'px';
+        if (item.classList.contains('choice')) {
+          selected = i;
+        }
+      }
+      if (selected >= 0) {
+        this.removeClassesOnItems();
+        this.setClassesOnItemsFor(selected);
+      }
     }
   };
 
