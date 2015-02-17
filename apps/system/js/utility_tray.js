@@ -10,6 +10,8 @@ window.UtilityTray = {
 
   overlay: document.getElementById('utility-tray'),
 
+  underlay: document.getElementById('utility-tray-underlay'),
+
   notifications: document.getElementById('utility-tray-notifications'),
 
   statusbar: document.getElementById('statusbar'),
@@ -264,6 +266,7 @@ window.UtilityTray = {
       case 'transitionend':
         if (!this.shown) {
           this.overlay.classList.remove('visible');
+          this.underlay.classList.remove('visible');
         }
         break;
 
@@ -352,8 +355,9 @@ window.UtilityTray = {
       return;
     }
 
-    this.validateCachedSizes();
+    //this.validateCachedSizes();
     this.overlay.classList.add('visible');
+    this.underlay.classList.add('visible');
     // var screenHeight = this.screenHeight;
 
     var y = touch.pageY;
@@ -372,6 +376,8 @@ window.UtilityTray = {
 
     dy = Math.max(0, dy);
     dy = Math.min(this.yThreshold, dy);
+
+    this.underlay.style.opacity = Math.max(0, (dy / this.yThreshold) - 0.2);
 
     //if (dy >= this.grippyHeight) {
     //  this.screen.classList.add('utility-tray');
@@ -435,19 +441,22 @@ window.UtilityTray = {
     var style = this.overlay.style;
 
     style.MozTransition = instant ? '' : '-moz-transform 0.2s linear';
-    this.notifications.style.transition = style.MozTransition;
+    // this.notifications.style.transition = style.MozTransition;
+    this.underlay.style.transition = style.MozTransition;
     // this.screen.classList.remove('utility-tray');
+    this.underlay.style.opacity = 0;
 
     // If the transition has not started yet there won't be any transitionend
     // event so let's not wait in order to remove the utility-tray class.
     if (instant || style.MozTransform === '') {
       this.overlay.classList.remove('visible');
+      this.underlay.classList.remove('visible');
     }
 
     style.MozTransform = '';
-    var offset = this.grippyHeight - this.ambientHeight;
-    var notifTransform = 'calc(100% + ' + offset + 'px)';
-    this.notifications.style.transform = 'translateY(' + notifTransform + ')';
+    //var offset = this.grippyHeight - this.ambientHeight;
+    //var notifTransform = 'calc(100% + ' + offset + 'px)';
+    //this.notifications.style.transform = 'translateY(' + notifTransform + ')';
 
     if (this.shown) {
       this.shown = false;
@@ -468,9 +477,11 @@ window.UtilityTray = {
     style.MozTransition = instant ? '' : '-moz-transform 0.2s linear';
     var translate = this.ambientHeight + 'px';
     style.MozTransform = 'translateY(calc(100% - ' + translate + '))';
-    this.notifications.style.transition =
-      instant ? '' : 'transform 0.2s linear';
-    this.notifications.style.transform = '';
+    //this.notifications.style.transition =
+    //  instant ? '' : 'transform 0.2s linear';
+    //this.notifications.style.transform = '';
+    this.underlay.style.transition = style.MozTransition;
+    this.underlay.style.opacity = 0.8;
 
     // this.screen.classList.add('utility-tray');
 

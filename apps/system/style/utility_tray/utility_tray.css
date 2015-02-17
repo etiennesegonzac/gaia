@@ -185,6 +185,23 @@
   background: #00689b url(images/grippy.png) no-repeat center / 7.2rem;
 }
 
+#utility-tray-underlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: rgba(255, 255, 255, .9);
+  background-color: white;
+  z-index: 16384;
+  pointer-events: none;
+  opacity: 0;
+}
+
+#utility-tray-underlay.visible {
+  pointer-events: auto;
+}
+
 [data-icon] {
   float: left;
   width: 3rem;

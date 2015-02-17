@@ -124,6 +124,7 @@
   z-index: 16385;
 }
 
+#screen > [data-z-index-level="utility-tray-underlay"],
 #screen > [data-z-index-level="utility-tray-notifications"] {
   z-index: 16384;
 }
