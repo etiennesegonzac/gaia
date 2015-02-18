@@ -373,7 +373,7 @@ var StatusBar = {
         break;
 
       case 'sheets-gesture-begin':
-        this.element.classList.add('hidden');
+        //this.element.classList.add('hidden');
         if (!this._pausedForGesture) {
           this.pauseUpdate();
           this._pausedForGesture = true;
@@ -555,7 +555,7 @@ var StatusBar = {
         break;
 
       case 'sheets-gesture-end':
-        this.element.classList.remove('hidden');
+        //this.element.classList.remove('hidden');
         this._pausedForGesture = false;
         this.resumeUpdate();
         break;
@@ -681,20 +681,22 @@ var StatusBar = {
       return;
     }
 
-    // Fetch top-most (or bottom-most) window to figure out color theming.
-    var themeWindow =
-      useBottomWindow ? app.getBottomMostWindow() : app.getTopMostWindow();
+    return;
 
-    this.element.classList.toggle('light',
-      !!(themeWindow.appChrome && themeWindow.appChrome.useLightTheming())
-    );
+    // Fetch top-most (or bottom-most) window to figure out color theming.
+    //var themeWindow =
+      //useBottomWindow ? app.getBottomMostWindow() : app.getTopMostWindow();
+
+    //this.element.classList.toggle('light',
+      //!!(themeWindow.appChrome && themeWindow.appChrome.useLightTheming())
+    //);
 
     // Maximized state must be based on the bottom window if we're using it but
     // use the currently showing window for other cases.
-    var maximizedWindow = useBottomWindow ? themeWindow : app;
-    this.element.classList.toggle('maximized', maximizedWindow.isHomescreen ||
-      !!(maximizedWindow.appChrome && maximizedWindow.appChrome.isMaximized())
-    );
+    //var maximizedWindow = useBottomWindow ? themeWindow : app;
+    //this.element.classList.toggle('maximized', maximizedWindow.isHomescreen ||
+      //!!(maximizedWindow.appChrome && maximizedWindow.appChrome.isMaximized())
+    //);
   },
 
   _getMaximizedStatusBarWidth: function sb_getMaximizedStatusBarWidth() {

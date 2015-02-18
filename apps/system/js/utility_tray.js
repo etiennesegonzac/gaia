@@ -166,10 +166,10 @@ window.UtilityTray = {
         break;
 
       case 'sheets-gesture-begin':
-        this.overlay.classList.add('on-edge-gesture');
+        //this.overlay.classList.add('on-edge-gesture');
         break;
       case 'sheets-gesture-end':
-        this.overlay.classList.remove('on-edge-gesture');
+        //this.overlay.classList.remove('on-edge-gesture');
         break;
 
       case 'launchapp':
