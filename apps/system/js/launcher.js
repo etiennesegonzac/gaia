@@ -210,6 +210,7 @@
 
         this._actions.push({
           url: added.dataset.url,
+          title: added.dataset.title,
           action: true
         });
         asyncStorage.setItem(actionDS, this._actions, () => {
@@ -343,15 +344,16 @@
         this._actions.concat(this._historyItems.sort((a, b) => {
           return a.visits[a.visits.length - 1] < b.visits[b.visits.length - 1];
         })).map(history => {
-          var origin = UrlHelper.getOriginFromInput(history.url).split('//')[1];
+          var domain = UrlHelper.getDomainFromInput(history.url);
           return {
-            origin: origin,
+            domain: domain,
+            title: history.title || domain,
             url: history.url,
             action: !!history.action
           };
         }).reduce((acc, history) => {
           var sameDomain = acc.find(i => {
-            return i.origin == history.origin;
+            return i.domain == history.domain;
           });
           if (sameDomain) {
             sameDomain.url = history.url;
@@ -378,7 +380,8 @@
           li.appendChild(img);
 
           var span = document.createElement('span');
-          span.textContent = history.origin;
+          span.textContent = history.title;
+          li.dataset.title = history.title;
           li.appendChild(span);
 
           this.list.insertBefore(li, this.list.firstElementChild);

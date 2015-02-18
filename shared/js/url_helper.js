@@ -13,10 +13,10 @@ var UrlHelper = {
     return this.a.href;
   },
 
-  getOriginFromInput: function urlHelper_getOriginFromInput(input) {
+  getDomainFromInput: function urlHelper_getDomainFromInput(input) {
     this.a = this.a || document.createElement('a');
     this.a.href = input;
-    return this.a.origin;
+    return this.a.hostname.split('.').slice(-2).join('.');
   },
 
   _getScheme: function(input) {
