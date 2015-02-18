@@ -51,19 +51,11 @@
       }
 
       if (evt.type == 'home') {
-        if (layoutManager.keyboardEnabled) {
-          inputWindowManager.hideInputWindowImmediately();
+        if (this.element.classList.contains('hide')) {
+          this.show();
+        } else {
+          this.scrollToTop();
         }
-
-        this.element.classList.remove('hide');
-        this.element.classList.remove('expand');
-
-        this.removeClassesOnItems();
-
-        this.nextTransition().then(() => {
-          this.element.style.overflow = '';
-          window.dispatchEvent(new CustomEvent('homescreenopened'));
-        });
       }
 
       return true;
@@ -149,6 +141,26 @@
     hide: function() {
       this.element.classList.add('hide');
       window.dispatchEvent(new CustomEvent('launcherwillhide'));
+    },
+
+    show: function() {
+      if (layoutManager.keyboardEnabled) {
+        inputWindowManager.hideInputWindowImmediately();
+      }
+
+      this.element.classList.remove('hide');
+      this.element.classList.remove('expand');
+
+      this.removeClassesOnItems();
+
+      this.nextTransition().then(() => {
+        this.element.style.overflow = '';
+        window.dispatchEvent(new CustomEvent('homescreenopened'));
+      });
+    },
+
+    scrollToTop: function() {
+      this.element.scrollTo({top: 0, behavior: 'smooth'});
     },
 
     updateChoice: function(app) {
