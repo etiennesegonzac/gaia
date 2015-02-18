@@ -47,9 +47,10 @@
   transform: translateY(0);
   transition: transform .3s ease;
 
-  font-size: 2.4rem;
-  font-weight: 200;
+  font-size: 2rem;
+  font-weight: 300;
   line-height: 90px;
+  letter-spacing: -0.025em;
 }
 
 #launcher ul li span {
