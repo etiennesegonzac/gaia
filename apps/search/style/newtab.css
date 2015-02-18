@@ -142,3 +142,67 @@ h2 span {
 html[dir="rtl"] .top-site {
   float: right;
 }
+
+/* Suggestions */
+#offline-message {
+  font-size: 1.4rem;
+  font-style: italic;
+  margin: 1rem 1rem 0;
+  text-align: center;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+#search-results.offline #suggestions {
+  display: none;
+}
+
+#search-results.offline #offline-message {
+  display: flex;
+}
+
+#suggestions-provider {
+  color: #00aac5;
+  position: relative;
+  padding: 0 2rem 0 1rem;
+}
+
+#suggestions-provider::before {
+  content: ' ';
+  position: absolute;
+  bottom: 0.2rem;
+  right: .8rem;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 .8rem .8rem;
+  border-color: transparent transparent #00aac5 transparent;
+}
+
+#suggestions {
+  font-size: 1.6rem;
+  overflow-x: hidden;
+  margin-right: 1.6rem;
+}
+
+#suggestions ul {
+  list-style: none;
+  white-space: nowrap;
+  padding-left: 0;
+}
+
+#suggestions li {
+  height: 6rem;
+  line-height: 6rem;
+  margin: 0;
+  border-bottom: 0.1rem solid rgba(255, 255, 255, 0.05);
+  background-image: url(/style/icons/search.png);
+  background-repeat: no-repeat;
+  background-position: 0.8rem center;
+  text-indent: 4.5rem;
+}
+
+#suggestions-select {
+  display: none;
+}

@@ -14,7 +14,6 @@
 
     // States
     this.enabled = false;
-    this.focused = false;
     this.active = false;
 
     // Properties
@@ -27,11 +26,8 @@
     this.screen = document.getElementById('screen');
     this.rocketbar = document.getElementById('rocketbar');
     this.form = document.getElementById('rocketbar-form');
-    this.input = document.getElementById('rocketbar-input');
     this.cancel = document.getElementById('rocketbar-cancel');
     this.clearBtn = document.getElementById('rocketbar-clear');
-    this.results = document.getElementById('rocketbar-results');
-    this.backdrop = document.getElementById('rocketbar-backdrop');
     this.start();
   }
 
@@ -59,9 +55,6 @@
     },
 
     setHierarchy: function(active) {
-      if (active) {
-        this.focus();
-      }
       this.searchWindow &&
       this.searchWindow.setVisibleForScreenReader(active);
       return true;
@@ -104,27 +97,17 @@
         // We wait for the transition do be over and the search app to be loaded
         // before moving on (and resolving the promise).
         var searchLoaded = false;
-        var transitionEnded = false;
         var waitOver = () => {
-          if (searchLoaded && transitionEnded) {
+          if (searchLoaded) {
             resolve();
             this.publish('-activated');
           }
         };
 
-        var backdrop = this.backdrop;
-        var finishTransition = () => {
-          window.dispatchEvent(new CustomEvent('rocketbar-overlayopened'));
-          transitionEnded = true;
-          waitOver();
-        };
-        backdrop.classList.remove('hidden');
-        eventSafety(backdrop, 'transitionend', finishTransition, 300);
+        window.dispatchEvent(new CustomEvent('rocketbar-overlayopened'));
+        waitOver();
 
         this.loadSearchApp().then(() => {
-          if (this.input.value.length) {
-            this.handleInput();
-          }
           searchLoaded = true;
           waitOver();
         });
@@ -145,20 +128,15 @@
       this.active = false;
       this.isClosing = true;
 
-      var backdrop = this.backdrop;
       var self = this;
       var finish = () => {
         this.form.classList.add('hidden');
         this.rocketbar.classList.remove('active');
         this.screen.classList.remove('rocketbar-focused');
 
-        backdrop.classList.add('hidden');
-
-        eventSafety(backdrop, 'transitionend', () => {
-          window.dispatchEvent(new CustomEvent('rocketbar-overlayclosed'));
-          self.publish('-deactivated');
-          self.isClosing = false;
-        }, 300);
+        window.dispatchEvent(new CustomEvent('rocketbar-overlayclosed'));
+        self.publish('-deactivated');
+        self.isClosing = false;
       };
 
       if (this.focused) {
@@ -191,14 +169,12 @@
       window.addEventListener('searchclosed', this);
       window.addEventListener('utility-tray-overlayopening', this);
 
+      window.addEventListener('chrome-input', this);
+
       // Listen for events from Rocketbar
-      this.input.addEventListener('focus', this);
-      this.input.addEventListener('blur', this);
-      this.input.addEventListener('input', this);
       this.cancel.addEventListener('click', this);
       this.clearBtn.addEventListener('click', this);
       this.form.addEventListener('submit', this);
-      this.backdrop.addEventListener('click', this);
 
       // Listen for messages from search app
       window.addEventListener('iac-search-results', this);
@@ -227,6 +203,17 @@
      */
     handleEvent: function(e) {
       switch(e.type) {
+        case 'chrome-input':
+          this.activate().then(() => {
+            if (this._port) {
+              this._port.postMessage({
+                action: 'change',
+                input: e.detail.value,
+                isPrivateBrowser: Service.currentApp.isPrivateBrowser()
+              });
+            }
+          });
+          break;
         case 'searchopened':
           window.addEventListener('open-app', this);
           break;
@@ -263,12 +250,6 @@
         case 'lockscreen-appopened':
           this.handleLock(e);
           break;
-        case 'focus':
-          this.handleFocus(e);
-          break;
-        case 'blur':
-          this.handleBlur(e);
-          break;
         case 'input':
           this.handleInput(e);
           break;
@@ -277,9 +258,6 @@
             this.handleCancel(e);
           } else if (e.target == this.clearBtn) {
             this.clear();
-          } else if (e.target == this.backdrop) {
-            this.hideResults();
-            this.deactivate();
           }
           break;
         case 'searchterminated':
@@ -291,49 +269,25 @@
         case 'iac-search-results':
           this.handleSearchMessage(e);
           break;
-        case 'permissiondialoghide':
-          if (this.active) {
-            this.focus();
-          }
-          break;
         case 'global-search-request':
           // XXX: fix the WindowManager coupling
           // but currently the transition sequence is crucial for performance
           var app = Service.currentApp;
-          var afterActivate;
 
           if (app && !app.isActive()) {
             return;
           }
 
           // If the app is not a browser, retain the search value and activate.
-          if (app && !app.isBrowser()) {
-            afterActivate = this.focus.bind(this);
+          // Clear the input if the URL starts with a system page.
+          if (app.config.url.startsWith('app://system.gaiamobile.org')) {
+            this.setInput('');
           } else {
-            // Clear the input if the URL starts with a system page.
-            if (app.config.url.startsWith('app://system.gaiamobile.org')) {
-              this.setInput('');
-            } else {
-              // Set the input to be the URL in the case of a normal browser.
-              this.setInput(app.config.url);
-            }
-
-            afterActivate = () => {
-              this.hideResults();
-              setTimeout(() => {
-                this.focus();
-                this.selectAll();
-              });
-            };
+            // Set the input to be the URL in the case of a normal browser.
+            this.setInput(app.config.url);
           }
 
-          if (app && app.appChrome && !app.appChrome.isMaximized()) {
-            app.appChrome.maximize(() => {
-              this.activate().then(afterActivate);
-            });
-          } else {
-            this.activate().then(afterActivate);
-          }
+          this.input = e.detail.input;
           break;
       }
     },
@@ -362,8 +316,6 @@
       if (this.searchWindow && !this.searchWindow.isDead()) {
         this.searchWindow.open();
       }
-      this.results.classList.remove('hidden');
-      this.backdrop.classList.add('results-shown');
     },
 
     /**
@@ -375,9 +327,6 @@
         this.searchWindow.close();
         this.searchWindow.hideContextMenu();
       }
-
-      this.results.classList.add('hidden');
-      this.backdrop.classList.remove('results-shown');
 
       // Send a message to the search app to clear results
       if (this._port) {
@@ -416,27 +365,11 @@
     },
 
     /**
-     * Focus Rocketbar input.
-     * @memberof Rocketbar.prototype
-     */
-    focus: function() {
-      this.input.focus();
-    },
-
-    /**
      * SelectAll text content from Rocketbar input.
      * @memberof Rocketbar.prototype
      */
     selectAll: function() {
       this.input.setSelectionRange(0, this.input.value.length, 'forward');
-    },
-
-    /**
-     * Handle a focus event.
-     * @memberof Rocketbar.prototype
-     */
-    handleFocus: function() {
-      this.focused = true;
     },
 
     /**
@@ -459,13 +392,6 @@
       this.input.blur();
     },
 
-    /**
-     * Handle a blur event.
-     * @memberof Rocketbar.prototype
-     */
-    handleBlur: function() {
-      this.focused = false;
-    },
 
     /**
      * Handle a lock event.
@@ -517,15 +443,6 @@
 
       this.rocketbar.classList.toggle('has-text', input.length);
 
-      if (!input && !this.results.classList.contains('hidden')) {
-        this.hideResults();
-        return;
-      }
-
-      if (this.results.classList.contains('hidden')) {
-        this.showResults();
-      }
-
       if (this._port) {
         this._port.postMessage({
           action: 'change',
@@ -553,10 +470,6 @@
      */
     handleSubmit: function(e) {
       e.preventDefault();
-
-      if (this.results.classList.contains('hidden')) {
-        this.showResults();
-      }
 
       this._port.postMessage({
         action: 'submit',
@@ -651,14 +564,10 @@
           window.dispatchEvent(new CustomEvent('new-private-window'));
           break;
         case 'render':
-          this.activate().then(this.focus.bind(this));
-          break;
-        case 'focus':
-          this.focus();
+          this.activate();
           break;
         case 'input':
           this.setInput(e.detail.input);
-          this.focus();
           this.handleInput();
           break;
         case 'request-screenshot':
