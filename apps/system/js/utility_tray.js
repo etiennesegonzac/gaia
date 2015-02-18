@@ -1,5 +1,5 @@
 'use strict';
-/* global Service */
+/* global Service, StatusBar */
 
 window.UtilityTray = {
   name: 'UtilityTray',
@@ -101,6 +101,8 @@ window.UtilityTray = {
 
     Service.register('makeAmbientIndicatorActive', this);
     Service.register('makeAmbientIndicatorInactive', this);
+
+    window.addEventListener('launcherwillhide', this);
   },
 
   startY: undefined,
@@ -112,7 +114,7 @@ window.UtilityTray = {
   grippyHeight: 0,
   ambientHeight: 0,
 
-  maxUnderlayOpacity: 0.35,
+  maxUnderlayOpacity: 0.4,
 
   setHierarchy: function() {
     return false;
@@ -146,6 +148,8 @@ window.UtilityTray = {
       case 'attentionopened':
       case 'attentionwill-become-active':
       case 'home':
+        this.overlay.classList.remove('browser');
+        StatusBar.element.classList.remove('light');
         if (this.shown) {
           this.hide();
           if (evt.type == 'home') {
@@ -186,6 +190,13 @@ window.UtilityTray = {
 
         if (!isBlockedApp && this.shown) {
           this.hide();
+        }
+        break;
+
+      case 'launcherwillhide':
+        if (evt.detail.origin === 'app://search.gaiamobile.org') {
+          this.overlay.classList.add('browser');
+          StatusBar.element.classList.add('light');
         }
         break;
 

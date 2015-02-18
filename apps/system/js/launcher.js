@@ -126,7 +126,7 @@
           var transitioned = false, ready = false;
           var finish = () => {
             if (transitioned && ready) {
-              this.hide();
+              this.hide(app);
             }
           };
 
@@ -146,9 +146,11 @@
       }
     },
 
-    hide: function() {
+    hide: function(app) {
       this.element.classList.add('hide');
-      window.dispatchEvent(new CustomEvent('launcherwillhide'));
+      window.dispatchEvent(new CustomEvent('launcherwillhide', {
+        detail: app
+      }));
     },
 
     updateChoice: function(app) {
