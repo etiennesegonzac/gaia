@@ -39,7 +39,6 @@
 
   font-size: 2.4rem;
   font-weight: 200;
-  font-style: italic;
   line-height: 90px;
 }
 
@@ -59,12 +58,37 @@
   opacity: 0.9;
 }
 
-#launcher ul li:nth-child(odd) {
-  background-color: rgba(255, 255, 255, 0.05);
+#launcher ul li.adding img {
+  animation: swirl 0.3s ease 0s 1;
+}
+
+@keyframes swirl {
+  100% { transform: rotate(360deg);}
 }
 
 #launcher ul li * {
   pointer-events: none;
+}
+
+#launcher ul li.history {
+  font-style: italic;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+#launcher ul li.action {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+#launcher ul li.history img {
+  pointer-events: auto;
+}
+
+#launcher ul li.history img.pulse {
+  animation: dim 0.2s ease 0s 1;
+}
+
+@keyframes dim {
+  100% { opacity: 0.5;}
 }
 
 #launcher li::before {
@@ -81,6 +105,10 @@
 
 #launcher li.pulse::before {
   animation: pulse 0.2s ease 0s 1;
+}
+
+#launcher li.new::before {
+  animation: pulse 0.3s ease-out 0s 2 alternate;
 }
 
 @keyframes pulse {
