@@ -2,7 +2,7 @@
   position: absolute;
   top: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - var(--statusbar-height));
   background: linear-gradient(130deg, #00689b, #2f8db9);
 
   overflow-y: scroll;
@@ -15,7 +15,7 @@
 
 #launcher ul {
   position: absolute;
-  top: 0;
+  top: var(--statusbar-height);
   left: 0;
   width: 100%;
   list-style: none;
