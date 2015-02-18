@@ -902,6 +902,11 @@ suite('system/AppWindow', function() {
     });
   });
 
+  test('get Private Browser Splash Icon', function() {
+    var app = new AppWindow(fakePrivateConfig);
+    assert.isTrue(app._splash.indexOf('pb_icon.png') !== -1);
+  });
+
   var fakeMozBrowserIframe = {
     focus: function() {},
     blur: function() {},
@@ -1805,7 +1810,8 @@ suite('system/AppWindow', function() {
       var app1 = new AppWindow(fakeAppConfig1);
       var spyManifestHelper = this.sinon.stub(window, 'ManifestHelper');
       spyManifestHelper.returns({
-        name: 'Mon Application'
+        name: 'Mon Application',
+        short_name: 'Bref'
       });
       var stubPublish = this.sinon.stub(app1, 'publish');
 
@@ -1817,6 +1823,7 @@ suite('system/AppWindow', function() {
       assert.isTrue(spyManifestHelper.calledWithExactly(app1.manifest));
       assert.isTrue(stubPublish.calledWithExactly('namechanged'));
       assert.equal(app1.identificationTitle.textContent, 'Mon Application');
+      assert.equal(app1.shortName, 'Bref');
     });
 
     test('focus event', function() {

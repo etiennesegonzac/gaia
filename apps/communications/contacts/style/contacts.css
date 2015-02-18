@@ -562,7 +562,10 @@ html[dir=ltr] #view-settings [data-type="list"] .fb-item aside label {
 
 /* Extending BB buttons Icons at left side*/
 #view-settings [data-type="list"] li button.icon {
-  padding: 1.2rem 1.3rem 1.2rem 4rem;
+  padding-top: 1.2rem;
+  padding-bottom: 1.2rem;
+  -moz-padding-end: 1.3rem;
+  -moz-padding-start: 4rem;
 }
 
 #view-settings [data-type="list"] li button.icon:before {
@@ -575,7 +578,10 @@ html[dir=ltr] #view-settings [data-type="list"] .fb-item aside label {
 }
 
 #import-settings [data-type="list"] li button.icon {
-  padding: 1rem 1.3rem 1rem 4rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  -moz-padding-end: 1.3rem;
+  -moz-padding-start: 4rem;
 }
 
 #import-settings [data-type="list"] li button.icon:before {
@@ -916,7 +922,7 @@ form[role="combobox"] span[data-field="type"] {
   color: #5f5f5f;
   height: 5rem;
   vertical-align: middle;
-  padding-left: 4rem;
+  -moz-padding-start: 4rem;
   margin: 0;
 }
 
@@ -1049,4 +1055,9 @@ html[dir="rtl"] #view-settings [data-type="list"] li button.icon:before {
 
 html[dir="rtl"] .img-delete-button {
   background-position: 100% 0;
+}
+
+html[dir="rtl"] #import-settings [data-type="list"] li button.icon:before {
+  left: auto;
+  right: 0.5rem;
 }
