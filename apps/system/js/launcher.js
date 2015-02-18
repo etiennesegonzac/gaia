@@ -338,6 +338,7 @@
         }
 
         var lastAction = null;
+        var limit = Math.min(3 + this._actions.length, 10);
 
         // Shapping it up, need work
         // This should never land in master
@@ -353,7 +354,7 @@
           };
         }).reduce((acc, history) => {
           var sameDomain = acc.find(i => {
-            return i.domain == history.domain;
+            return i.domain == history.domain && !history.action;
           });
           if (sameDomain) {
             sameDomain.url = history.url;
@@ -362,7 +363,7 @@
             acc.push(history);
           }
           return acc;
-        }, []).slice(0, 3 + this._actions.length).reverse().forEach(history => {
+        }, []).slice(0, limit).reverse().forEach(history => {
           var li = document.createElement('li');
           li.classList.add('history');
           li.dataset.url = history.url;
