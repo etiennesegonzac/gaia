@@ -146,6 +146,9 @@
       this.config.chrome.maximized = true;
     }
 
+    if (this.manifest) {
+      this.shortName = new ManifestHelper(this.manifest).short_name;
+    }
     if (!this.manifest && this.config && this.config.title) {
       this.updateName(this.config.title);
     } else {
@@ -762,7 +765,7 @@
      'mozbrowserloadend', 'mozbrowseractivitydone', 'mozbrowserloadstart',
      'mozbrowsertitlechange', 'mozbrowserlocationchange',
      'mozbrowsermetachange', 'mozbrowsericonchange', 'mozbrowserasyncscroll',
-     'mozbrowsersecuritychange',
+     'mozbrowsersecuritychange', 'mozbrowsermanifestchange',
      '_localized', '_swipein', '_swipeout', '_kill_suspended',
      '_orientationchange', '_focus', '_blur',  '_hidewindow', '_sheetdisplayed',
      '_sheetsgestureend', '_cardviewbeforeshow', '_cardviewclosed',
@@ -852,6 +855,7 @@
       return;
     }
     this.name = new ManifestHelper(this.manifest).name;
+    this.shortName = new ManifestHelper(this.manifest).short_name;
 
     if (this.identificationTitle) {
       this.identificationTitle.textContent = this.name;
@@ -1007,6 +1011,7 @@
   AppWindow.prototype._handle_mozbrowserlocationchange =
     function aw__handle_mozbrowserlocationchange(evt) {
       this.favicons = {};
+      this.webManifestURL = null;
       this.config.url = evt.detail;
       // Integration test needs to locate the frame by this attribute.
       this.browser.element.dataset.url = evt.detail;
@@ -1081,6 +1086,13 @@
           break;
       }
 
+    };
+
+  AppWindow.prototype._handle_mozbrowsermanifestchange =
+    function aw__handle_mozbrowsermanifestchange(evt) {
+      if (evt.detail.href) {
+        this.webManifestURL = evt.detail.href;
+      }
     };
 
   AppWindow.prototype._registerEvents = function aw__registerEvents() {
@@ -1703,6 +1715,13 @@
 
   AppWindow.prototype.getIconForSplash =
     function aw_getIconForSplash(manifest) {
+      if (this.isPrivate) {
+        var privateIconPath = '/style/icons/pb_icon.png';
+        this._splash = privateIconPath;
+        this.preloadSplash();
+        return privateIconPath;
+      }
+
       var icons = this.manifest ?
         ('icons' in this.manifest ? this.manifest.icons : null) : null;
       if (!icons) {
