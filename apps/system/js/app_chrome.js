@@ -117,7 +117,8 @@
                 <button type="button" class="forward-button"
                         data-l10n-id="forward-button" disabled></button>
                 <div class="urlbar">
-                  <input type="text" class="title" data-ssl="">
+                  <input x-inputmode="verbatim" type="text"
+                  class="title" data-ssl="">
                   <button type="button" class="reload-button"
                           data-l10n-id="reload-button" disabled></button>
                   <button type="button" class="stop-button"
@@ -203,10 +204,25 @@
         this.handleClickEvent(evt);
         break;
 
+      case 'keyup':
+        // Really bad code to allow for urlbar submit actions.
+        if (evt.keyCode === 13) {
+          window.dispatchEvent(
+            new CustomEvent('chrome-input',
+                            { detail: {
+                              value: this.title.value,
+                              isSubmit: true
+                            }}));
+           this.title.blur();
+        }
+        break;
+
       case 'input':
         window.dispatchEvent(
           new CustomEvent('chrome-input',
-                          { detail: { value: this.title.value }})
+                          { detail: {
+                            value: this.title.value
+                          }})
         );
         break;
 
@@ -287,6 +303,13 @@
       case this.title:
         if (Service && Service.locked) {
           return;
+        }
+        // Reset the value to the URL on click.
+        var url = Service.currentApp.config.url;
+        if (url && url.startsWith('http')) {
+          this.title.value = url;
+        } else {
+          this.title.value = '';
         }
         break;
 
@@ -370,6 +393,7 @@
       this.menuButton.addEventListener('click', this);
       this.windowsButton.addEventListener('click', this);
       this.title.addEventListener('input', this);
+      this.title.addEventListener('keyup', this);
 
     } else {
       this.header.addEventListener('action', this);

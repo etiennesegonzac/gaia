@@ -1,6 +1,8 @@
 'use strict';
 (function(exports) {
   /* global Search */
+  /* global UrlHelper */
+  /* global SearchProvider */
 
   /**
    * The main Newtab page object.
@@ -51,7 +53,6 @@
     },
 
     dispatchMessage: function(e) {
-      console.log('Got message', e.data.action, e.data.input);
       if (e.data.action === 'change') {
         Object.keys(Search.providers).forEach((providerKey) => {
           var provider = Search.providers[providerKey];
@@ -63,6 +64,21 @@
         for (var i in Search.providers) {
           Search.providers[i].clear();
         }
+      } else if (e.data.action === 'submit') {
+        var url = e.data.input;
+        if (UrlHelper.isNotURL(url)) {
+          url = SearchProvider('searchUrl')
+            .replace('{searchTerms}', encodeURIComponent(e.data.input));
+        }
+
+        var hasScheme = UrlHelper.hasScheme(url);
+
+        // No scheme, prepend basic protocol and return
+        if (!hasScheme) {
+          url = 'http://' + url;
+        }
+
+        window.open(url, '_blank', 'remote=true');
       }
     },
 
