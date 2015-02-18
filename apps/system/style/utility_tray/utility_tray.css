@@ -18,6 +18,7 @@
 
 #utility-tray.visible {
   visibility: visible;
+  opacity: 1;
 }
 
 #statusbar-tray {
