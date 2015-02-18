@@ -10,19 +10,25 @@
   border:0;
 }
 
-
 /**
- * Root panel
+ * Disable selection by default except for input, text area, and elements with
+ * "contenteditable".
  */
 
-section[data-settings="false"] #back-to-settings {
-  visibility: hidden;
+* {
+  -moz-user-select: none;
 }
 
-section[data-settings="true"] #back-to-settings {
-  visibility: visible;
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="url"],
+textarea,
+[contenteditable="true"] {
+  -moz-user-select: text;
 }
-
 
 /**
  * Lists
@@ -612,6 +618,11 @@ span.passcode-digit[data-dot]::before {
  * when in right-to-left direction.
  */
 
-[dir='rtl'] .icon-back:before {
+[dir="rtl"] .icon-back:before {
   content: 'forward';
+}
+
+[dir="rtl"] .app-element img {
+  left: unset;
+  right: 0;
 }
