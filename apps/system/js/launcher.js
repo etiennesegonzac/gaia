@@ -211,7 +211,8 @@
           action: true
         });
         asyncStorage.setItem(actionDS, this._actions, () => {
-          setTimeout(this.fillHistory.bind(this, true), 300); // swirl duration
+          // swirl duration
+          setTimeout(this.fillHistory.bind(this, {adding: true}), 300);
         });
       };
 
@@ -295,10 +296,10 @@
                                       window.innerHeight + 'px');
     },
 
-    fillHistory: function(adding) {
+    fillHistory: function(opts) {
       this._historyItems = [];
       places.getStore().then(store => {
-        this.addHistoryItem(store.sync(), adding);
+        this.addHistoryItem(store.sync(), opts && opts.adding);
       });
     },
 
