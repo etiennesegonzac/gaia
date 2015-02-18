@@ -1,8 +1,12 @@
 /* global Service, applications, layoutManager, inputWindowManager, places,
-   UrlHelper, MozActivity */
+   UrlHelper, MozActivity, asyncStorage */
 'use strict';
 
 (function(exports) {
+  const rowHeight = 90;
+  const rowsPerScreen = 7;
+  const actionDS = 'actions';
+
   var Launcher = function() {};
   Launcher.prototype = {
     name: 'Launcher',
@@ -66,29 +70,42 @@
     },
 
     handleEvent: function(evt) {
+      var target = evt.target;
+
       switch (evt.type) {
         case 'appopened':
           this.updateChoice(evt.detail);
           break;
         case 'touchstart':
-          evt.target.classList.add('pulse');
+          target.classList.add('pulse');
           break;
         case 'touchend':
-          evt.target.classList.remove('pulse');
+          target.classList.remove('pulse');
           break;
         case 'click':
-          var selected = parseInt(evt.target.dataset.index);
+          if (target.dataset.action) {
+            var parent = target.parentNode;
+            var index = parseInt(parent.dataset.index);
+            if (parent.classList.contains('action')) {
+              this.removeActionAtIndex(index);
+            } else {
+              this.addActionAtIndex(target.dataset.action, index);
+            }
+            break;
+          }
+
+          var selected = parseInt(target.dataset.index);
           this.setClassesOnItemsFor(selected);
 
           this.element.style.overflow = 'hidden';
           this.element.classList.add('expand');
 
-          if (evt.target.dataset.url) {
+          if (target.dataset.url) {
             var activity = new MozActivity({
               name: 'view',
               data: {
                 type: 'url',
-                url: evt.target.dataset.url
+                url: target.dataset.url
               }
             });
 
@@ -102,8 +119,8 @@
             return;
           }
 
-          var app = applications.installedApps[evt.target.dataset.manifestURL];
-          var entryPoint = evt.target.dataset.entryPoint || '';
+          var app = applications.installedApps[target.dataset.manifestURL];
+          var entryPoint = target.dataset.entryPoint || '';
           app.launch(entryPoint);
 
           var transitioned = false, ready = false;
@@ -154,6 +171,62 @@
       this.setClassesOnItemsFor(target.dataset.index);
     },
 
+    addActionAtIndex: function(action, index) {
+      var items = this.list.querySelectorAll('li');
+      var added = items[index];
+      added.classList.add('action');
+      added.style.transform = 'translateY(-' + (index - this._actions.length) *
+                                               rowHeight + 'px)';
+
+      for (var i = this._actions.length; i < index; i++) {
+        var item = items[i];
+        if (item !== added) {
+          item.style.transform = 'translateY(' + rowHeight + 'px)';
+        }
+      }
+
+      var finish = () => {
+        added.classList.add('adding');
+
+        this._actions.push({
+          url: added.dataset.url,
+          action: true
+        });
+        asyncStorage.setItem(actionDS, this._actions, () => {
+          setTimeout(this.fillHistory.bind(this, true), 300); // swirl duration
+        });
+      };
+
+      // All items stay in place, no transition
+      if ((index - this._actions.length) === 0) {
+        finish();
+        return;
+      }
+
+      this.nextTransition().then(() => {
+        finish();
+      });
+    },
+
+    removeActionAtIndex: function(index) {
+      var items = this.list.querySelectorAll('li');
+      var removed = items[index];
+      removed.style.transform = 'translateY(var(--screen-height))';
+
+      var limit = Math.min((index + 1 + rowsPerScreen), items.length);
+      for (var i = (index + 1); i < limit; i++) {
+        var item = items[i];
+        item.style.transform = 'translateY(-' + rowHeight + 'px)';
+      }
+
+      this._actions = this._actions.filter((action) => {
+        return (action.url != removed.dataset.url);
+      });
+      asyncStorage.setItem(actionDS, this._actions, () => {
+        setTimeout(this.fillHistory.bind(this), 300);
+      });
+    },
+
     nextTransition: function() {
       var el = this.element;
       return new Promise(function(resolve, reject) {
@@ -180,10 +253,10 @@
         if (i == selected) {
           item.classList.add('choice');
         }
-        if ((i < selected) && (i >= (selected - 7))) {
+        if ((i < selected) && (i >= (selected - rowsPerScreen))) {
           item.classList.add('top');
         }
-        if ((i > selected) && (i <= (selected + 7))) {
+        if ((i > selected) && (i <= (selected + rowsPerScreen))) {
           item.classList.add('bottom');
         }
       }
@@ -204,18 +277,18 @@
                                       window.innerHeight + 'px');
     },
 
-    fillHistory: function() {
+    fillHistory: function(adding) {
       this._historyItems = [];
       places.getStore().then(store => {
-        this.addHistoryItem(store.sync());
+        this.addHistoryItem(store.sync(), adding);
       });
     },
 
     _historyItems: [],
-    addHistoryItem: function(cursor) {
+    addHistoryItem: function(cursor, adding) {
       cursor.next().then(task => {
         if (task.operation == 'done') {
-          this.renderHistory();
+          this.renderHistory(adding);
           return;
         }
 
@@ -223,69 +296,90 @@
           this._historyItems.push(task.data);
         }
 
-        this.addHistoryItem(cursor);
+        this.addHistoryItem(cursor, adding);
       });
     },
 
-    renderHistory: function() {
-      var previous = this.list.querySelectorAll('li.history');
-      var selectedURL = null;
-      for (var i = 0; i < previous.length; i++) {
-        var item = previous[i];
-        if (item.classList.contains('choice')) {
-          selectedURL = item.dataset.url;
-        }
-        item.parentNode.removeChild(item);
-      }
+    _actions: [],
+    renderHistory: function(adding) {
+      asyncStorage.getItem(actionDS, results => {
+        this._actions = results || [];
 
-      // Shapping it up, need work
-      this._historyItems.sort((a, b) => {
-        return a.visits[a.visits.length - 1] < b.visits[b.visits.length - 1];
-      }).map(history => {
-        var origin = UrlHelper.getOriginFromInput(history.url).split('//')[1];
-        return {
-          origin: origin,
-          url: history.url
-        };
-      }).reduce((acc, history) => {
-        var previousFromDomain = acc.find(i => {
-          return i.origin == history.origin;
+        var previous = this.list.querySelectorAll('li.history');
+        var selectedURL = null;
+        for (var i = 0; i < previous.length; i++) {
+          var item = previous[i];
+          if (item.classList.contains('choice')) {
+            selectedURL = item.dataset.url;
+          }
+          item.parentNode.removeChild(item);
+        }
+
+        var lastAction = null;
+
+        // Shapping it up, need work
+        // This should never land in master
+        this._actions.concat(this._historyItems.sort((a, b) => {
+          return a.visits[a.visits.length - 1] < b.visits[b.visits.length - 1];
+        })).map(history => {
+          var origin = UrlHelper.getOriginFromInput(history.url).split('//')[1];
+          return {
+            origin: origin,
+            url: history.url,
+            action: !!history.action
+          };
+        }).reduce((acc, history) => {
+          var sameDomain = acc.find(i => {
+            return i.origin == history.origin;
+          });
+          if (sameDomain) {
+            sameDomain.url = history.url;
+            sameDomain.action = sameDomain.action || history.action;
+          } else {
+            acc.push(history);
+          }
+          return acc;
+        }, []).slice(0, 3 + this._actions.length).reverse().forEach(history => {
+          var li = document.createElement('li');
+          li.classList.add('history');
+          li.dataset.url = history.url;
+          if (history.url == selectedURL) {
+            li.classList.add('choice');
+          }
+          var img = document.createElement('img');
+          img.src = 'style/launcher/icons/history.svg';
+          if (history.action) {
+            img.src = 'style/launcher/icons/action.svg';
+            li.classList.add('action');
+            lastAction = lastAction || li;
+          }
+          img.dataset.action = history.url;
+          li.appendChild(img);
+
+          var span = document.createElement('span');
+          span.textContent = history.origin;
+          li.appendChild(span);
+
+          this.list.insertBefore(li, this.list.firstElementChild);
         });
-        if (previousFromDomain) {
-          previousFromDomain.url = history.url;
-        } else {
-          acc.push(history);
-        }
-        return acc;
-      }, []).slice(0, 3).reverse().forEach(history => {
-        var li = document.createElement('li');
-        li.classList.add('history');
-        li.dataset.url = history.url;
-        if (history.url == selectedURL) {
-          li.classList.add('choice');
-        }
-        var img = document.createElement('img');
-        img.src = 'style/launcher/icons/history.svg';
-        li.appendChild(img);
 
-        var span = document.createElement('span');
-        span.textContent = history.origin;
-        li.appendChild(span);
+        if (adding && lastAction) {
+          lastAction.classList.add('new');
+        }
 
-        this.list.insertBefore(li, this.list.firstElementChild);
+        this.updateIndices();
       });
-
-      this.updateIndices();
     },
 
     updateIndices: function() {
       var items = this.list.querySelectorAll('li');
       var selected = -1;
-      this.list.style.height = (items.length * 90) + 'px';
+      this.list.style.height = (items.length * rowHeight) + 'px';
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
         item.dataset.index = i;
-        item.style.top = (i * 90) + 'px';
+        item.style.top = (i * rowHeight) + 'px';
+        item.style.transform = '';
         if (item.classList.contains('choice')) {
           selected = i;
         }
