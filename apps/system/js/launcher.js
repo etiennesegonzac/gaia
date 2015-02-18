@@ -114,7 +114,7 @@
             };
 
             this.nextTransition().then(() => {
-              this.element.classList.add('hide');
+              this.hide();
             });
             return;
           }
@@ -124,25 +124,31 @@
           app.launch(entryPoint);
 
           var transitioned = false, ready = false;
+          var finish = () => {
+            if (transitioned && ready) {
+              this.hide();
+            }
+          };
 
           this.nextAppLaunch().then((config) => {
             var app = window.appWindowManager.getApp(config.origin,
-              config.manifestURL);
+                                                     config.manifestURL);
             app.ready(() => {
               ready = true;
-              if (transitioned) {
-                this.element.classList.add('hide');
-              }
+              finish();
             });
           });
           this.nextTransition().then(() => {
             transitioned = true;
-            if (ready) {
-              this.element.classList.add('hide');
-            }
+            finish();
           });
           break;
       }
+    },
+
+    hide: function() {
+      this.element.classList.add('hide');
+      window.dispatchEvent(new CustomEvent('launcherwillhide'));
     },
 
     updateChoice: function(app) {
