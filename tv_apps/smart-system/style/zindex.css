@@ -192,10 +192,6 @@
   z-index: 2042;
 }
 
-#screen > [data-z-index-level="rocketbar-backdrop"] {
-  z-index: 2041;
-}
-
 #screen.locked > [data-z-index-level="gesture-panel"] {
   z-index: 2043;
 }

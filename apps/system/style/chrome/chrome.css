@@ -152,8 +152,10 @@
 
 .chrome .controls .urlbar .title {
   width: calc(100% - 3.2rem);
+  height: 3.4rem;
   padding-top: 0;
   padding-bottom: 0;
+  border: 0;
   -moz-padding-start: 1.45rem;
   -moz-padding-end: 0.8rem;
   box-sizing: padding-box;
@@ -166,6 +168,7 @@
   border-radius: 1.8rem;
   text-overflow: ellipsis;
   font-style: italic;
+  box-shadow: none;
 }
 
 .search-app .chrome.maximized .controls .urlbar:after {

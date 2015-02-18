@@ -1,15 +1,12 @@
 'use strict';
 (function(exports) {
+  /* global Search */
 
   /**
    * The main Newtab page object.
    * Instantiates places to populate history and top sites.
    */
   function Newtab() {
-    var privateWindow = document.getElementById('private-window');
-    privateWindow.addEventListener('click',
-      this.requestPrivateWindow.bind(this));
-
     // Initialize the parent port connection
     var self = this;
     navigator.mozApps.getSelf().onsuccess = function() {
@@ -36,8 +33,37 @@
      * Initializes top sites and history.
      */
     init: function() {
-      this.provider.init();
-      this.provider.searchObj = this;
+      for (var i in Search.providers) {
+        Search.providers[i].init(this);
+        Search.providers[i].searchObj = this;
+      }
+
+      // Setup the connection handler.
+      navigator.mozSetMessageHandler('connection',
+        connectionRequest => {
+          var keyword = connectionRequest.keyword;
+          var port = connectionRequest.port;
+          if (keyword === 'search') {
+            port.onmessage = this.dispatchMessage.bind(this);
+            port.start();
+          }
+        });
+    },
+
+    dispatchMessage: function(e) {
+      console.log('Got message', e.data.action, e.data.input);
+      if (e.data.action === 'change') {
+        Object.keys(Search.providers).forEach((providerKey) => {
+          var provider = Search.providers[providerKey];
+          provider.search(e.data.input).then(results => {
+            provider.render(results);
+          });
+        });
+      } else if (e.data.action === 'clear') {
+        for (var i in Search.providers) {
+          Search.providers[i].clear();
+        }
+      }
     },
 
     /**
@@ -68,8 +94,16 @@
    * the search or newtab page could leverage it.
    */
   exports.Search = {
+
+    providers: {},
+
+    /**
+     * Adds a search provider
+     */
     provider: function(provider) {
-      exports.newtab.provider = provider;
+      if (!(provider.name in this.providers)) {
+        this.providers[provider.name] = provider;
+      }
     },
 
     /**

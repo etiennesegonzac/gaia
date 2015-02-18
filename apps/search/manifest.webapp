@@ -38,7 +38,7 @@
   },
   "connections": {
     "search": {
-      "handler_path": "index.html",
+      "handler_path": "newtab.html",
       "description": "Notifies the search app on query change.",
       "rules": {}
     }

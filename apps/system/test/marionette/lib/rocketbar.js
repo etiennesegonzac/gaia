@@ -41,7 +41,6 @@ Rocketbar.prototype = {
     input: '#rocketbar-input',
     cancel: '#rocketbar-cancel',
     clear: '#rocketbar-clear',
-    backdrop: '#rocketbar-backdrop',
     results: '#rocketbar-results',
     appTitle: '.appWindow.active .chrome .title'
   },

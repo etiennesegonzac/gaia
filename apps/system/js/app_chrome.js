@@ -117,7 +117,7 @@
                 <button type="button" class="forward-button"
                         data-l10n-id="forward-button" disabled></button>
                 <div class="urlbar">
-                  <div class="title" data-ssl=""></div>
+                  <input type="text" class="title" data-ssl="">
                   <button type="button" class="reload-button"
                           data-l10n-id="reload-button" disabled></button>
                   <button type="button" class="stop-button"
@@ -203,6 +203,13 @@
         this.handleClickEvent(evt);
         break;
 
+      case 'input':
+        window.dispatchEvent(
+          new CustomEvent('chrome-input',
+                          { detail: { value: this.title.value }})
+        );
+        break;
+
       case 'action':
         this.handleActionEvent(evt);
         break;
@@ -281,7 +288,6 @@
         if (Service && Service.locked) {
           return;
         }
-        window.dispatchEvent(new CustomEvent('global-search-request'));
         break;
 
       case this.menuButton:
@@ -363,6 +369,8 @@
       this.scrollable.addEventListener('scroll', this);
       this.menuButton.addEventListener('click', this);
       this.windowsButton.addEventListener('click', this);
+      this.title.addEventListener('input', this);
+
     } else {
       this.header.addEventListener('action', this);
     }
@@ -438,7 +446,7 @@
   // Name has priority over the rest
   AppChrome.prototype.handleNameChanged =
     function ac_handleNameChanged(evt) {
-      this.title.textContent = this.app.name;
+      this.title.value = this.app.name;
       this._gotName = true;
     };
 
@@ -446,7 +454,7 @@
     if (this.isSearchApp()) {
       return;
     }
-    this.title.textContent = title;
+    this.title.value = title;
     clearTimeout(this._titleTimeout);
     this._recentTitle = true;
     this._titleTimeout = setTimeout((function() {
@@ -593,7 +601,7 @@
           this._fixedTitle) {
         return;
       }
-      this.title.textContent = title;
+      this.title.value = title;
     };
 
   AppChrome.prototype.updateAddToHomeButton =
@@ -739,7 +747,7 @@
     if (this.isSearch()) {
       name = dataset.searchName;
     } else {
-      name = this.title.textContent;
+      name = this.title.value;
     }
     var url = this._currentURL;
 
@@ -782,7 +790,7 @@
       var dataset = this.app.config;
       data.options.push({ id: 'search', text: dataset.searchName });
     } else {
-      data.options.push({ id: 'origin', text: this.title.textContent });
+      data.options.push({ id: 'origin', text: this.title.value });
     }
 
     ModalDialog.selectOne(data, selected);
@@ -839,7 +847,7 @@
   AppChrome.prototype.showOverflowMenu = function ac_showOverflowMenu() {
     if (this.app.contextmenu) {
       var name = this.isSearch() ?
-        this.app.config.searchName : this.title.textContent;
+        this.app.config.searchName : this.title.value;
       this.app.contextmenu.showDefaultMenu(newTabManifestURL, name);
     }
   };
