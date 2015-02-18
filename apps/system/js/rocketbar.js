@@ -206,8 +206,14 @@
         case 'chrome-input':
           this.activate().then(() => {
             if (this._port) {
+              var action = 'change';
+
+              if (e.detail.isSubmit) {
+                action = 'submit';
+              }
+
               this._port.postMessage({
-                action: 'change',
+                action: action,
                 input: e.detail.value,
                 isPrivateBrowser: Service.currentApp.isPrivateBrowser()
               });
