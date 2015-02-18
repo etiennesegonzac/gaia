@@ -55,6 +55,7 @@
 #launcher ul li span {
   display: block;
   width: calc(100% - 95px);
+  white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
 }
