@@ -9,23 +9,13 @@
   transition: opacity 0.3s linear;
 }
 
-#launcher::before {
-  position: absolute;
-  top: 0;
-  left: 0;
-  content: '';
-  width: 100%;
-  height: var(--statusbar-height);
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
 #screen.software-button-enabled #launcher {
   height: calc(100% - var(--software-home-button-height));
 }
 
 #launcher ul {
   position: absolute;
-  top: var(--statusbar-height);
+  top: 0;
   left: 0;
   width: 100%;
   list-style: none;
