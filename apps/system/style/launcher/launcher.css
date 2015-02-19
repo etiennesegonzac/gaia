@@ -116,7 +116,7 @@
 }
 
 #launcher li.pulse::before {
-  animation: pulse 0.2s ease 0s 1;
+  animation: pulse 0.2s ease 0s 2 alternate;
 }
 
 #launcher li.new::before {

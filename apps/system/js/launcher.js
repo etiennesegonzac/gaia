@@ -92,12 +92,23 @@
           this.element.style.overflow = 'hidden';
           this.element.classList.add('expand');
 
-          if (target.dataset.url) {
+          var url = target.dataset.url;
+          if (url && url.indexOf('callscreen.gaiamobile') !== -1) {
+            var number = target.dataset.url.split('#number=')[1];
+            navigator.mozTelephony.dial(number);
+            this.nextAttentionOpened().then(() => {
+              //setTimeout(this.show.bind(this), 300);
+              this.show();
+            });
+            return;
+          }
+
+          if (url) {
             var activity = new MozActivity({
               name: 'view',
               data: {
                 type: 'url',
-                url: target.dataset.url
+                url: url
               }
             });
 
@@ -195,6 +206,7 @@
       var items = this.list.querySelectorAll('li');
       var added = items[index];
       added.classList.add('action');
+      added.querySelector('img').src = 'style/launcher/icons/action.svg';
       added.style.transform = 'translateY(-' + (index - this._actions.length) *
                                                rowHeight + 'px)';
 
@@ -263,6 +275,15 @@
       return new Promise(function(resolve, reject) {
         window.addEventListener('launchapp', function launchWait(evt) {
           window.removeEventListener('launchapp', launchWait);
+          resolve(evt.detail);
+        });
+      });
+    },
+
+    nextAttentionOpened: function() {
+      return new Promise(function(resolve, reject) {
+        window.addEventListener('attentionopened', function attentionWait(evt) {
+          window.removeEventListener('attentionopened', attentionWait);
           resolve(evt.detail);
         });
       });
@@ -354,6 +375,9 @@
           };
         }).reduce((acc, history) => {
           var sameDomain = acc.find(i => {
+            if (i.url.startsWith('app://')) {
+              return i.url == history.url;
+            }
             return i.domain == history.domain && !history.action;
           });
           if (sameDomain) {

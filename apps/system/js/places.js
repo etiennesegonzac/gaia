@@ -79,8 +79,10 @@
      */
     start: function() {
       return new Promise(resolve => {
+        window.addEventListener('attentionlocationchange', this);
         window.addEventListener('applocationchange', this);
         window.addEventListener('apptitlechange', this);
+        window.addEventListener('attentiontitlechange', this);
         window.addEventListener('appiconchange', this);
         window.addEventListener('apploaded', this);
 
@@ -113,7 +115,7 @@
 
       // If the app is not a browser, do not track places as tracking places
       // currently has a non-trivial startup cost.
-      if (app && !app.isBrowser()) {
+      if (app && !app.isBrowser() && !app.isCallscreenWindow) {
         return;
       }
 
@@ -123,10 +125,19 @@
       }
 
       switch (evt.type) {
+        case 'attentionlocationchange':
         case 'applocationchange':
+          if (app.isCallscreenWindow &&
+              (app.config.url.indexOf('#number') === -1)) {
+            break;
+          }
           this.onLocationChange(app.config.url);
           break;
+        case 'attentiontitlechange':
         case 'apptitlechange':
+          if (app.isCallscreenWindow && !app.title) {
+            break;
+          }
           this.onTitleChange(app.config.url, app.title);
           break;
         case 'appiconchange':
