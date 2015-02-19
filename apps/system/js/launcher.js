@@ -97,7 +97,6 @@
             var number = target.dataset.url.split('#number=')[1];
             navigator.mozTelephony.dial(number);
             this.nextAttentionOpened().then(() => {
-              //setTimeout(this.show.bind(this), 300);
               this.show();
             });
             return;
@@ -205,6 +204,15 @@
     addActionAtIndex: function(action, index) {
       var items = this.list.querySelectorAll('li');
       var added = items[index];
+
+      if (this._actions.length === 10) {
+        added.classList.add('shake');
+        setTimeout(() => {
+          added.classList.remove('shake');
+        }, 300);
+        return;
+      }
+
       added.classList.add('action');
       added.querySelector('img').src = 'style/launcher/icons/action.svg';
       added.style.transform = 'translateY(-' + (index - this._actions.length) *
@@ -359,7 +367,7 @@
         }
 
         var lastAction = null;
-        var limit = Math.min(3 + this._actions.length, 10);
+        var limit = 3 + this._actions.length;
 
         // Shapping it up, need work
         // This should never land in master

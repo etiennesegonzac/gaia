@@ -53,6 +53,16 @@
   letter-spacing: -0.025em;
 }
 
+#launcher ul li.shake {
+  animation: shake 0.2s linear 0s 1 forwards;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-15px); }
+  20%, 40%, 60%, 80% { transform: translateX(15px); }
+}
+
 #launcher ul li span {
   display: block;
   width: calc(100% - 95px);
@@ -65,7 +75,8 @@
   float: left;
   width: 40px;
   height: 40px;
-  margin: 25px 15px 25px 25px;
+  margin: 10px 0 10px 10px;
+  padding: 15px;
 
   opacity: 0.9;
 }
