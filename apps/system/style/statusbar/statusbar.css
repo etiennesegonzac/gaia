@@ -18,10 +18,11 @@
   bottom: -3rem;
   left: 0;
   background-color: #126C97;
+  border-bottom: 1px solid transparent;
 }
 
 #utility-tray.visible #statusbar {
-  border-bottom: 1px solid #004b70;
+  border-color: #004b70;
 }
 
 #utility-tray.browser #statusbar {

@@ -112,7 +112,7 @@
   top: auto;
 }
 
-.appWindow[data-manifest-name="Browser"] > div {
+.appWindow[data-manifest-name="Browser"] .browser-container {
   top: var(--statusbar-height);
   height: calc(100% - var(--statusbar-height));;
 }
