@@ -51,19 +51,11 @@
       }
 
       if (evt.type == 'home') {
-        if (layoutManager.keyboardEnabled) {
-          inputWindowManager.hideInputWindowImmediately();
+        if (this.element.classList.contains('hide')) {
+          this.show();
+        } else {
+          this.scrollToTop();
         }
-
-        this.element.classList.remove('hide');
-        this.element.classList.remove('expand');
-
-        this.removeClassesOnItems();
-
-        this.nextTransition().then(() => {
-          this.element.style.overflow = '';
-          window.dispatchEvent(new CustomEvent('homescreenopened'));
-        });
       }
 
       return true;
@@ -153,6 +145,26 @@
       }));
     },
 
+    show: function() {
+      if (layoutManager.keyboardEnabled) {
+        inputWindowManager.hideInputWindowImmediately();
+      }
+
+      this.element.classList.remove('hide');
+      this.element.classList.remove('expand');
+
+      this.removeClassesOnItems();
+
+      this.nextTransition().then(() => {
+        this.element.style.overflow = '';
+        window.dispatchEvent(new CustomEvent('homescreenopened'));
+      });
+    },
+
+    scrollToTop: function() {
+      this.element.scrollTo({top: 0, behavior: 'smooth'});
+    },
+
     updateChoice: function(app) {
       var selector = 'li[data-manifest-u-r-l="' + app.manifestURL + '"]';
       selector += ', li[data-url="' + app.url + '"]';
@@ -201,7 +213,8 @@
           action: true
         });
         asyncStorage.setItem(actionDS, this._actions, () => {
-          setTimeout(this.fillHistory.bind(this, true), 300); // swirl duration
+          // swirl duration
+          setTimeout(this.fillHistory.bind(this, {adding: true}), 300);
         });
       };
 
@@ -285,10 +298,10 @@
                                       window.innerHeight + 'px');
     },
 
-    fillHistory: function(adding) {
+    fillHistory: function(opts) {
       this._historyItems = [];
       places.getStore().then(store => {
-        this.addHistoryItem(store.sync(), adding);
+        this.addHistoryItem(store.sync(), opts && opts.adding);
       });
     },
 
