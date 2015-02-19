@@ -3,7 +3,9 @@
   top: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(130deg, #00689b, #2f8db9);
+  background-size: cover;
+  background-color: #FAB844;
+  background-image: url(background.png);
 
   overflow-y: scroll;
   transition: opacity 0.3s linear;
