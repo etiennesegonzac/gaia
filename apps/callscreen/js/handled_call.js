@@ -162,6 +162,8 @@ HandledCall.prototype.updateCallNumber = function hc_updateCallNumber() {
     if (isVoicemailNumber) {
       LazyL10n.get(function localized(_) {
         node.textContent = _('voiceMail');
+        document.title = 'Call ' + _('voiceMail');
+        window.location.hash = 'number=' + number;
         self._cachedInfo = _('voiceMail');
       });
     } else {
@@ -197,6 +199,8 @@ HandledCall.prototype.updateCallNumber = function hc_updateCallNumber() {
       };
       if (primaryInfo) {
         node.textContent = primaryInfo;
+        document.title = 'Call ' + primaryInfo;
+        window.location.hash = 'number=' + matchingTel;
         self._cachedInfo = primaryInfo;
       } else {
         LazyL10n.get(function gotL10n(_) {
@@ -222,6 +226,8 @@ HandledCall.prototype.updateCallNumber = function hc_updateCallNumber() {
 
     self._cachedInfo = number;
     node.textContent = self._cachedInfo;
+    document.title = 'Call ' + self._cachedInfo;
+    window.location.hash = 'number=' + number;
     self.replaceAdditionalContactInfo(self._cachedAdditionalInfo);
     self.formatPhoneNumber('end');
   }

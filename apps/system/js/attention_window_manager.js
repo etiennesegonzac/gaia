@@ -1,4 +1,4 @@
-/* globals Service, homescreenLauncher, SettingsListener */
+/* globals Service, SettingsListener */
 'use strict';
 
 (function(exports) {
@@ -57,14 +57,15 @@
         return true;
       }
       this._topMostWindow = null;
-      var nextApp = homescreenLauncher.getHomescreen();
-      if (Service.locked) {
-        this.closeAllAttentionWindows();
-      } else if (nextApp && !nextApp.isDead()) {
-        nextApp.ready(this.closeAllAttentionWindows.bind(this));
-      } else {
-        this.closeAllAttentionWindows();
-      }
+      this.closeAllAttentionWindows();
+      //var nextApp = homescreenLauncher.getHomescreen();
+      //if (Service.locked) {
+        //this.closeAllAttentionWindows();
+      //} else if (nextApp && !nextApp.isDead()) {
+        //nextApp.ready(this.closeAllAttentionWindows.bind(this));
+      //} else {
+        //this.closeAllAttentionWindows();
+      //}
       return true;
     },
 

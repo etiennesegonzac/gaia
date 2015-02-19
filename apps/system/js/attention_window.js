@@ -106,7 +106,8 @@
 
   AttentionWindow.REGISTERED_EVENTS =
     ['mozbrowserclose', 'mozbrowsererror', 'mozbrowservisibilitychange',
-      'mozbrowserloadend', 'mozbrowserloadstart',
+      'mozbrowserloadend', 'mozbrowserloadstart', 'mozbrowsertitlechange',
+      'mozbrowserlocationchange',
       '_localized', 'click', '_willdestroy'];
 
   AttentionWindow.prototype.render = function attw_render() {
