@@ -405,8 +405,8 @@
       this.metrics.recordInvocation(this.getCurrentURL(),
                                     now - this.getCurrentStartTime());
       this.attentionWindows = [];
-      this.currentApp = e.detail.manifestURL;
-      this.currentAppStartTime = now;
+      //this.currentApp = e.detail.manifestURL;
+      //this.currentAppStartTime = now;
       break;
 
     case ATTENTIONOPENED:

@@ -139,6 +139,10 @@
   100% { opacity: 1;}
 }
 
+#launcher li.top, #launcher li.bottom {
+  will-change: transform;
+}
+
 #launcher.expand li.choice {
   background-color: transparent;
 }
