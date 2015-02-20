@@ -31,7 +31,7 @@
     border-top: 0.2rem solid #B3F3FF;
   }
   100% {
-    background-color: #00BCE2;
+    background-color: #F79C3D;
     width: 100%;
   }
 }
@@ -103,7 +103,7 @@
 #notification-toaster.displayed {
   transform: translateY(0);
   transition: transform .2s ease 1.2s, background-color 0s ease 1.2s, visibility 0s ease 1.2s;
-  background-color: #00BCE2;
+  background-color: #F79C3D;
   visibility: visible;
 }
 
@@ -114,7 +114,7 @@
   margin: auto;
   border-left: 0.2rem solid transparent;
   border-right: 0.2rem solid transparent;
-  border-top: 0.2rem solid #00d3ff;
+  border-top: 0.2rem solid #F79C3D;
   bottom: 0;
   content: '';
 }
@@ -127,7 +127,7 @@
 #notification-toaster.displayed:after {
   animation-name: toaster;
   animation-duration: 1.2s;
-  border-color: #00BCE2;
+  border-color: #F79C3D;
   transform: translateY(.2rem);
   transition: border-color 0s ease 1.2s;
 }

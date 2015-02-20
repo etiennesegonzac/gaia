@@ -93,6 +93,14 @@ h2 span {
   background-image: url(splash/bookmark_icon_5.png);
 }
 
+#fake-splash-page #taylor-twitter {
+  background-image: url(splash/twitter.png);
+}
+
+#fake-splash-page #google {
+  background-image: url(splash/google.png);
+}
+
 #top-sites {
   overflow: auto;
   margin-top: 1rem;

@@ -6,6 +6,7 @@
 /* global MozActivity */
 /* global SettingsListener */
 /* global Service */
+/* global Notification */
 
 'use strict';
 
@@ -187,6 +188,7 @@
     this.title = this.element.querySelector('.title');
     this.pageTitle = document.getElementById('page-title');
     this.browserContextMenu = document.getElementById('browser-context-menu');
+    this.addBookmarkButton = document.getElementById('bookmark-menu-button');
 
     this.bar = this.element.querySelector('.bar');
     if (this.bar) {
@@ -288,6 +290,18 @@
 
   AppChrome.prototype.handleClickEvent = function ac_handleClickEvent(evt) {
     switch (evt.target) {
+      case this.addBookmarkButton:
+        this.browserContextMenu.close();
+        var img = (this.pageTitle.textContent.indexOf('Twitter') !== -1) ?
+          '/style/chrome/images/twitter.png' :
+          '/style/chrome/images/google.png';
+        var n = new Notification('Bookmark added!', {
+          body: this.pageTitle.textContent,
+          icon: img
+        });
+        n.close();
+        break;
+
       case this.reloadButton:
         this.app.reload();
         break;
@@ -408,6 +422,8 @@
     } else {
       this.header.addEventListener('action', this);
     }
+
+    this.addBookmarkButton.addEventListener('click', this);
 
     this.app.element.addEventListener('mozbrowserloadstart', this);
     this.app.element.addEventListener('mozbrowserloadend', this);

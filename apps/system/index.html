@@ -1091,7 +1091,7 @@
       </form>
 
 
-      <div id="update-manager-toaster" data-z-index-level="notification-toaster" aria-live="assertive" aria-atomic="true">
+      <div style="display: none;" id="update-manager-toaster" data-z-index-level="notification-toaster" aria-live="assertive" aria-atomic="true">
         <div class="icon">
         </div>
         <div class="message">
@@ -1283,7 +1283,7 @@
     <gaia-dialog-menu style="z-index: 10000000000; font-size: 18px; font-weigh: normal" id="browser-context-menu">
       <button data-icon="add">New Window</button>
       <button data-icon="arrow-forward">Pin to Homescreen</button>
-      <button data-icon="star-empty">Add Bookmark</button>
+      <button id="bookmark-menu-button" data-icon="star-empty">Add Bookmark</button>
       <button data-icon="forward">Forward</button>
       <button data-icon="settings">Settings</button>
     </gaia-dialog-menu>
