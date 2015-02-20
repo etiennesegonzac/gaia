@@ -382,15 +382,16 @@
             action: !!history.action
           };
         }).reduce((acc, history) => {
-          var sameDomain = acc.find(i => {
-            if (i.url.startsWith('app://')) {
+          var duplicate = acc.find(i => {
+            if (i.url.startsWith('app://') || i.action || history.action) {
               return i.url == history.url;
             }
-            return i.domain == history.domain && !history.action;
+            return i.domain == history.domain;
           });
-          if (sameDomain) {
-            sameDomain.url = history.url;
-            sameDomain.action = sameDomain.action || history.action;
+          if (duplicate) {
+            duplicate.title = history.title;
+            duplicate.url = history.url;
+            duplicate.action = duplicate.action || history.action;
           } else {
             acc.push(history);
           }
