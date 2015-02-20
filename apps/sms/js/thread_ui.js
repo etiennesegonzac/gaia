@@ -113,6 +113,7 @@ var ThreadUI = {
 
     this.mainWrapper = document.getElementById('main-wrapper');
     this.threadMessages = document.getElementById('thread-messages');
+    this.messagesHeader = document.getElementById('messages-header');
 
     window.addEventListener('resize', this.resizeHandler.bind(this));
 
@@ -938,6 +939,12 @@ var ThreadUI = {
 
   // Triggered when the onscreen keyboard appears/disappears.
   resizeHandler: function thui_resizeHandler() {
+    if (this.isKeyboardDisplayed()) {
+      this.messagesHeader.style.display = 'none';
+    } else {
+      this.messagesHeader.style.display = 'block';
+    }
+
     // Scroll to bottom
     this.scrollViewToBottom();
     // Make sure the caret in the "Compose" area is visible

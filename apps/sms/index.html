@@ -179,7 +179,7 @@
               <section id="messages-recipients-list" class="singleline">
               </section>
             </div>
-            <menu type="toolbar">
+            <menu style="display: none" type="toolbar">
               <a id="messages-contact-pick-button">
                 <span class="icon icon-user"></span>
               </a>
@@ -231,11 +231,6 @@
         <article id="composer-container" class="view-body">
           <div class="flex-composer">
             <div id="messages-container" data-type="list" class="article-list"></div>
-              <gaia-header id="messages-header" class="view-header regular-header" action="back">
-                <h1 id="messages-header-text" aria-hidden="true"></h1>
-                <button id="messages-call-number-button" data-icon="call" class="hide"></button>
-                <button id="messages-options-button" data-icon="more"></button>
-              </gaia-header>
             <form id="messages-compose-form" role="search" class="bottom" data-message-type="sms">
               <section class="mms-label-line">
                 <section class="subject-composer js-subject-composer hide">
@@ -268,6 +263,11 @@
                 </div>
               </section>
             </form>
+            <gaia-header id="messages-header" class="view-header regular-header" action="back">
+              <h1 id="messages-header-text" aria-hidden="true"></h1>
+              <button id="messages-call-number-button" data-icon="call" class="hide"></button>
+              <button id="messages-options-button" data-icon="more"></button>
+            </gaia-header>
           </div>
         </article>
         <form role="dialog" id="messages-edit-form" data-type="edit" >
