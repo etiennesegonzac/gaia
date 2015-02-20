@@ -108,6 +108,9 @@
     <script defer src="shared/elements/gaia_subheader/script.js"></script>
     <script defer src="shared/elements/gaia-header/dist/gaia-header.js"></script>
 
+    <script defer src="shared/elements/gaia-dialog/gaia-dialog.js"></script>
+    <script defer src="shared/elements/gaia-dialog/gaia-dialog-menu.js"></script>
+
     <!-- Include shared resources
     <link rel="resource" type="application/json" href="shared/resources/apn.json"/>
     <link rel="resource" type="image/png" href="shared/resources/branding/initlogo.png"/>
@@ -594,6 +597,9 @@
               <button type="button" id="rocketbar-cancel" data-l10n-id="close"></button>
             </form>
           </div>
+
+          <div id="page-title"></div>
+
           <!-- Statusbar icons -->
           <div id="statusbar-icons">
             <div id="statusbar-maximized-wrapper">
@@ -1273,6 +1279,14 @@
       <div id="left-panel" class="gesture-panel disabled" data-z-index-level="gesture-panel"></div>
       <div id="right-panel" class="gesture-panel disabled" data-z-index-level="gesture-panel"></div>
       <div id="bottom-panel" class="gesture-panel" data-z-index-level="gesture-panel"></div>
+
+    <gaia-dialog-menu style="z-index: 10000000000" id="browser-context-menu">
+      <button data-icon="firefox">New Window</button>
+      <button data-icon="firefox">Pin to Launcher</button>
+      <button data-icon="firefox">Add Bookmark</button>
+      <button data-icon="firefox">Show Windows</button>
+      <button data-icon="firefox">Settings</button>
+    </gaia-dialog-menu>
 
     </div> <!-- end of #screen -->
   </body>

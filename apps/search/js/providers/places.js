@@ -1,18 +1,17 @@
 /* globals Provider, SyncDataStore, Promise, IconsHelper */
 /* globals Search, PlacesIdbStore */
-/* globals DateHelper */
 /* globals asyncStorage */
 /* globals LazyLoader */
 (function(exports) {
 
   'use strict';
 
-  var _ = navigator.mozL10n.get;
+  // var _ = navigator.mozL10n.get;
 
   // Maximum number of results to show show for a single query
   var MAX_AWESOME_RESULTS = 4;
-  var MAX_HISTORY_RESULTS = 20;
-  var MAX_TOPSITES_RESULTS = 6;
+  // var MAX_HISTORY_RESULTS = 20;
+  // var MAX_TOPSITES_RESULTS = 6;
 
   // Name of the datastore we pick up places from
   var STORE_NAME = 'places';
@@ -109,165 +108,165 @@
     }
   }
 
-  var listTemplate = createList();
+  // var listTemplate = createList();
 
-  function createList() {
-    var list = document.createElement('ul');
-    list.setAttribute('role', 'listbox');
-    return list;
-  }
+  // function createList() {
+  //   var list = document.createElement('ul');
+  //   list.setAttribute('role', 'listbox');
+  //   return list;
+  // }
 
-  function incrementHistoryThreshold(timestamp, currentThreshold, thresholds) {
-    var newThreshold = currentThreshold += 1;
-    if (timestamp < thresholds[newThreshold]) {
-      return incrementHistoryThreshold(timestamp, newThreshold, thresholds);
-    }
-    return newThreshold;
-  }
+// function incrementHistoryThreshold(timestamp, currentThreshold, thresholds) {
+  //   var newThreshold = currentThreshold += 1;
+  //   if (timestamp < thresholds[newThreshold]) {
+  //     return incrementHistoryThreshold(timestamp, newThreshold, thresholds);
+  //   }
+  //   return newThreshold;
+  // }
 
-  function drawHistoryHeading(parent, threshold, timestamp) {
+  // function drawHistoryHeading(parent, threshold, timestamp) {
 
-    var LABELS = [
-      'future',
-      'today',
-      'yesterday',
-      'last-7-days',
-      'this-month',
-      'last-6-months',
-      'older-than-6-months'
-    ];
+  //   var LABELS = [
+  //     'future',
+  //     'today',
+  //     'yesterday',
+  //     'last-7-days',
+  //     'this-month',
+  //     'last-6-months',
+  //     'older-than-6-months'
+  //   ];
 
-    var text = '';
+  //   var text = '';
 
-    // Special case for month headings
-    if (threshold == 5 && timestamp) {
-      var date = new Date(timestamp);
-      var now = new Date();
-      text = _('month-' + date.getMonth());
-      if (date.getFullYear() != now.getFullYear()) {
-        text += ' ' + date.getFullYear();
-      }
-    } else {
-      text = _(LABELS[threshold]);
-    }
+  //   // Special case for month headings
+  //   if (threshold == 5 && timestamp) {
+  //     var date = new Date(timestamp);
+  //     var now = new Date();
+  //     text = _('month-' + date.getMonth());
+  //     if (date.getFullYear() != now.getFullYear()) {
+  //       text += ' ' + date.getFullYear();
+  //     }
+  //   } else {
+  //     text = _(LABELS[threshold]);
+  //   }
 
-    var h3 = document.createElement('h3');
-    var textNode = document.createTextNode(text);
-    var ul = listTemplate.cloneNode(true);
-    h3.appendChild(textNode);
-    parent.appendChild(h3);
-    parent.appendChild(ul);
-  }
+  //   var h3 = document.createElement('h3');
+  //   var textNode = document.createTextNode(text);
+  //   var ul = listTemplate.cloneNode(true);
+  //   h3.appendChild(textNode);
+  //   parent.appendChild(h3);
+  //   parent.appendChild(ul);
+  // }
 
-  function updateIcon(visit, iconWrapper) {
-    var iconDom = iconWrapper.querySelector('img');
-    IconsHelper.getIcon(visit.url, null, visit).then((icon) => {
-      if (icon && iconDom) {
-        iconDom.onload = function () {
-          iconWrapper.classList.remove('empty');
-          iconDom.style.display = 'block';
-        };
-        iconDom.src = icon;
-      }
-    });
-  }
+  // function updateIcon(visit, iconWrapper) {
+  //   var iconDom = iconWrapper.querySelector('img');
+  //   IconsHelper.getIcon(visit.url, null, visit).then((icon) => {
+  //     if (icon && iconDom) {
+  //       iconDom.onload = function () {
+  //         iconWrapper.classList.remove('empty');
+  //         iconDom.style.display = 'block';
+  //       };
+  //       iconDom.src = icon;
+  //     }
+  //   });
+  // }
 
-  function buildHistory(visits) {
+  // function buildHistory(visits) {
 
-    var thresholds = [
-      Date.now(),                        // 0. Now
-      DateHelper.todayStarted(),         // 1. Today
-      DateHelper.yesterdayStarted(),     // 2. Yesterday
-      DateHelper.thisWeekStarted(),      // 3. This week
-      DateHelper.thisMonthStarted(),     // 4. This month
-      DateHelper.lastSixMonthsStarted(), // 5. Six months
-      0                                  // 6. Epoch!
-    ];
+  //   var thresholds = [
+  //     Date.now(),                        // 0. Now
+  //     DateHelper.todayStarted(),         // 1. Today
+  //     DateHelper.yesterdayStarted(),     // 2. Yesterday
+  //     DateHelper.thisWeekStarted(),      // 3. This week
+  //     DateHelper.thisMonthStarted(),     // 4. This month
+  //     DateHelper.lastSixMonthsStarted(), // 5. Six months
+  //     0                                  // 6. Epoch!
+  //   ];
 
-    var threshold = 0;
-    var month = null;
-    var year = null;
+  //   var threshold = 0;
+  //   var month = null;
+  //   var year = null;
 
-    var fragment = document.createDocumentFragment();
+  //   var fragment = document.createDocumentFragment();
 
-    visits.forEach(function(visit) {
-      // Draw new heading if new threshold reached
-      if (visit.date > 0 && visit.date < thresholds[threshold]) {
-        threshold = incrementHistoryThreshold(visit.date,
-                                              threshold, thresholds);
-        // Special case for month headings
-        if (threshold != 5) {
-          drawHistoryHeading(fragment, threshold);
-        }
-      }
+  //   visits.forEach(function(visit) {
+  //     // Draw new heading if new threshold reached
+  //     if (visit.date > 0 && visit.date < thresholds[threshold]) {
+  //       threshold = incrementHistoryThreshold(visit.date,
+  //                                             threshold, thresholds);
+  //       // Special case for month headings
+  //       if (threshold != 5) {
+  //         drawHistoryHeading(fragment, threshold);
+  //       }
+  //     }
 
-      if (threshold === 5) {
-        var timestampDate = new Date(visit.date);
-        if (timestampDate.getMonth() != month ||
-          timestampDate.getFullYear() != year) {
-          month = timestampDate.getMonth();
-          year = timestampDate.getFullYear();
-          drawHistoryHeading(fragment, threshold, visit.date);
-        }
-      }
+  //     if (threshold === 5) {
+  //       var timestampDate = new Date(visit.date);
+  //       if (timestampDate.getMonth() != month ||
+  //         timestampDate.getFullYear() != year) {
+  //         month = timestampDate.getMonth();
+  //         year = timestampDate.getFullYear();
+  //         drawHistoryHeading(fragment, threshold, visit.date);
+  //       }
+  //     }
 
-      visit.meta = visit.url;
-      visit.dataset = { url: visit.url };
-      var dom = exports.Places.buildResultsDom([visit]);
-      var iconDom = dom.querySelector('.icon');
-      fragment.appendChild(dom);
-      updateIcon(visit, iconDom);
-    });
+  //     visit.meta = visit.url;
+  //     visit.dataset = { url: visit.url };
+  //     var dom = exports.Places.buildResultsDom([visit]);
+  //     var iconDom = dom.querySelector('.icon');
+  //     fragment.appendChild(dom);
+  //     updateIcon(visit, iconDom);
+  //   });
 
-    return fragment;
-  }
+  //   return fragment;
+  // }
 
   function showStartPage() {
 
-    if (!topSitesWrapper || !historyWrapper) {
-      return;
-    }
+    //if (!topSitesWrapper || !historyWrapper) {
+    //  return;
+    //}
 
-    var store = exports.Places.persistStore;
+    //var store = exports.Places.persistStore;
 
-    var urls = [];
-    store.readVisits(MAX_HISTORY_RESULTS, function(results) {
-      var docFragment = buildHistory(results);
-      historyWrapper.innerHTML = '';
-      historyWrapper.appendChild(docFragment);
-    }, function filter(visit) {
-      var isStored = visit.url in urls;
-      urls[visit.url] = true;
-      return !isStored;
-    });
+    //var urls = [];
+    //store.readVisits(MAX_HISTORY_RESULTS, function(results) {
+    //  var docFragment = buildHistory(results);
+    //  historyWrapper.innerHTML = '';
+    //  historyWrapper.appendChild(docFragment);
+    //}, function filter(visit) {
+    //  var isStored = visit.url in urls;
+    //  urls[visit.url] = true;
+    //  return !isStored;
+    //});
 
-    store.read('frecency', MAX_TOPSITES_RESULTS, function(results) {
-      var docFragment = document.createDocumentFragment();
-      results.forEach(function(x) {
-        docFragment.appendChild(formatTopResult(x));
-      });
-      topSitesWrapper.innerHTML = '';
-      topSitesWrapper.appendChild(docFragment);
-    });
+    //store.read('frecency', MAX_TOPSITES_RESULTS, function(results) {
+    //  var docFragment = document.createDocumentFragment();
+    //  results.forEach(function(x) {
+    //    docFragment.appendChild(formatTopResult(x));
+    //  });
+    //  topSitesWrapper.innerHTML = '';
+    //  topSitesWrapper.appendChild(docFragment);
+    //});
   }
 
-  function formatTopResult(result) {
-    var div = document.createElement('div');
-    var span = document.createElement('span');
-    span.textContent = result.title || result.url;
-    div.dataset.url = result.url;
-    div.classList.add('top-site');
-    div.appendChild(span);
-    div.setAttribute('role', 'link');
+  // function formatTopResult(result) {
+  //   var div = document.createElement('div');
+  //   var span = document.createElement('span');
+  //   span.textContent = result.title || result.url;
+  //   div.dataset.url = result.url;
+  //   div.classList.add('top-site');
+  //   div.appendChild(span);
+  //   div.setAttribute('role', 'link');
 
-    if (result.screenshot || result.tile) {
-      var img = result.screenshot || result.tile;
-      var imgUrl = (typeof img === 'string') ? img : URL.createObjectURL(img);
-      div.style.backgroundImage = 'url(' + imgUrl + ')';
-    }
+  //   if (result.screenshot || result.tile) {
+  //     var img = result.screenshot || result.tile;
+//     var imgUrl = (typeof img === 'string') ? img : URL.createObjectURL(img);
+  //     div.style.backgroundImage = 'url(' + imgUrl + ')';
+  //   }
 
-    return div;
-  }
+  //   return div;
+  // }
 
   function matchesFilter(value, filter) {
     return !filter || (value && value.match(new RegExp(filter, 'i')) !== null);

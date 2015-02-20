@@ -229,6 +229,10 @@ window.UtilityTray = {
           return;
         }
 
+        if (this.overlay.classList.contains('browser')) {
+          return;
+        }
+
         // Prevent swipe down gesture when already opened.
         //if (target !== this.grippy && this.shown) {
         //  return;

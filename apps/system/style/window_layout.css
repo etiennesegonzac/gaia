@@ -112,9 +112,10 @@
   top: auto;
 }
 
-.appWindow[data-manifest-name="Browser"] .browser-container {
+.appWindow[data-manifest-name="Browser"] .browser-container,
+.appWindow.browser .browser-container {
   top: var(--statusbar-height);
-  height: calc(100% - var(--statusbar-height));;
+  height: calc(100% - var(--statusbar-height) - 5rem);
 }
 
 /* The loading indicator is part of .chrome and needs to animate with it
@@ -131,9 +132,11 @@
   height: 100%;
 }
 
+/*
 .appWindow[data-manifest-name="Browser"] > div > iframe {
   height: calc(100% - var(--rocketbar-urlbar-height));
 }
+*/
 
 .appWindow.collapsible:not(.scrollable) > div > iframe {
   height: calc(100% - var(--rocketbar-urlbar-height));

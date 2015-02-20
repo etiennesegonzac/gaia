@@ -11,9 +11,11 @@ html, body {
   overflow-x: hidden;
 }
 
+/*
 body {
   padding: 0.5rem 1rem;
 }
+*/
 
 h2 {
   text-align: center;
@@ -31,6 +33,64 @@ h2 span {
   padding: 0.5rem;
   margin-bottom: 0;
   font-weight: 500;
+}
+
+#fake-splash-page > a {
+  display: block;
+}
+
+#fake-splash-page .big {
+  height: 41.6vw;
+  background: no-repeat center / contain;
+}
+
+#fake-splash-page #color-star-trails {
+  background-image: url(splash/bookmark_cards_1.png);
+}
+
+#fake-splash-page #calendar-google {
+  background-image: url(splash/bookmark_cards_2.png);
+}
+
+#fake-splash-page #digg-sleepless {
+  background-image: url(splash/bookmark_cards_3.png);
+}
+
+#fake-splash-page #maps-google {
+  background-image: url(splash/bookmark_cards_4.png);
+}
+
+#fake-splash-page .small {
+  background: no-repeat left / contain;
+  height: 19vw;
+  line-height: 19vw;
+  vertical-align: middle;
+  text-decoration: none;
+  font-size: 5vw;
+  font-style: italic;
+  color: #727272;
+  padding-left: 25vw;
+  margin: 23px 0;
+}
+
+#fake-splash-page #go-transit {
+  background-image: url(splash/bookmark_icon_1.png);
+}
+
+#fake-splash-page #weather-network {
+  background-image: url(splash/bookmark_icon_2.png);
+}
+
+#fake-splash-page #kotaku {
+  background-image: url(splash/bookmark_icon_3.png);
+}
+
+#fake-splash-page #restaurants-close {
+  background-image: url(splash/bookmark_icon_4.png);
+}
+
+#fake-splash-page #team-liquid {
+  background-image: url(splash/bookmark_icon_5.png);
 }
 
 #top-sites {

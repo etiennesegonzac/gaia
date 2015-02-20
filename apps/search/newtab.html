@@ -32,7 +32,19 @@
     <script defer src="js/providers/suggestions.js"></script>
   </head>
   <body>
-      <div id="suggestions-wrapper">
+      <div id="fake-splash-page">
+        <a id="color-star-trails" class="big" target="_blank" href="https://ca.news.yahoo.com/photos/colorful-star-trails-1423178062-slideshow/">
+        <a target="_blank" id="calendar-google" class="big" href="https://calendar.google.com"></a>
+        <a target="_blank" id="digg-sleepless" class="big" href="http://narrative.ly/hoop-dreams/sleepless-nights-and-homesick-hearts-in-nba/"></a>
+        <a target="_blank" id="maps-google" class="big" href="https://maps.google.com"></a>
+        <a target="_blank" id="go-transit" class="small" href="https://www.google.com">Go Transit</a>
+        <a target="_blank" id="weather-network" class="small" href="https://www.google.com">Weather Network</a>
+        <a target="_blank" id="kotaku" class="small" href="https://www.google.com">Kotaku</a>
+        <a target="_blank" id="restaurants-close" class="small" href="https://www.google.com">Restaurants near Mozilla</a>
+        <a target="_blank" id="team-liquid" class="small" href="https://www.google.com">Team Liquid</a>
+      </div>
+
+      <div style="display: none" id="suggestions-wrapper">
         <h2>
           <select id="suggestions-select"></select>
           <label for="suggestions-select" id="suggestions-provider"></label>
@@ -49,9 +61,9 @@
                  class="suggestions" data-l10n-id="suggestions"
                  aria-label="Suggestions"></section>
       </div>
-      <h2 style="display: none;" id="top-sites-header"><span data-l10n-id="top-sites"></span></h2>
-      <section style="display: none;" id="top-sites" aria-labelledby="top-sites-header"></section>
-      <h2 id="history-header"><span data-l10n-id="history"></span></h2>
+      <h2 style="display: none" id="top-sites-header"><span data-l10n-id="top-sites"></span></h2>
+      <section style="display: none" id="top-sites" aria-labelledby="top-sites-header"></section>
+      <h2 style="display: none" id="history-header"><span data-l10n-id="history"></span></h2>
       <section id="history" class="local" aria-labelledby="history-header"></section>
   </body>
 </html>

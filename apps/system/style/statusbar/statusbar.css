@@ -103,6 +103,22 @@
   background-color: transparent;
 }
 
+#page-title {
+  height: 100%;
+  width: 61%;
+  line-height: var(--statusbar-height);
+  vertical-align: middle;
+  font-size: 1.2rem;
+  padding-left: 0.6rem;
+  visibility: hidden;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.browser #page-title {
+  visibility: visible;
+}
+
 /*
 #screen.utility-tray #statusbar {
   background-color: blue;

@@ -6,9 +6,10 @@
   transform-origin: top left;
   transition: transform 0.2s ease-in-out, background-color 0.5s ease;
 
-  background-color: black;
-  background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1));
+  /* background-color: black; */
+  /* background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)); */
   color: white;
+  border-top: 1px solid #aeaeae;
 }
 
 :not(.browser).appWindow[data-shrinking-state="true"] > .chrome {
@@ -17,7 +18,7 @@
 }
 
 .appWindow.light > .chrome {
-  background-image: linear-gradient(rgba(0,0,0,0.05), rgba(0,0,0,0.05));
+  /* background-image: linear-gradient(rgba(0,0,0,0.05), rgba(0,0,0,0.05)); */
   background-color: white;
   color: #4d4d4d;
 }
@@ -86,9 +87,11 @@
 }
 
 /* Special cases for Rocketbar in apps with browser chrome */
+/*
 .appWindow:not(.browser) .chrome .controls .menu-button {
   display: none;
 }
+*/
 
 .appWindow.fullscreen-app:not(.browser) .chrome .controls .urlbar,
 .appWindow:not(.browser) .chrome .controls .urlbar {
@@ -130,12 +133,13 @@
   -moz-margin-start: 0;
 }
 
+/*
 .maximized .controls .urlbar {
   background-color: rgba(204,204,204,0.2);
 }
 
 .appWindow.light.collapsible .controls .urlbar {
-  background-color: rgb(242, 242, 242); /* 255 * 0.95 */
+  background-color: rgb(242, 242, 242);
 }
 
 .appWindow.light .maximized .controls .urlbar {
@@ -150,6 +154,7 @@
   background-color: rgba(204, 204, 204, 0.2);
 }
 
+*/
 .chrome .controls .urlbar .title {
   width: calc(100% - 3.2rem);
   height: 3.4rem;
@@ -164,13 +169,14 @@
   font-weight: 300;
   font-size: 1.8rem;
   float: none;
-  background-color: rgba(204,204,204,0.2);
+  /* background-color: rgba(204,204,204,0.2); */
   border-radius: 1.8rem;
   text-overflow: ellipsis;
   font-style: italic;
   box-shadow: none;
 }
 
+/*
 .search-app .chrome.maximized .controls .urlbar:after {
   content: '';
   width: 2rem;
@@ -191,6 +197,7 @@
 .maximized .controls .urlbar .title {
   background-color: transparent;
 }
+*/
 
 
 .controls .forward-button:not([disabled]) + .urlbar {

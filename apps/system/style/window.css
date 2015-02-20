@@ -54,9 +54,11 @@
   background-color: #fff;
 }
 
+/*
 .appWindow:not(.homescreen):not(.searchWindow):not(.globalOverlayWindow).light.render > div.browser-container {
   background-color: #f2f2f2;
 }
+*/
 
 .appWindow:not(.homescreen):not(.searchWindow):not(.globalOverlayWindow).render > div.browser-container > iframe {
   background-color: #fff;

@@ -142,9 +142,9 @@ Provider.prototype = {
       result.appendChild(iconWrapper);
       result.appendChild(description);
       frag.appendChild(result);
-      
+
       if (!config.icon) {
-        this.updateIcon(config, iconWrapper); 
+        this.updateIcon(config, iconWrapper);
       }
     }, this);
     return frag;
@@ -152,6 +152,11 @@ Provider.prototype = {
 
   render: function(results) {
     var dom = this.buildResultsDom(results);
+    if (!this.container) {
+      console.log('bad', this.searchObj);
+      return;
+    }
+
     this.container.appendChild(dom);
     if (this.header) {
       results.length ? this.header.classList.remove('hidden') :

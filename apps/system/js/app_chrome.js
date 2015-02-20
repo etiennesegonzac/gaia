@@ -124,8 +124,10 @@
                   <button type="button" class="stop-button"
                           data-l10n-id="stop-button"></button>
                 </div>
-                <button type="button" class="menu-button" alt="Menu"></button>
-                <button type="button" class="windows-button"
+                <button style="display: block" type="button"
+                        class="menu-button" alt="Menu"></button>
+                <button style="display: none" type="button"
+                        class="windows-button"
                         data-l10n-id="windows-button"></button>
               </div>
             </div>`;
@@ -183,6 +185,8 @@
     this.menuButton = this.element.querySelector('.menu-button');
     this.windowsButton = this.element.querySelector('.windows-button');
     this.title = this.element.querySelector('.title');
+    this.pageTitle = document.getElementById('page-title');
+    this.browserContextMenu = document.getElementById('browser-context-menu');
 
     this.bar = this.element.querySelector('.bar');
     if (this.bar) {
@@ -311,6 +315,11 @@
         } else {
           this.title.value = '';
         }
+        window.dispatchEvent(
+          new CustomEvent('chrome-focus',
+                    { detail: {
+                      value: this.title.value
+                    }}));
         break;
 
       case this.menuButton:
@@ -470,7 +479,9 @@
   // Name has priority over the rest
   AppChrome.prototype.handleNameChanged =
     function ac_handleNameChanged(evt) {
-      this.title.value = this.app.name;
+      this.pageTitle.textContent = this.app.name;
+      this.title.value = 'Search the web';
+      //this.title.value = this.app.name;
       this._gotName = true;
     };
 
@@ -478,7 +489,9 @@
     if (this.isSearchApp()) {
       return;
     }
-    this.title.value = title;
+    this.pageTitle.textContent = title;
+    this.title.value = 'Search the web';
+    //this.title.value = title;
     clearTimeout(this._titleTimeout);
     this._recentTitle = true;
     this._titleTimeout = setTimeout((function() {
@@ -626,6 +639,7 @@
         return;
       }
       this.title.value = title;
+      this.pageTitle.textContent = title;
     };
 
   AppChrome.prototype.updateAddToHomeButton =
@@ -857,11 +871,13 @@
     });
 
   AppChrome.prototype.showOverflowMenu = function ac_showOverflowMenu() {
-    this.overflowMenu.show();
+    this.browserContextMenu.open();
+    //this.overflowMenu.show();
   };
 
   AppChrome.prototype.hideOverflowMenu = function ac_hideOverflowMenu() {
-    this.overflowMenu.hide();
+    this.browserContextMenu.close();
+    //this.overflowMenu.hide();
   };
 
   /* Bug 1054466 switched the browser overflow menu to use the system style,
@@ -869,11 +885,12 @@
    * by removing this function.
    */
   AppChrome.prototype.showOverflowMenu = function ac_showOverflowMenu() {
-    if (this.app.contextmenu) {
-      var name = this.isSearch() ?
-        this.app.config.searchName : this.title.value;
-      this.app.contextmenu.showDefaultMenu(newTabManifestURL, name);
-    }
+    this.browserContextMenu.open();
+    //if (this.app.contextmenu) {
+    //  var name = this.isSearch() ?
+    //    this.app.config.searchName : this.title.value;
+    //  this.app.contextmenu.showDefaultMenu(newTabManifestURL, name);
+    //}
   };
 
   exports.AppChrome = AppChrome;

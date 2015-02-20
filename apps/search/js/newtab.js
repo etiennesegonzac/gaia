@@ -53,7 +53,11 @@
     },
 
     dispatchMessage: function(e) {
-      if (e.data.action === 'change') {
+      if (e.data.action ==='focus') {
+        document.getElementById('fake-splash-page').style.display = 'none';
+      } else if (e.data.action === 'change') {
+        document.getElementById('suggestions-wrapper').style.display = 'block';
+        document.getElementById('history-header').style.display = 'block';
         Object.keys(Search.providers).forEach((providerKey) => {
           var provider = Search.providers[providerKey];
           provider.search(e.data.input).then(results => {

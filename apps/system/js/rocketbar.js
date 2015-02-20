@@ -28,6 +28,7 @@
     this.form = document.getElementById('rocketbar-form');
     this.cancel = document.getElementById('rocketbar-cancel');
     this.clearBtn = document.getElementById('rocketbar-clear');
+    this.pageTitle = document.getElementById('page-title');
     this.start();
   }
 
@@ -170,6 +171,7 @@
       window.addEventListener('utility-tray-overlayopening', this);
 
       window.addEventListener('chrome-input', this);
+      window.addEventListener('chrome-focus', this);
 
       // Listen for events from Rocketbar
       this.cancel.addEventListener('click', this);
@@ -203,6 +205,18 @@
      */
     handleEvent: function(e) {
       switch(e.type) {
+        case 'chrome-focus':
+          this.activate().then(() => {
+            if (this._port) {
+              var action = 'focus';
+
+              this._port.postMessage({
+                action: action,
+                input: e.detail.value
+              });
+            }
+          });
+          break;
         case 'chrome-input':
           this.activate().then(() => {
             if (this._port) {
