@@ -126,35 +126,38 @@
 }
 
 #toggle-wifi {
-  background-image: url(images/wifi_icon.png);
+  background-image: url(images/wifi.svg);
 }
 
 #toggle-airplane {
-  background-image: url(images/airplane_icon.png);
+  background-image: url(images/airplane.svg);
 }
 
 #toggle-bluetooth {
-  background-image: url(images/bluetooth_icon.png);
+  background-size: 22px auto;
+  background-image: url(images/bluetooth.svg);
 }
 
 #toggle-quiet {
-  background-image: url(images/quiet_icon.png);
+  background-size: 31px auto;
+  background-image: url(images/q.svg);
 }
 
 #launch-flashlight {
-  background-image: url(images/flashlight_icon.png);
+  background-image: url(images/flashlight.svg);
 }
 
 #launch-screenlock {
-  background-image: url(images/screenlock_icon.png);
+  background-size: 45px auto;
+  background-image: url(images/lock.svg);
 }
 
 #launch-camera {
-  background-image: url(images/camera_icon.png);
+  background-image: url(images/camera.svg);
 }
 
 #launch-settings {
-  background-image: url(images/settings_icon.png);
+  background-image: url(images/settings.svg);
 }
 
 #utility-tray-footer {
