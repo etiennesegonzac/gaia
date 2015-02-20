@@ -200,7 +200,7 @@ HandledCall.prototype.updateCallNumber = function hc_updateCallNumber() {
       if (primaryInfo) {
         node.textContent = primaryInfo;
         document.title = 'Call ' + primaryInfo;
-        window.location.hash = 'number=' + matchingTel;
+        window.location.hash = 'number=' + matchingTel.value;
         self._cachedInfo = primaryInfo;
       } else {
         LazyL10n.get(function gotL10n(_) {
