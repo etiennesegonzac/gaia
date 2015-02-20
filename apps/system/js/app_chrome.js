@@ -315,6 +315,7 @@
         } else {
           this.title.value = '';
         }
+        this.title.setSelectionRange(0, this.title.value.length, 'forward');
         window.dispatchEvent(
           new CustomEvent('chrome-focus',
                     { detail: {
