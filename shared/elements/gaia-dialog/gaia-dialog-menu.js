@@ -73,9 +73,9 @@ proto.template = `
 }
 
 ::content > button[data-icon]:before {
-  width: 50px;
-  font-size: 22px;
-  margin-left: -16px;
+  width: 60px;
+  font-size: 30px;
+  margin-left: -13px;
   vertical-align: middle;
   text-align: center;
 }
