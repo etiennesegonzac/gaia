@@ -116,7 +116,7 @@
             };
 
             this.nextTransition().then(() => {
-              this.hide();
+              this.hide(true);
             });
             return;
           }
@@ -125,16 +125,19 @@
           var entryPoint = target.dataset.entryPoint || '';
           app.launch(entryPoint);
 
-          var transitioned = false, ready = false;
+          var transitioned = false, ready = false, browserish = false;
           var finish = () => {
             if (transitioned && ready) {
-              this.hide(app);
+              this.hide(browserish);
             }
           };
 
           this.nextAppLaunch().then((config) => {
             var app = window.appWindowManager.getApp(config.origin,
                                                      config.manifestURL);
+            if (config.manifestURL.indexOf('search.gaiamobile.org') !== -1) {
+              browserish = true;
+            }
             app.ready(() => {
               ready = true;
               finish();
@@ -148,10 +151,10 @@
       }
     },
 
-    hide: function(app) {
+    hide: function(browserish) {
       this.element.classList.add('hide');
       window.dispatchEvent(new CustomEvent('launcherwillhide', {
-        detail: app
+        detail: browserish
       }));
     },
 

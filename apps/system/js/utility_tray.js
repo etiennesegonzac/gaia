@@ -194,7 +194,7 @@ window.UtilityTray = {
         break;
 
       case 'launcherwillhide':
-        if (evt.detail.origin === 'app://search.gaiamobile.org') {
+        if (evt.detail /* browserish */) {
           this.overlay.classList.add('browser');
           StatusBar.element.classList.add('light');
         }
