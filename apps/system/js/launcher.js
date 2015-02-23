@@ -123,6 +123,13 @@
 
           var app = applications.installedApps[target.dataset.manifestURL];
           var entryPoint = target.dataset.entryPoint || '';
+          if (!app) {
+            target.classList.add('shake');
+            setTimeout(() => {
+              target.classList.remove('shake');
+            }, 300);
+            return;
+          }
           app.launch(entryPoint);
 
           var transitioned = false, ready = false, browserish = false;
