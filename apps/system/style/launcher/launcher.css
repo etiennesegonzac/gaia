@@ -9,6 +9,13 @@
 
   overflow-y: scroll;
   transition: opacity 0.3s linear;
+
+  scroll-snap-type: proximity;
+}
+
+#launcher ul li.snap {
+  scroll-snap-coordinate: center top;
+  background-color: red;
 }
 
 #screen.software-button-enabled #launcher {

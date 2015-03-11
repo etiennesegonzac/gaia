@@ -372,7 +372,7 @@
         }
 
         var lastAction = null;
-        var limit = 3 + this._actions.length;
+        var limit = 10 + this._actions.length;
 
         // Shapping it up, need work
         // This should never land in master
