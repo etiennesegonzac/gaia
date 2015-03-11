@@ -1,5 +1,6 @@
 'use strict';
 /* global ItemStore, LazyLoader, Configurator, groupEditor */
+/* global requestAnimationFrame */
 
 (function(exports) {
 
@@ -15,6 +16,8 @@
 
     this.grid.addEventListener('iconblobdecorated', this);
     this.grid.addEventListener('gaiagrid-iconbloberror', this);
+    this.grid.addEventListener('gaiagrid-attention', this);
+    this.grid.addEventListener('gaiagrid-resize', this);
     this.grid.addEventListener('cached-icons-rendered', this);
     this.grid.addEventListener('edititem', this);
     window.addEventListener('hashchange', this);
@@ -30,12 +33,17 @@
     window.addEventListener('context-menu-open', this);
     window.addEventListener('context-menu-close', this);
 
+    window.addEventListener('gaia-confirm-open', this);
+    window.addEventListener('gaia-confirm-close', this);
+
     this.layoutReady = false;
     window.addEventListener('gaiagrid-layout-ready', this);
 
     // some terrible glue to keep track of which icons failed to download
     // and should be retried when/if we come online again.
     this._iconsToRetry = [];
+
+    document.addEventListener('visibilitychange', this);
 
     window.performance.mark('navigationInteractive');
     window.dispatchEvent(new CustomEvent('moz-chrome-interactive'));
@@ -199,24 +207,123 @@
           this._iconsToRetry.push(e.detail.identifier);
           break;
 
+        case 'gaiagrid-attention':
+          var offsetTop = this.grid.offsetTop;
+          var scrollTop = window.scrollY;
+          var gridHeight = document.body.clientHeight;
+
+          // In edit mode, the grid is obscured by the edit header, whose
+          // size matches the offsetTop of the grid.
+          if (this.grid._grid.dragdrop.inEditMode) {
+            gridHeight -= offsetTop;
+          } else {
+            scrollTop -= offsetTop;
+          }
+
+          // Try to nudge scroll position to contain the item.
+          var rect = e.detail;
+          if (scrollTop + gridHeight < rect.y + rect.height) {
+            scrollTop = (rect.y + rect.height) - gridHeight;
+          }
+          if (scrollTop > rect.y) {
+            scrollTop = rect.y;
+          }
+
+          if (!this.grid._grid.dragdrop.inEditMode) {
+            scrollTop += offsetTop;
+          }
+
+          if (scrollTop !== window.scrollY) {
+            // Grid hides overflow during dragging and normally only unhides it
+            // when it finishes. However, this causes smooth scrolling not to
+            // work, so remove it early.
+            document.body.style.overflow = '';
+
+            // We need to make sure that this smooth scroll happens after
+            // a style flush, and also after the container does any
+            // size-changing, otherwise it will stop the in-progress scroll.
+            // We do this using a nested requestAnimationFrame.
+            requestAnimationFrame(() => { requestAnimationFrame(() => {
+              window.scrollTo({ left: 0, top: scrollTop, behavior: 'smooth'});
+            });});
+          }
+          break;
+
+        case 'gaiagrid-resize':
+          var height = e.detail;
+          var oldHeight = this.grid.clientHeight;
+
+          if (this.gridResizeTimeout !== null) {
+            clearTimeout(this.gridResizeTimeout);
+            this.gridResizeTimeout = null;
+          }
+
+          if (height < oldHeight) {
+            // Make sure that if we're going to shrink the grid so that exposed
+            // area is made inaccessible, we scroll it out of view first.
+            var viewHeight = document.body.clientHeight;
+            var scrollBottom = window.scrollY + viewHeight;
+            var padding = window.getComputedStyle ?
+              parseInt(window.getComputedStyle(this.grid).paddingBottom) : 0;
+            var maxScrollBottom = height + this.grid.offsetTop + padding;
+
+            if (scrollBottom >= maxScrollBottom) {
+              // This scrollTo needs to happen after the height style
+              // change has been processed, or it will be overridden.
+              // Ensure this by wrapping it in a nested requestAnimationFrame.
+              requestAnimationFrame(() => { requestAnimationFrame(() => {
+                window.scrollTo({ left: 0, top: maxScrollBottom - viewHeight,
+                                  behavior: 'smooth' });
+              });});
+            }
+          }
+
+          if (height === oldHeight) {
+            break;
+          }
+
+          // Although the height is set immediately, a CSS transition rule
+          // means it's actually delayed by 0.5s, giving any scrolling
+          // animations time to finish.
+          this.grid.style.height = height + 'px';
+          break;
+
         case 'gaiagrid-saveitems':
           this.itemStore.save(this.grid.getItems());
           break;
 
-        case 'gaiagrid-dragdrop-begin':
         case 'context-menu-open':
+        case 'gaia-confirm-open':
+          document.body.classList.add('fixed-overlay-shown');
+          /* falls through */
+        case 'gaiagrid-dragdrop-begin':
           // Home button disabled while dragging or the contexmenu is displayed
           window.removeEventListener('hashchange', this);
           break;
 
-        case 'gaiagrid-dragdrop-finish':
         case 'context-menu-close':
+        case 'gaia-confirm-close':
+          document.body.classList.remove('fixed-overlay-shown');
+          /* falls through */
+        case 'gaiagrid-dragdrop-finish':
           window.addEventListener('hashchange', this);
           break;
 
         case 'gaiagrid-layout-ready':
           this.layoutReady = true;
           window.removeEventListener('gaiagrid-layout-ready', this);
+          break;
+
+        case 'visibilitychange':
+          // Stop displayport rendering for a faster first paint after
+          // a setVisible(false)/setVisible(true) cycle.
+          if (document.hidden) {
+            document.body.style.overflow = 'hidden';
+          } else {
+            setTimeout(function() {
+              document.body.style.overflow = '';
+            });
+          }
           break;
 
         // A hashchange event means that the home button was pressed.

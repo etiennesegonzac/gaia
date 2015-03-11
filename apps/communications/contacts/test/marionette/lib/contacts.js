@@ -20,6 +20,11 @@ Contacts.config = {
     // disable FTU because it blocks our display
     'ftu.manifestURL': null,
     'lockscreen.enabled': false
+  },
+  prefs: {
+    'device.storage.enabled': true,
+    'device.storage.testing': true,
+    'device.storage.prompt.testing': true
   }
 };
 
@@ -76,12 +81,15 @@ Contacts.Selectors = {
   formTel: '#contacts-form-phones input[type="tel"]',
   formDelFirstTel: '#add-phone-0 .img-delete-button',
   formTelLabelFirst: '#tel_type_0',
+  formTelNumberFirst: '#number_0',
   formTelNumberSecond: '#number_1',
   formEmailFirst: '#email_0',
   formEmailSecond: '#email_1',
   formPhotoButton: '#photo-button',
   formAddNewTel: '#add-new-phone',
   formAddNewEmail: '#add-new-email',
+  formHeader: '#contact-form-header',
+  formPhotoImg: '#thumbnail-photo',
 
   groupList: ' #groups-list',
   list: '#view-contacts-list',
@@ -123,7 +131,13 @@ Contacts.Selectors = {
   actionMenu: '#action-menu',
   actionMenuList: '#value-menu',
 
-  systemMenu: 'form[data-z-index-level="action-menu"]'
+  multipleSelectSave: '#save-button',
+  multipleSelectStatus: '#statusMsg p',
+
+  systemMenu: 'form[data-z-index-level="action-menu"]',
+
+  galleryImage: '.thumbnail img',
+  galleryDone: '#crop-done-button'
 };
 
 Contacts.prototype = {

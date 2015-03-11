@@ -41,7 +41,6 @@
     <script defer src="/shared/js/lazy_loader.js"></script>
     <script defer src="/shared/js/font_size_utils.js"></script>
     <script defer src="/shared/js/lazy_l10n.js"></script>
-    <script defer src="/shared/js/usertiming.js"></script>
     <script defer src="/dialer/js/index.js"></script>
 
     <script defer src="/shared/js/dialer/utils.js"></script>
@@ -238,7 +237,7 @@
               </div>
             </section>
             <section id="keypad-callbar">
-              <button id="keypad-callbar-add-contact" data-value="add-contact" class="reset-button keypad-callbar-button icon-add-contact" data-l10n-id="dialerAddContact" disabled></button>
+              <button id="keypad-callbar-add-contact" data-value="add-contact" class="reset-button keypad-callbar-button icon-add-contact disable-when-dialog-animates" data-l10n-id="dialerAddContact" disabled></button>
               <button id="keypad-callbar-call-action" class="reset-button" data-value="make-call" data-l10n-id="makeCall">
                 <div class="js-sim-indication"></div>
               </button>

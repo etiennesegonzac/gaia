@@ -64,7 +64,7 @@
     if (DEBUG || this._DEBUG) {
       this.constructor[this.instanceID] = this;
     }
-
+    this.isCrashed = false;
     this.launchTime = Date.now();
 
     return this;
@@ -130,21 +130,6 @@
     this.browser_config = configuration;
     // Store initial configuration in this.config
     this.config = configuration;
-    this.config.chrome = (this.manifest && this.manifest.chrome) ?
-      this.manifest.chrome :
-      this.config.chrome;
-
-    if (!this.config.chrome) {
-      this.config.chrome = {
-        scrollable: this.isBrowser(),
-        maximized: this.isBrowser()
-      };
-    } else if (this.config.chrome.navigation) {
-      this.config.chrome.scrollable = !this.isFullScreen();
-      // This is for backward compatibility with application that
-      // requests the |navigation| flag in their manifest.
-      this.config.chrome.maximized = true;
-    }
 
     if (this.manifest) {
       this.shortName = new ManifestHelper(this.manifest).short_name;
@@ -169,6 +154,52 @@
     } else if (this.rearWindow) {
       this.rearWindow.setFrontWindow(this);
     }
+
+    // W3C web app manifest "display" property takes precedence
+    if (this.manifest && this.manifest.display) {
+      switch(this.manifest.display) {
+        case 'fullscreen':
+          this._fullScreen = true;
+          this.config.chrome = {
+            scrollable: false,
+            maximized: false,
+          };
+          return; // Early return
+        case 'standalone':
+          this.config.chrome = {
+            scrollable: false,
+            maximized: false,
+          };
+          return;
+        case 'minimal-ui':
+        case 'browser':
+          this.config.chrome = {
+            navigation: true, //AppChrome checks for this
+            scrollable: true,
+            maximized: true
+          };
+          return;
+        default:
+          console.error('Invalid display property in web app manifest.');
+      }
+    }
+
+    // Fall back to mozApp manifest chrome and fullscreen properties
+    this.config.chrome = (this.manifest && this.manifest.chrome) ?
+      this.manifest.chrome :
+      this.config.chrome;
+
+    if (!this.config.chrome) {
+      this.config.chrome = {
+        scrollable: this.isBrowser(),
+        maximized: this.isBrowser()
+      };
+    } else if (this.config.chrome.navigation) {
+      this.config.chrome.scrollable = !this.isFullScreen();
+      // This is for backward compatibility with application that
+      // requests the |navigation| flag in their manifest.
+      this.config.chrome.maximized = true;
+    }
   };
 
   /**
@@ -183,14 +214,9 @@
   };
 
   /**
-   * Represent the current pagee visibility state,
-   * i.e. what is currently visible. Possible value:
-   * 'foreground': setVisible(true)
-   * 'background': setVisible(false)
-   *
-   * Default value is foreground.
+   * Represents the current page visibility state
    */
-  AppWindow.prototype._visibilityState = 'foreground';
+  AppWindow.prototype._visible = true;
 
   /**
    * The rotating degree of current frame.
@@ -234,8 +260,17 @@
    */
   AppWindow.prototype.setVisible =
     function aw_setVisible(visible) {
-      this.debug('set visibility -> ', visible);
       this.setVisibleForScreenReader(visible);
+      if (this.frontWindow) {
+        this.frontWindow.setVisible(visible);
+      }
+
+      if (this._visible === visible) {
+        return;
+      }
+      this._visible = visible;
+
+      this.debug('set visibility -> ', visible);
       this._setActive(visible);
       if (visible) {
         // If this window is not the lockscreen, and the screen is locked,
@@ -243,10 +278,6 @@
         this._showFrame();
       } else {
         this._hideFrame();
-      }
-
-      if (this.frontWindow) {
-        this.frontWindow.setVisible(visible);
       }
     };
 
@@ -934,7 +965,6 @@
         this.inError = true;
         return;
       }
-      this.isCrashed = true;
       // Send event instead of call crash reporter directly.
       this.publish('crashed');
 
@@ -945,6 +975,7 @@
           this.frontWindow.kill();
         }
       } else {
+        this.isCrashed = true;
         this.kill(evt);
       }
     };
@@ -1849,33 +1880,34 @@
     }
 
     this.debug('requesting to open');
+
     if (!this.loaded ||
         (this.screenshotOverlay &&
          this.screenshotOverlay.classList.contains('visible'))) {
       this.debug('loaded yet');
       setTimeout(callback);
       return;
-    } else {
-      var invoked = false;
-      this.waitForNextPaint(function() {
-        if (invoked) {
-          return;
-        }
-        invoked = true;
-        setTimeout(callback);
-      });
-      if (this.isHomescreen) {
-        this.setVisible(true);
+    }
+
+    var invoked = false;
+    this.waitForNextPaint(function() {
+      if (invoked) {
         return;
       }
-      this.tryWaitForFullRepaint(function() {
-        if (invoked) {
-          return;
-        }
-        invoked = true;
-        setTimeout(callback);
-      });
+      invoked = true;
+      setTimeout(callback);
+    });
+    if (this.isHomescreen) {
+      this.setVisible(true);
+      return;
     }
+    this.tryWaitForFullRepaint(function() {
+      if (invoked) {
+        return;
+      }
+      invoked = true;
+      setTimeout(callback);
+    });
   };
 
   /**
@@ -1912,6 +1944,7 @@
     // Request "open" to our internal transition controller.
     if (this.transitionController) {
       this.transitionController.switchTransitionState('opened');
+      this.publish('opening');
       this.publish('opened');
     }
   };
@@ -1920,6 +1953,7 @@
     // Request "close" to our internal transition controller.
     if (this.transitionController) {
       this.transitionController.switchTransitionState('closed');
+      this.publish('closing');
       this.publish('closed');
     }
   };

@@ -1,7 +1,7 @@
 'use strict';
 
-/* global require, Services, dump, FileUtils, exports, OS, Promise, Reflect */
-/* jshint -W079, -W118 */
+/* global Services, dump, FileUtils, OS */
+/* jshint -W118 */
 
 const { Cc, Ci, Cr, Cu, CC } = require('chrome');
 
@@ -14,6 +14,7 @@ Cu.import('resource://gre/modules/reflect.jsm');
 
 var utils = require('./utils.js');
 var subprocess = require('sdk/system/child_process/subprocess');
+var downloadMgr = require('./download-manager').getDownloadManager();
 
 const UUID_FILENAME = 'uuid.json';
 
@@ -67,7 +68,7 @@ function isExternalApp(webapp) {
       'Firefox OS 2.1, please add it into metadata.json and update ' +
       'preload.py if you use this script to perload your apps. If you ' +
       'created metadata.json for non-external apps, please set "external" to ' +
-      'false. your metadata.json is in ' + webapp.sourceDirectoryFile.path);
+      'false. your metadata.json is in ' + webapp.sourceDirectoryFilePath);
   }
   if (!webapp.metaData || webapp.metaData.external === false) {
     return false;
@@ -352,21 +353,22 @@ function getWebapp(app, config) {
   }
 
   let webapp = {
-    appDir: appDir,
+    appDirPath: appDir.path, // appDir
     manifest: manifestJSON,
-    manifestFile: manifest,
+    manifestFilePath: manifest.path, // manifestFile
     url: config.GAIA_SCHEME + appDomain,
     domain: appDomain,
-    sourceDirectoryFile: manifestFile.parent,
+    sourceDirectoryFilePath: manifestFile.parent.path, // sourceDirectoryFile
     sourceDirectoryName: appDir.leafName,
     sourceAppDirectoryName: appDir.parent.leafName
   };
 
   // External webapps have a `metadata.json` file
-  let metaData = webapp.sourceDirectoryFile.clone();
+  let metaData = manifestFile.parent.clone();
   metaData.append('metadata.json');
   if (metaData.exists()) {
-    webapp.pckManifest = readZipManifest(webapp.sourceDirectoryFile);
+    webapp.pckManifest = readZipManifest(
+      getFile(webapp.sourceDirectoryFilePath));
     webapp.metaData = getJSON(metaData);
     webapp.appStatus = utils.getAppStatus(webapp.metaData.type || 'web');
   } else {
@@ -374,10 +376,10 @@ function getWebapp(app, config) {
   }
 
   // Some webapps control their own build
-  webapp.buildDirectoryFile = utils.getFile(config.STAGE_DIR,
-    webapp.sourceDirectoryName);
-  webapp.buildManifestFile = utils.getFile(webapp.buildDirectoryFile.path,
-    'manifest.webapp');
+  webapp.buildDirectoryFilePath = joinPath(config.STAGE_DIR,
+    webapp.sourceDirectoryName); // buildDirectoryFile
+  webapp.buildManifestFilePath = joinPath(webapp.buildDirectoryFilePath,
+    'manifest.webapp'); // buildManifestFile
 
   // Generate the webapp folder name in the profile. Only if it's privileged
   // and it has an origin in its manifest file it'll be able to specify a custom
@@ -406,7 +408,7 @@ function getWebapp(app, config) {
   } else {
     webappTargetDirName = webapp.domain;
   }
-  webapp.profileDirectoryFile = utils.getFile(config.PROFILE_DIR, 'webapps',
+  webapp.profileDirectoryFilePath = joinPath(config.PROFILE_DIR, 'webapps',
                                               webappTargetDirName);
 
   return webapp;
@@ -509,7 +511,7 @@ function deleteFile(path, recursive) {
  */
 function listFiles(path, type, recursive, exclude) {
   var file = (typeof path === 'string' ? getFile(path) : path);
-  if (!file.isDirectory()) {
+  if (!file || !file.isDirectory()) {
     throw new Error('the path is not a directory.');
   }
   var files = ls(file, recursive === true, exclude);
@@ -638,6 +640,10 @@ function createXMLHttpRequest() {
   var ret = new XMLHttpRequest();
   ret.mozBackgroundRequest = true;
   return ret;
+}
+
+function download(url, dest, callback, errorCallback) {
+  downloadMgr.download(url, dest, callback, errorCallback);
 }
 
 /**
@@ -940,14 +946,12 @@ function Commander(cmd) {
     var process = Cc['@mozilla.org/process/util;1']
                   .createInstance(Ci.nsIProcess);
     try {
-      log('cmd', command + ' ' + args.join(' '));
       process.init(_file);
-      process.run(true, args, args.length);
+      process.runw(true, args, args.length);
       callback && callback(process.exitValue);
-    } catch (e) {
+    } catch (err) {
       callback && callback(1);
-      throw new Error('having trouble when execute ' + command +
-        ' ' + args.join(' '));
+      throw err;
     }
 
     processEvents(function () {
@@ -1092,10 +1096,9 @@ function getDocument(content) {
  * @param zip {nsIZipWriter} - the zip file
  * @param pathInZip {string} - the relative path to the new file
  * @param data {string} - the content of the file
- * @param time {string} - the timestamp of the file
  * @param compression {number} - the enum shows above
  */
-function addEntryContentWithTime(zip, pathInZip, data, time, compression) {
+function addFileToZip(zip, pathInZip, data, compression) {
   if (!data) {
     return;
   }
@@ -1116,10 +1119,8 @@ function addEntryContentWithTime(zip, pathInZip, data, time, compression) {
     input.init(data, -1, -1, 0);
   }
 
-  zip.addEntryStream(
-    pathInZip, time || 0, compression, input, false);
+  zip.addEntryStream(pathInZip, Date.now() * 1000, compression, input, false);
   input.close();
-
 }
 
 /**
@@ -1133,6 +1134,10 @@ function getCompression(type) {
     case 'best':
       return Ci.nsIZipWriter.COMPRESSION_BEST;
   }
+}
+
+function hasFileInZip(zip, pathInZip) {
+  return zip.hasEntry(pathInZip);
 }
 
 /**
@@ -1171,21 +1176,21 @@ function copyRec(source, target) {
 
 /**
  * Create an empty ZIP file.
- * For users, the way to read/write a ZIP file is
- *
- * 1. create an nsIZipWriter
- * 2. open it with the open method, which
- * 3. puts an nsIFile as the first argument
- *
- * For example:
- *
- *  createZip().open(getFile(<some file>, <mode>))
  *
  * @return {nsIZipWriter}
  */
-function createZip() {
+function createZip(zipPath) {
   var zip = Cc['@mozilla.org/zipwriter;1'].createInstance(Ci.nsIZipWriter);
+  // PR_RDWR | PR_CREATE_FILE | PR_TRUNCATE
+  zip.open(getFile(zipPath), 0x04 | 0x08 | 0x20);
   return zip;
+}
+
+function closeZip(zip) {
+  if (zip.alignStoredFiles) {
+    zip.alignStoredFiles(4096);
+  }
+  zip.close();
 }
 
 /**
@@ -1241,15 +1246,30 @@ var scriptLoader = {
   }
 };
 
-var requireNode = function() {
-  var node = new Commander('node');
-  node.initPath(getEnvPath());
+/**
+ * Run specific build task on Node.js if RUN_ON_NODE is on, otherwise we go back
+ * to XPCShell.
+ */
+function NodeHelper() {
+  if (getEnv('RUN_ON_NODE') === '1') {
+    var node = new Commander('node');
+    node.initPath(getEnvPath());
+    this.require = function(path, options) {
+      node.run(['--harmony', '-e', 'require("./build/' + path + '").execute(' +
+        JSON.stringify(options) + ')']);
+    };
+  } else {
+    this.require = function(path, options) {
+      return require(path).execute(options);
+    };
+  }
+}
 
-  this.run = function(path) {
-    node.run(['--harmony', '-e', 'require("./build/' + path + '").execute(' +
-      getEnv('BUILD_CONFIG') + ')']);
-  };
-};
+function relativePath(from, to) {
+  var fromFile = utils.getFile(from);
+  var toFile = utils.getFile(to);
+  return toFile.getRelativeDescriptor(fromFile);
+}
 
 exports.Q = Promise;
 exports.ls = ls;
@@ -1276,9 +1296,9 @@ exports.getOsType = getOsType;
 exports.generateUUID = generateUUID;
 exports.copyRec = copyRec;
 exports.createZip = createZip;
+exports.closeZip = closeZip;
+exports.hasFileInZip = hasFileInZip;
 exports.scriptParser = Reflect.parse;
-exports.requireNode = requireNode;
-// ===== the following functions support node.js compitable interface.
 exports.deleteFile = deleteFile;
 exports.listFiles = listFiles;
 exports.fileExists = fileExists;
@@ -1288,6 +1308,7 @@ exports.copyFileTo = copyFileTo;
 exports.copyDirTo = copyDirTo;
 exports.copyToStage = copyToStage;
 exports.createXMLHttpRequest = createXMLHttpRequest;
+exports.download = download;
 exports.downloadJSON = downloadJSON;
 exports.readJSONFromPath = readJSONFromPath;
 exports.processEvents = processEvents;
@@ -1306,8 +1327,10 @@ exports.Services = Services;
 exports.concatenatedScripts = concatenatedScripts;
 exports.dirname = dirname;
 exports.basename = basename;
-exports.addEntryContentWithTime = addEntryContentWithTime;
+exports.addFileToZip = addFileToZip;
 exports.getCompression = getCompression;
 exports.existsInAppDirs = existsInAppDirs;
 exports.removeFiles = removeFiles;
 exports.scriptLoader = scriptLoader;
+exports.NodeHelper = NodeHelper;
+exports.relativePath = relativePath;

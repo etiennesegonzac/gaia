@@ -24,6 +24,12 @@ var MockSIMSlot = function(conn, index) {
   this.isAbsent = function() { return this.absent; };
   this.isLocked = function() { return this.locked; };
   this.getSmsc = function() { return this._smsc; };
+  this.getCardState = function() { return this.simCard.cardState; };
+  this.isUnknownState = function() {
+    var empty = (this.simCard.cardState === '');
+    var unknown = (this.simCard.cardState === 'unknown');
+    return !this.simCard.cardState || unknown || empty;
+  };
 
   // Inject method
   ['sendStkResponse', 'sendStkMenuSelection',

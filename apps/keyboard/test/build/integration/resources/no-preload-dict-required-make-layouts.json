@@ -1,5 +1,20 @@
 [
   {
+    "id": "af",
+    "name": "Afrikaans",
+    "imEngineId": "latin",
+    "types": [
+      "email",
+      "password",
+      "text",
+      "url"
+    ],
+    "dictFileSize": 964021,
+    "preloaded": false,
+    "dictFilename": "af.dict",
+    "dictFilePath": "dictionaries/af.dict"
+  },
+  {
     "id": "ar",
     "name": "العربية",
     "types": [
@@ -190,6 +205,17 @@
     "preloaded": false,
     "dictFilename": "el.dict",
     "dictFilePath": "dictionaries/el.dict"
+  },
+  {
+    "id": "emoji",
+    "name": "Emoji",
+    "types": [
+      "email",
+      "text",
+      "url"
+    ],
+    "dictFileSize": 28035,
+    "preloaded": true
   },
   {
     "id": "en",

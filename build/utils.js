@@ -1,10 +1,10 @@
+'use strict';
+
 /**
  * This file exports all 'utils' functions, which indeed exports the
  * implementations inside the 'utils-node' and 'utils-xpc' files.
  */
 
-'use strict';
-/* global exports, require, process*/
 const FILE_TYPE_FILE = 0;
 const FILE_TYPE_DIRECTORY = 1;
 
@@ -318,6 +318,8 @@ exports.generateUUID = utils.generateUUID;
 exports.copyRec = utils.copyRec;
 exports.getAppStatus = getAppStatus;
 exports.createZip = utils.createZip;
+exports.closeZip = utils.closeZip;
+exports.hasFileInZip = utils.hasFileInZip;
 exports.scriptParser = utils.scriptParser;
 exports.scriptLoader = utils.scriptLoader;
 exports.FILE_TYPE_FILE = FILE_TYPE_FILE;
@@ -331,6 +333,7 @@ exports.joinPath = utils.joinPath;
 exports.copyFileTo = utils.copyFileTo;
 exports.copyToStage = utils.copyToStage;
 exports.createXMLHttpRequest = utils.createXMLHttpRequest;
+exports.download = utils.download;
 exports.downloadJSON = utils.downloadJSON;
 exports.readJSONFromPath = utils.readJSONFromPath;
 exports.readZipManifest = utils.readZipManifest;
@@ -352,7 +355,7 @@ exports.Services = utils.Services;
 exports.concatenatedScripts = utils.concatenatedScripts;
 exports.dirname = utils.dirname;
 exports.basename = utils.basename;
-exports.addEntryContentWithTime = utils.addEntryContentWithTime;
+exports.addFileToZip = utils.addFileToZip;
 exports.copyDirTo = utils.copyDirTo;
 exports.existsInAppDirs = utils.existsInAppDirs;
 exports.getCompression = utils.getCompression;
@@ -361,4 +364,5 @@ exports.getAppNameRegex = getAppNameRegex;
 exports.serializeDocument = serializeDocument;
 exports.cloneJSON = cloneJSON;
 exports.jsComparator = jsComparator;
-exports.requireNode = utils.requireNode;
+exports.NodeHelper = utils.NodeHelper;
+exports.relativePath = utils.relativePath;

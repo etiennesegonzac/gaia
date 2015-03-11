@@ -69,25 +69,22 @@
 
   margin-top: 0.5rem;
   flex-grow: 1;
-
-  /* Avoid any pointer event on contact list in report view  */
-  pointer-events: none;
 }
 
 .report-view > .contact-list > li {
   height: auto;
   min-height: 9rem;
-  padding: 1rem;
+  padding-top: 0.7rem;
+  padding-bottom: 1rem;
   -moz-padding-end: 0;
   -moz-padding-start: 1.5rem;
+
+  border-top: solid 0.1rem #e7e7e7;
+  border-bottom: medium none;
 }
 
 .report-view > .contact-list a {
   height: auto;
-}
-
-.report-view > .contact-list > :first-child {
-  border-top: solid 0.1rem #e7e7e7;
 }
 
 .report-view > .contact-list p,
@@ -96,12 +93,12 @@
   line-height: 1.6rem;
 }
 
-.report-view > .contact-list .suggestion .name {
+.report-view > .contact-list .name {
   padding-top: 0;
 
   font-size: 1.8rem;
   font-weight: 500;
-  line-height: 2rem;
+  line-height: 2.6rem;
 }
 
 .report-view > .contact-list aside {
@@ -110,19 +107,19 @@
 }
 
 .report-view > .contact-list .number {
-  padding-top: 0.9rem;
+  padding-top: 0.6rem;
 }
 
-.report-view > .contact-list div {
+.report-view .network-status {
   padding-top: 0.7rem;
 }
 
-.report-view > .contact-list .name + div {
+.report-view .name + .network-status {
   padding-top: 1rem;
 }
 
-.report-view > .contact-list div,
-.report-view > .contact-list div span {
+.report-view .network-status,
+.report-view .network-status span {
   line-height: 1.4rem;
 }
 

@@ -131,6 +131,8 @@ var CallLog = {
    *                   contact cache.
    */
   _validateContactsCache: function cl_validateContactsCache() {
+    var self = this;
+
     return new Promise(function(resolve, reject) {
       /* Get the latest contact cache revision and the actual Contacts API
        * db revision. If both values differ, we need to update the contact cache
@@ -511,25 +513,23 @@ var CallLog = {
 
     var primInfoMain = document.createElement('span');
     primInfoMain.className = 'primary-info-main';
+    var bdi = document.createElement('bdi');
     if (contact && contact.primaryInfo) {
-      primInfoMain.textContent = contact.primaryInfo;
+      bdi.textContent = contact.primaryInfo;
     } else {
       if (number) {
-        var bdi = document.createElement('bdi');
         bdi.textContent = number;
-        primInfoMain.appendChild(bdi);
       } else {
         primInfoMain.setAttribute('data-l10n-id', 'withheld-number');
       }
     }
+    primInfoMain.appendChild(bdi);
 
     var retryCount = document.createElement('span');
     retryCount.className = 'retry-count';
 
     if (group.retryCount && group.retryCount > 1) {
-      var bdiRetry = document.createElement('bdi');
-      bdiRetry.textContent = '(' + group.retryCount + ')';
-      retryCount.appendChild(bdiRetry);
+      retryCount.textContent = '(' + group.retryCount + ')';
     }
 
     primInfo.appendChild(primInfoMain);
@@ -956,6 +956,10 @@ var CallLog = {
                                                     phoneNumbers, target) {
     var container = target || this.callLogContainer;
 
+    if (!container) {
+      return;
+    }
+
     // Get the list of logs to be updated.
     var logs = [];
     switch (reason) {
@@ -1015,7 +1019,10 @@ var CallLog = {
     var primaryInfo =
       Utils.getPhoneNumberPrimaryInfo(matchingTel, contact);
     if (primaryInfo) {
-      primInfoCont.textContent = primaryInfo;
+      primInfoCont.textContent = '';
+      var bdiPrim = document.createElement('bdi');
+      bdiPrim.textContent = primaryInfo;
+      primInfoCont.appendChild(bdiPrim);
     }
 
     var phoneNumberAdditionalInfo =

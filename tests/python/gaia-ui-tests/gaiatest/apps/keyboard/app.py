@@ -3,18 +3,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-try:
-    from marionette import (expected,
-                            Wait)
-    from marionette.by import By
-    from marionette.marionette import Actions
-except:
-    from marionette_driver import (expected,
-                                   Wait)
-    from marionette_driver.by import By
-    from marionette_driver.marionette import Actions
+from marionette_driver import expected, By, Wait
+from marionette_driver.marionette import Actions
 
 from gaiatest.apps.base import Base
+from gaiatest.apps.system.app import System
 
 
 class Keyboard(Base):
@@ -164,8 +157,12 @@ class Keyboard(Base):
     def switch_to_keyboard(self, focus=False):
         self.marionette.switch_to_frame()
         input_window = self.marionette.find_element(*self._input_window_locator)
+
+        # if we have software buttons, keyboar's y will not be 0 but the minus height of the button container.
+        expected_y = -System(self.marionette).software_buttons_height
+
         Wait(self.marionette).until(
-            lambda m: 'active' in input_window.get_attribute('class') and input_window.location['y'] == 0,
+            lambda m: 'active' in input_window.get_attribute('class') and input_window.location['y'] == expected_y,
             message='Keyboard inputWindow not interpreted as displayed. Debug is_displayed(): %s, class: %s.'
             % (input_window.is_displayed(), input_window.get_attribute('class')))
 
@@ -339,10 +336,14 @@ class Keyboard(Base):
 var keyboard = navigator.mozKeyboard || navigator.mozInputMethod;
 keyboard.removeFocus();""")
         input_window = self.marionette.find_element(*self._input_window_locator)
+
+        # if we have software buttons, keyboar's y will not be 0 but the minus height of the button container.
+        expected_y = int(input_window.size['height']) - System(self.marionette).software_buttons_height
+
         Wait(self.marionette).until(
             lambda m: 'active' not in input_window.get_attribute('class') and
             not input_window.is_displayed() and
-            (int(input_window.location['y']) == int(input_window.size['height'])),
+            (int(input_window.location['y']) == expected_y),
             message="Keyboard was not dismissed. Debug is_displayed(): %s, class: %s."
                     %(input_window.is_displayed(), input_window.get_attribute('class')))
         self.apps.switch_to_displayed_app()

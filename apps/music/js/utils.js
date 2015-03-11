@@ -33,10 +33,12 @@ function formatTime(secs) {
 function createListElement(option, data, index, highlight) {
   var li = document.createElement('li');
   li.className = 'list-item';
+  li.setAttribute('role', 'presentation');
 
   var a = document.createElement('a');
   a.dataset.index = index;
   a.dataset.option = option;
+  a.setAttribute('role', 'option');
 
   var titleSpan;
 
@@ -75,13 +77,13 @@ function createListElement(option, data, index, highlight) {
       a.dataset.keyRange = 'all';
       a.dataset.option = data.option;
 
-      li.appendChild(titleSpan);
+      a.appendChild(titleSpan);
 
       if (index === 0) {
         var shuffleIcon = document.createElement('div');
         shuffleIcon.className = 'list-playlist-icon';
         shuffleIcon.dataset.icon = 'shuffle';
-        li.appendChild(shuffleIcon);
+        a.appendChild(shuffleIcon);
       }
 
       break;
@@ -111,7 +113,7 @@ function createListElement(option, data, index, highlight) {
           highlightText(artistSpan, highlight);
         }
 
-        li.appendChild(artistSpan);
+        a.appendChild(artistSpan);
       } else {
         var albumOrTitleSpan = document.createElement('span');
         artistSpan = document.createElement('span');
@@ -139,8 +141,8 @@ function createListElement(option, data, index, highlight) {
           highlightText(albumOrTitleSpan, highlight);
         }
 
-        li.appendChild(albumOrTitleSpan);
-        li.appendChild(artistSpan);
+        a.appendChild(albumOrTitleSpan);
+        a.appendChild(artistSpan);
       }
 
       a.dataset.keyRange = data.metadata[option];
@@ -149,17 +151,23 @@ function createListElement(option, data, index, highlight) {
       break;
 
     case 'song':
+    case 'song-index':
       var songTitle =
         data.metadata.title || navigator.mozL10n.get('unknownTitle');
 
       var indexSpan = document.createElement('span');
       indexSpan.className = 'list-song-index';
-      var trackNum = data.metadata.tracknum;
-      if (data.metadata.discnum && data.multidisc) {
-        trackNum = data.metadata.discnum + '.' +
-          (trackNum < 10 ? '0' + trackNum : trackNum);
+      // 'song-index' mean we want the index and not the track #
+      if (option === 'song-index') {
+        indexSpan.textContent = index + 1;
+      } else {
+        var trackNum = data.metadata.tracknum;
+        if (data.metadata.discnum && data.multidisc) {
+          trackNum = data.metadata.discnum + '.' +
+            (trackNum < 10 ? '0' + trackNum : trackNum);
+        }
+        indexSpan.textContent = trackNum;
       }
-      indexSpan.textContent = trackNum;
 
       titleSpan = document.createElement('span');
       titleSpan.className = 'list-song-title';
@@ -169,9 +177,9 @@ function createListElement(option, data, index, highlight) {
       var lengthSpan = document.createElement('span');
       lengthSpan.className = 'list-song-length';
 
-      li.appendChild(indexSpan);
-      li.appendChild(titleSpan);
-      li.appendChild(lengthSpan);
+      a.appendChild(indexSpan);
+      a.appendChild(titleSpan);
+      a.appendChild(lengthSpan);
 
       break;
   }
