@@ -99,7 +99,7 @@
         this.active = true;
         this.rocketbar.classList.add('active');
         this.form.classList.remove('hidden');
-        //this.screen.classList.add('rocketbar-focused');
+        this.screen.classList.add('rocketbar-focused');
 
         // We wait for the transition do be over and the search app to be loaded
         // before moving on (and resolving the promise).
@@ -150,7 +150,7 @@
       var finish = () => {
         this.form.classList.add('hidden');
         this.rocketbar.classList.remove('active');
-        //this.screen.classList.remove('rocketbar-focused');
+        this.screen.classList.remove('rocketbar-focused');
 
         backdrop.classList.add('hidden');
 
