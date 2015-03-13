@@ -115,7 +115,8 @@
 
       // If the app is not a browser, do not track places as tracking places
       // currently has a non-trivial startup cost.
-      if (app && !app.isBrowser() && !app.isCallscreenWindow) {
+      if (app && !app.isBrowser() && !app.isCallscreenWindow &&
+          app.name != 'Contacts') {
         return;
       }
 
@@ -131,11 +132,20 @@
               (app.config.url.indexOf('#number') === -1)) {
             break;
           }
+          if (app.name == 'Contacts' &&
+              ((app.config.url.indexOf('#view-contact-details?id=') === -1) ||
+               (app.config.url.indexOf('&pin') === -1))) {
+            break;
+          }
           this.onLocationChange(app.config.url);
           break;
         case 'attentiontitlechange':
         case 'apptitlechange':
           if (app.isCallscreenWindow && !app.title) {
+            break;
+          }
+          if (app.name == 'Contacts' &&
+              (app.title.indexOf('Contact ') === -1)) {
             break;
           }
           this.onTitleChange(app.config.url, app.title);

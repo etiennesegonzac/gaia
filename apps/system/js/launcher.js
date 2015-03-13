@@ -1,5 +1,5 @@
 /* global Service, applications, layoutManager, inputWindowManager, places,
-   UrlHelper, MozActivity, asyncStorage */
+   UrlHelper, MozActivity, asyncStorage, SystemBanner */
 'use strict';
 
 (function(exports) {
@@ -23,17 +23,6 @@
       window.addEventListener('appopened', this);
 
       this.updateHeightCSSVar();
-
-      //var index = 0;
-      //for (var manifest in applications.installedApps) {
-        //var li = document.createElement('li');
-        //li.dataset.index = index;
-        //li.dataset.manifestURL = manifest;
-        //li.textContent = applications.installedApps[manifest].manifest.name;
-
-        //this.list.appendChild(li);
-        //index++;
-      //}
 
       places.getStore().then(store => {
         store.onchange = this.fillHistory.bind(this);
@@ -81,7 +70,7 @@
             if (parent.classList.contains('action')) {
               this.removeActionAtIndex(index);
             } else {
-              this.addActionAtIndex(target.dataset.action, index);
+              this.addActionAtIndex(index);
             }
             break;
           }
@@ -102,7 +91,7 @@
             return;
           }
 
-          if (url) {
+          if (url && (url.indexOf('app:/') === -1)) {
             var activity = new MozActivity({
               name: 'view',
               data: {
@@ -123,6 +112,18 @@
 
           var app = applications.installedApps[target.dataset.manifestURL];
           var entryPoint = target.dataset.entryPoint || '';
+          var directHash;
+
+          if (url && url.indexOf('communications.gaiamobile.org/contacts') !==
+              -1) {
+            var manif = 'app://communications.gaiamobile.org/manifest.webapp';
+            var hash = target.dataset.url.split('#')[1].split('&')[0];
+
+            app = applications.installedApps[manif];
+            directHash = '#' + hash;
+            entryPoint = 'contacts';
+          }
+
           if (!app) {
             target.classList.add('shake');
             setTimeout(() => {
@@ -142,6 +143,9 @@
           this.nextAppLaunch().then((config) => {
             var app = window.appWindowManager.getApp(config.origin,
                                                      config.manifestURL);
+            if (directHash) {
+              app.browser.element.src += directHash;
+            }
             app.ready(() => {
               ready = true;
               finish();
@@ -181,15 +185,22 @@
     },
 
     updateChoice: function(app) {
-      var selector = 'li[data-manifest-u-r-l="' + app.manifestURL + '"]';
-      selector += ', li[data-url="' + app.url + '"]';
+      var selector = 'li[data-url="' + app.url + '"], ';
+      if (app && app.browser && app.browser.element) {
+        selector += 'li[data-url^="' + app.browser.element.src + '"], ';
+      }
+      selector += 'li[data-manifest-u-r-l="' + app.manifestURL + '"]';
       var matching = this.element.querySelectorAll(selector);
       var target;
       // entry points :/
       if (matching.length > 1) {
         for (var i = 0; i < matching.length; i++) {
           var el = matching[i];
-          if (app.origin.indexOf(el.dataset.entryPoint) !== -1) {
+          // Can't now which one to match, pined shortcut from app
+          if (el.dataset.url) {
+            return;
+          }
+          if (!target && app.origin.indexOf(el.dataset.entryPoint) !== -1) {
             target = el;
           }
         }
@@ -206,7 +217,7 @@
       this.setClassesOnItemsFor(target.dataset.index);
     },
 
-    addActionAtIndex: function(action, index) {
+    addActionAtIndex: function(index) {
       var items = this.list.querySelectorAll('li');
       var added = items[index];
 
@@ -252,6 +263,17 @@
 
       this.nextTransition().then(() => {
         finish();
+      });
+    },
+
+    addAction: function(action) {
+      this._actions.push({
+        url: action.url,
+        title: action.title,
+        action: true
+      });
+      asyncStorage.setItem(actionDS, this._actions, () => {
+        setTimeout(this.fillHistory.bind(this));
       });
     },
 
@@ -336,7 +358,19 @@
     fillHistory: function(opts) {
       this._historyItems = [];
       places.getStore().then(store => {
-        this.addHistoryItem(store.sync(), opts && opts.adding);
+        if (opts && opts.operation) {
+          store.get(opts.id).then(obj => {
+            if (obj.url.indexOf('&pin') !== -1) {
+              this.addAction(obj);
+              var banner = new SystemBanner();
+              banner.show('Shortcut added.');
+            } else {
+              this.addHistoryItem(store.sync());
+            }
+          });
+        } else {
+          this.addHistoryItem(store.sync(), opts && opts.adding);
+        }
       });
     },
 
@@ -377,7 +411,7 @@
         // Shapping it up, need work
         // This should never land in master
         this._actions.concat(this._historyItems.sort((a, b) => {
-          return a.visits[a.visits.length - 1] < b.visits[b.visits.length - 1];
+          return a.visits[0] < b.visits[0];
         })).map(history => {
           var domain = UrlHelper.getDomainFromInput(history.url);
           return {

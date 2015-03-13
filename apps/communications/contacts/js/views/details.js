@@ -79,6 +79,7 @@ contacts.Details = (function() {
 
     utils.listeners.add({
       '#toggle-favorite': toggleFavorite,
+      '#pin-homescreen': pinToHomescreen,
       '#details-view-header': [
         {
           event: 'action',
@@ -320,6 +321,12 @@ contacts.Details = (function() {
   var isFavorite = function isFavorite(contact) {
     return contact != null && contact.category != null &&
               contact.category.indexOf('favorite') != -1;
+  };
+
+  var pinToHomescreen = function() {
+    var contact = contactData;
+    document.title = 'Contact ' + getDisplayName(contact);
+    window.location.hash = '#view-contact-details?id=' + contact.id + '&pin';
   };
 
   var toggleFavorite = function toggleFavorite() {
