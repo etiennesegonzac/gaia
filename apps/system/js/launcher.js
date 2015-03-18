@@ -144,7 +144,8 @@
             var app = window.appWindowManager.getApp(config.origin,
                                                      config.manifestURL);
             if (directHash) {
-              app.browser.element.src += directHash;
+              var src = app.browser.element.src;
+              app.browser.element.src = src.split('#')[0] + directHash;
             }
             app.ready(() => {
               ready = true;
