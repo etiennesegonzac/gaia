@@ -85,19 +85,19 @@
 
 #launcher ul li.history {
   font-style: italic;
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.17);
 }
 
 #launcher ul li.action {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.29);
 }
 
 #launcher ul li:nth-child(2n+1).history {
-  background-color: rgba(0, 0, 0, 0.12);
+  background-color: rgba(0, 0, 0, 0.14);
 }
 
 #launcher ul li:nth-child(2n+1).action {
-  background-color: rgba(0, 0, 0, 0.27);
+  background-color: rgba(0, 0, 0, 0.26);
 }
 
 #launcher ul li:nth-child(2n+1) {
