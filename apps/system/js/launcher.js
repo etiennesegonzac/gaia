@@ -1,5 +1,5 @@
 /* global Service, applications, layoutManager, inputWindowManager, places,
-   UrlHelper, MozActivity, asyncStorage, SystemBanner */
+   UrlHelper, MozActivity, asyncStorage, SystemBanner, OrientationManager */
 'use strict';
 
 (function(exports) {
@@ -178,6 +178,7 @@
       this.nextTransition().then(() => {
         this.element.style.overflow = '';
         window.dispatchEvent(new CustomEvent('homescreenopened'));
+        screen.mozLockOrientation(OrientationManager.defaultOrientation);
       });
     },
 
