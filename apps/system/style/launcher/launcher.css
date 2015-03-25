@@ -13,7 +13,7 @@
   height: calc(100% - var(--software-home-button-height));
 }
 
-#launcher ul {
+#launcher > ul {
   position: absolute;
   top: 0;
   left: 0;
@@ -28,7 +28,8 @@
   overflow: hidden;
 }
 
-#launcher ul li {
+#history-list,
+#launcher > ul li {
   position: absolute;
   left: 0;
   width: 100%;
@@ -41,6 +42,19 @@
   font-weight: 300;
   line-height: 90px;
   letter-spacing: -0.025em;
+}
+
+#launcher #history-list > li:first-child {
+  background-color: rgba(0, 0, 0, 0.14);
+  pointer-events: none;
+}
+
+#launcher #history-list.pulse > li:first-child::before {
+  animation: pulse 0.2s ease 0s 2 alternate;
+}
+
+#launcher #history-list > li {
+  position: relative;
 }
 
 #launcher ul li.shake {
@@ -141,7 +155,7 @@
   100% { opacity: 1;}
 }
 
-#launcher li.top, #launcher li.bottom {
+#launcher .top, #launcher .bottom {
   will-change: transform;
 }
 
@@ -149,11 +163,11 @@
   background-color: transparent;
 }
 
-#launcher.expand li.top {
+#launcher.expand .top {
   transform: translateY(calc(var(--screen-height) * (-1)));
 }
 
-#launcher.expand li.bottom {
+#launcher.expand .bottom {
   transform: translateY(var(--screen-height));
 }
 

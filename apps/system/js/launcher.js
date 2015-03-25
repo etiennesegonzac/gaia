@@ -3,9 +3,11 @@
 'use strict';
 
 (function(exports) {
+  const functionCount = 9;
   const rowHeight = 90;
   const rowsPerScreen = 7;
   const actionDS = 'actions';
+  const historyLimit = 5;
 
   var Launcher = function() {};
   Launcher.prototype = {
@@ -13,6 +15,7 @@
     EVENT_PREFIX: 'launcher',
     element: document.getElementById('launcher'),
     list: document.querySelector('#launcher > ul'),
+    historyList: null,
 
     start: function() {
       Service.request('registerHierarchy', this);
@@ -64,6 +67,13 @@
           target.classList.remove('pulse');
           break;
         case 'click':
+          if (target === this.historyList) {
+            this.handleHistoryClick(evt);
+            break;
+          }
+
+          this.collapseHistory();
+
           if (target.dataset.action) {
             var parent = target.parentNode;
             var index = parseInt(parent.dataset.index);
@@ -73,6 +83,12 @@
               this.addActionAtIndex(index);
             }
             break;
+          }
+
+          if (target.classList.contains('history') &&
+              !target.classList.contains('action')) {
+            this.addActionAtIndex(parseInt(target.dataset.index));
+            return;
           }
 
           var selected = parseInt(target.dataset.index);
@@ -160,9 +176,54 @@
       }
     },
 
+    _historyCollapsed: true,
+    handleHistoryClick: function(evt) {
+      if (this._historyCollapsed) {
+        this.expandHistory();
+      } else {
+        this.collapseHistory();
+      }
+    },
+
+    expandHistory: function() {
+      if (!this._historyCollapsed) {
+        return;
+      }
+      this._historyCollapsed = false;
+
+      var itemCount = this.historyList.querySelectorAll('li.history').length;
+      var count = functionCount + this._actions.length + itemCount + 1;
+      var height = count * rowHeight;
+      this.list.style.height = height + 'px';
+
+      var delta = itemCount * rowHeight;
+
+      setTimeout(() => {
+        this.element.scrollBy({top: delta, behavior: 'smooth'});
+      });
+    },
+
+    collapseHistory: function() {
+      if (this._historyCollapsed) {
+        return;
+      }
+      this._historyCollapsed = true;
+
+      var itemCount = this.historyList.querySelectorAll('li.history').length;
+      var delta = itemCount * (-1) * rowHeight;
+      this.element.scrollBy({top: delta, behavior: 'smooth'});
+
+      setTimeout(() => {
+        var count = functionCount + this._actions.length + 1;
+        this.list.style.height = (count  * rowHeight) + 'px';
+      }, 350 /* smooth scroll duration, sorta */);
+    },
+
     hide: function() {
       this.element.classList.add('hide');
       window.dispatchEvent(new CustomEvent('launcherwillhide'));
+
+      this.collapseHistory();
     },
 
     show: function() {
@@ -220,7 +281,7 @@
     },
 
     addActionAtIndex: function(index) {
-      var items = this.list.querySelectorAll('li');
+      var items = this.historyList.querySelectorAll('li');
       var added = items[index];
 
       if (this._actions.length === 10) {
@@ -233,15 +294,9 @@
 
       added.classList.add('action');
       added.querySelector('img').src = 'style/launcher/icons/action.svg';
-      added.style.transform = 'translateY(-' + (index - this._actions.length) *
-                                               rowHeight + 'px)';
+      added.style.transform = 'translateY(-' + (index + 1) * rowHeight + 'px)';
 
-      for (var i = this._actions.length; i < index; i++) {
-        var item = items[i];
-        if (item !== added) {
-          item.style.transform = 'translateY(' + rowHeight + 'px)';
-        }
-      }
+      this.historyList.style.transform = 'translateY(' + rowHeight + 'px)';
 
       var finish = () => {
         added.classList.add('adding');
@@ -253,12 +308,13 @@
         });
         asyncStorage.setItem(actionDS, this._actions, () => {
           // swirl duration
+          this.collapseHistory();
           setTimeout(this.fillHistory.bind(this, {adding: true}), 300);
         });
       };
 
       // All items stay in place, no transition
-      if ((index - this._actions.length) === 0) {
+      if (index === 0) {
         finish();
         return;
       }
@@ -294,6 +350,7 @@
         return (action.url != removed.dataset.url);
       });
       asyncStorage.setItem(actionDS, this._actions, () => {
+        this.collapseHistory();
         setTimeout(this.fillHistory.bind(this), 300);
       });
     },
@@ -327,7 +384,8 @@
     },
 
     setClassesOnItemsFor: function(selected) {
-      var items = this.list.querySelectorAll('li');
+      var items = document.querySelectorAll('#launcher > ul > li, ' +
+                                            '#history-list');
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
         if (i == selected) {
@@ -343,7 +401,8 @@
     },
 
     removeClassesOnItems: function() {
-      var items = this.list.querySelectorAll('li');
+      var items = document.querySelectorAll('#launcher > ul > li, ' +
+                                            '#history-list');
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
         item.classList.remove('choice');
@@ -407,8 +466,13 @@
           item.parentNode.removeChild(item);
         }
 
+        if (this.historyList) {
+          this.historyList.parentNode.removeChild(this.historyList);
+          this.historyList = null;
+        }
+
         var lastAction = null;
-        var limit = 3 + this._actions.length;
+        var limit = historyLimit + this._actions.length;
 
         // Shapping it up, need work
         // This should never land in master
@@ -437,7 +501,7 @@
             acc.push(history);
           }
           return acc;
-        }, []).slice(0, limit).reverse().forEach(history => {
+        }, []).slice(0, limit).forEach(history => {
           var li = document.createElement('li');
           li.classList.add('history');
           li.dataset.url = history.url;
@@ -446,11 +510,6 @@
           }
           var img = document.createElement('img');
           img.src = 'style/launcher/icons/history.svg';
-          if (history.action) {
-            img.src = 'style/launcher/icons/action.svg';
-            li.classList.add('action');
-            lastAction = lastAction || li;
-          }
           img.dataset.action = history.url;
           li.appendChild(img);
 
@@ -459,7 +518,30 @@
           li.dataset.title = history.title;
           li.appendChild(span);
 
-          this.list.insertBefore(li, this.list.firstElementChild);
+          if (history.action) {
+            img.src = 'style/launcher/icons/action.svg';
+            li.classList.add('action');
+            lastAction = li;
+            this.list.appendChild(li);
+          } else {
+            if (!this.historyList) {
+              this.historyList = document.createElement('ul');
+              this.historyList.id = 'history-list';
+              var placeHolder = document.createElement('li');
+              var icon = document.createElement('img');
+              icon.src = 'style/launcher/icons/history.svg';
+              placeHolder.appendChild(icon);
+
+              var spanHolder = document.createElement('span');
+              spanHolder.textContent = 'Add action';
+              placeHolder.appendChild(spanHolder);
+
+              this.historyList.appendChild(placeHolder);
+              this.list.appendChild(this.historyList);
+            }
+
+            this.historyList.appendChild(li);
+          }
         });
 
         if (adding && lastAction) {
@@ -471,7 +553,8 @@
     },
 
     updateIndices: function() {
-      var items = this.list.querySelectorAll('li');
+      var items = document.querySelectorAll('#launcher > ul > li, ' +
+                                            '#history-list');
       var selected = -1;
       this.list.style.height = (items.length * rowHeight) + 'px';
       for (var i = 0; i < items.length; i++) {
@@ -486,6 +569,16 @@
       if (selected >= 0) {
         this.removeClassesOnItems();
         this.setClassesOnItemsFor(selected);
+      }
+
+      if (!this.historyList) {
+        return;
+      }
+
+      var historyItems = this.historyList.querySelectorAll('li');
+      for (i = 0; i < historyItems.length; i++) {
+        var historyItem = historyItems[i];
+        historyItem.dataset.index = i;
       }
     }
   };
