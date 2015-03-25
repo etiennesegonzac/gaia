@@ -69,6 +69,7 @@
       'SystemDialogManager',
       'Rocketbar',
       'Launcher',
+      'ActionMenu',
       'AppWindowManager',
       'TaskManager'
     ],
