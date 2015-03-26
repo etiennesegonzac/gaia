@@ -24,6 +24,7 @@
       this.element.addEventListener('touchend', this);
 
       window.addEventListener('appopened', this);
+      window.addEventListener('launchapp', this);
 
       this.updateHeightCSSVar();
 
@@ -59,6 +60,12 @@
       switch (evt.type) {
         case 'appopened':
           this.updateChoice(evt.detail);
+          break;
+        case 'launchapp':
+          if (!evt.detail.stayBackground) {
+            this.element.classList.add('expand');
+            this.hide();
+          }
           break;
         case 'touchstart':
           target.classList.add('pulse');

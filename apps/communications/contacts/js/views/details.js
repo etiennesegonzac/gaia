@@ -327,7 +327,7 @@ contacts.Details = (function() {
 
   var pinToHomescreen = function() {
     var contact = contactData;
-    document.title = 'Contact ' + getDisplayName(contact);
+    document.title = getDisplayName(contact) + '\'s contact card';
     window.location.hash = '#view-contact-details?id=' + contact.id + '&pin';
   };
 
