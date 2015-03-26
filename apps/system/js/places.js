@@ -145,7 +145,7 @@
             break;
           }
           if (app.name == 'Contacts' &&
-              (app.title.indexOf('Contact ') === -1)) {
+              (app.title.indexOf('contact card') === -1)) {
             break;
           }
           this.onTitleChange(app.config.url, app.title);
