@@ -179,6 +179,7 @@ var StatusBar = {
     window.addEventListener('utility-tray-abortclose', this);
     window.addEventListener('cardviewshown', this);
     window.addEventListener('cardviewclosed', this);
+    window.addEventListener('rocketbar-deactivated', this);
 
     // Listen to 'lockscreen-appopened', 'lockscreen-appclosing', and
     // 'lockpanelchange' in order to correctly set the visibility of
@@ -301,11 +302,14 @@ var StatusBar = {
 
       case 'sheets-gesture-end':
         this.element.classList.remove('hidden');
-        this._pausedForGesture = false;
-        this.resumeUpdate();
+        if (this._pausedForGesture) {
+          this.resumeUpdate();
+          this._pausedForGesture = false;
+        }
         break;
 
       case 'stackchanged':
+      case 'rocketbar-deactivated':
         this.setAppearance(Service.currentApp);
         this.element.classList.remove('hidden');
         break;

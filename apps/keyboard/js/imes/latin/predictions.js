@@ -273,7 +273,7 @@ var Predictions = function() {
       });
 
       var rootCode = rootform[charCode];
-      if (rootCode && nearbyKeys[rootCode]) {
+      if (rootCode && nearbyKeys && nearbyKeys[rootCode]) {
         Object.keys(nearbyKeys[rootCode]).forEach(
         function(rootNearByCode) {
           validChars.add(String.fromCharCode(rootNearByCode));
