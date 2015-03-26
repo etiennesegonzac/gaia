@@ -258,7 +258,7 @@
           title: added.dataset.title,
           action: true
         });
-        asyncStorage.setItem(actionDS, this._actions, () => {
+        this.persistActions(() => {
           // swirl duration
           setTimeout(this.fillHistory.bind(this, {adding: true}), 300);
         });
@@ -281,7 +281,7 @@
         title: action.title,
         action: true
       });
-      asyncStorage.setItem(actionDS, this._actions, () => {
+      this.persistActions(() => {
         setTimeout(this.fillHistory.bind(this));
       });
     },
@@ -300,8 +300,23 @@
       this._actions = this._actions.filter((action) => {
         return (action.url != removed.dataset.url);
       });
-      asyncStorage.setItem(actionDS, this._actions, () => {
+      this.persistActions(() => {
         setTimeout(this.fillHistory.bind(this), 300);
+      });
+    },
+
+    persistActions: function(cb) {
+      var urls = {};
+      var uniqActions = this._actions.filter((item) => {
+        if (urls[item.url]) {
+          return false;
+        }
+        urls[item.url] = true;
+        return true;
+      });
+      this._actions = uniqActions;
+      asyncStorage.setItem(actionDS, uniqActions, () => {
+        cb && cb();
       });
     },
 
