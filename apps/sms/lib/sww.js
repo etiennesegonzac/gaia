@@ -25,16 +25,19 @@ Router.prototype.methods = ['get', 'post', 'put', 'delete', 'head',
  * @param handler (Function) payload to be executed if url matches.
  */
 Router.prototype.add = function r_add(method, path, handler) {
-  var pathRegex;
+  var pathRegexAndTags, pathRegex, namedPlaceholders;
 
   method = this._sanitizeMethod(method);
 
   // Parse simle string path into regular expression for path matching
-  pathRegex = this._parseSimplePath(path);
+  pathRegexAndTags = this._parseSimplePath(path);
+  pathRegex = pathRegexAndTags.regexp;
+  namedPlaceholders = pathRegexAndTags.tags;
 
   this.stack.push({
     method: method,
     path: pathRegex,
+    namedPlaceholders: namedPlaceholders,
     handler: handler
   });
 };
@@ -70,18 +73,47 @@ Router.prototype.match = function r_match(method, url) {
   method = this._sanitizeMethod(method);
   var matches = [];
 
-  var self = this;
+  var _this = this;
   this.stack.forEach(function eachRoute(route) {
-    if (!(method === route.method || route.method === self.ALL_METHODS)) {
+    if (!(method === route.method || route.method === _this.ALL_METHODS)) {
       return;
     }
 
-    if (route.path.test(url)) {
+    var groups = _this._routeMatch(url, route);
+    if (groups) {
+      route.handler.__params = groups;
       matches.push(route.handler);
     }
   });
 
   return matches;
+};
+
+/**
+ * Performs a matching test for url against a route.
+ * @param {String} the url to test
+ * @param {route} the route to match against
+ * @return {Object} an object with the portions of the url matching the named
+ * placeholders or null if there is no match.
+ */
+Router.prototype._routeMatch = function (url, route) {
+  var groups = url.match(route.path);
+  if (!groups) { return null; }
+  return this._mapParameters(groups, route.namedPlaceholders);
+};
+
+/**
+ * Assign names from named placeholders in a route to the matching groups
+ * for an URL against that route.
+ * @param {Array} groups from a successful match
+ * @param {Array} names for those groups
+ * @return a map of names of named placeholders and values for those matches.
+ */
+Router.prototype._mapParameters = function (groups, placeholderNames) {
+  return placeholderNames.reduce(function (params, name, index) {
+    params[name] = groups[index + 1];
+    return params;
+  }, Object.create(null));
 };
 
 Router.prototype._sanitizeMethod = function(method) {
@@ -112,16 +144,19 @@ Router.prototype._parseSimplePath = function(path) {
   // Try parsing the string and converting special characters into regex
   try {
     // Parsing anonymous placeholders with simple backslash-escapes
-    path = path.replace(/(.|^)\*/g, function(m,escape) {
-      return escape==='\\' ? '\\*' : (escape+'(.*?)');
+    path = path.replace(/(.|^)[*]+/g, function(m,escape) {
+      return escape==='\\' ? '\\*' : (escape+'(?:.*?)');
     });
 
     // Parsing named placeholders with backslash-escapes
-    path = path.replace(/(.|^)\:([a-zA-Z0-9]+)/g, function(m,escape,tag) {
-      return escape==='\\' ? (':'+tag) : (escape+'(.+?)');
+    var tags = [];
+    path = path.replace(/(.|^)\:([a-zA-Z0-9]+)/g, function (m, escape, tag) {
+      if (escape === '\\') { return ':' + tag; }
+      tags.push(tag);
+      return escape + '(.+?)';
     });
 
-    return new RegExp(path + '$');
+    return { regexp: RegExp(path + '$'), tags: tags };
   }
 
   // Failed to parse final path as a RegExp
@@ -134,10 +169,8 @@ Router.prototype._parseSimplePath = function(path) {
 module.exports = Router;
 
 },{}],3:[function(require,module,exports){
-/* global Promise */
+/* global Promise, caches */
 'use strict';
-
-var cacheHelper = require('sw-cache-helper');
 
 var debug = 0 ? console.log.bind(console, '[SimpleOfflineCache]') :
  function(){};
@@ -148,11 +181,13 @@ var DEFAULT_MATCH_OPTIONS = {
   ignoreMethod: false,
   ignoreVary: false
 };
-var DEFAULT_MISS_POLICY = 'fetchAndChace';
+var DEFAULT_MISS_POLICY = 'fetch';
 // List of different policies
 var MISS_POLICIES = [
   DEFAULT_MISS_POLICY
 ];
+
+var DEFAULT_CACHE_NAME = 'offline';
 
 
 /**
@@ -164,7 +199,7 @@ var MISS_POLICIES = [
  *                 when hitting the cache.
  */
 function SimpleOfflineCache(cacheName, options, missPolicy) {
-  this.cacheName = cacheName || cacheHelper.defaultCacheName;
+  this.cacheName = cacheName || DEFAULT_CACHE_NAME;
   this.options = options || DEFAULT_MATCH_OPTIONS;
   this.missPolicy = missPolicy || DEFAULT_MISS_POLICY;
   if (MISS_POLICIES.indexOf(this.missPolicy) === -1) {
@@ -182,9 +217,8 @@ SimpleOfflineCache.prototype.onFetch = function soc_onFetch(request, response) {
 
   var clone = request.clone();
   var _this = this;
-  debug('Handing fetch event: %s', clone.url);
   return this.ensureCache().then(function(cache) {
-    return cache.match(request.clone(), _this.options).then(function(res) {
+    return cache.match(clone, _this.options).then(function(res) {
       if (res) {
         return res;
       }
@@ -192,21 +226,22 @@ SimpleOfflineCache.prototype.onFetch = function soc_onFetch(request, response) {
       // So far we just support one policy
       switch(_this.missPolicy) {
         case DEFAULT_MISS_POLICY:
-          return cacheHelper.fetchAndCache(request, cache);
+          return fetch(request);
       }
     });
   });
 };
 
 SimpleOfflineCache.prototype.ensureCache = function soc_ensureCache() {
-  return cacheHelper.getCache(this.cacheName).then(function(cache) {
-    return cache;
-  });
+  if (!this.cacheRequest) {
+    this.cacheRequest = caches.open(this.cacheName);
+  }
+  return this.cacheRequest;
 };
 
 module.exports = SimpleOfflineCache;
 
-},{"sw-cache-helper":6}],4:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /* globals caches, Promise, Request */
 'use strict';
 
@@ -225,7 +260,10 @@ StaticCacher.prototype.onInstall = function sc_onInstall() {
 };
 
 StaticCacher.prototype.getDefaultCache = function sc_getDefaultCache() {
-  return caches.open('offline');
+  if (!this.cacheRequest) {
+    this.cacheRequest = caches.open('offline');
+  }
+  return this.cacheRequest;
 };
 
 StaticCacher.prototype.addAll = function(cache, urls) {
@@ -278,11 +316,18 @@ function DEFAULT_FALLBACK_MW(request) {
   return fetch(request);
 }
 
-function ServiceWorkerWare(fallbackMw) {
+function ServiceWorkerWare(options) {
+  options = options || {};
+  if (typeof options === 'function' || options.onFetch) {
+    options = { fallbackMiddleware: options };
+  }
+  options.autoClaim = ('autoClaim' in options) ? options.autoClaim : true;
   this.middleware = [];
   this.router = new Router({});
   this.router.proxyMethods(this);
-  this.fallbackMw = fallbackMw || DEFAULT_FALLBACK_MW;
+
+  this.fallbackMw = options.fallbackMiddleware || DEFAULT_FALLBACK_MW;
+  this.autoClaim = options.autoClaim;
 }
 
 ServiceWorkerWare.prototype.init = function sww_init() {
@@ -304,7 +349,6 @@ ServiceWorkerWare.prototype.init = function sww_init() {
  * Handle and forward all events related to SW
  */
 ServiceWorkerWare.prototype.handleEvent = function sww_handleEvent(evt) {
-  debug('Event received: ' + evt.type);
   switch(evt.type) {
     case 'install':
       this.onInstall(evt);
@@ -313,13 +357,14 @@ ServiceWorkerWare.prototype.handleEvent = function sww_handleEvent(evt) {
       this.onFetch(evt);
       break;
     case 'activate':
+      this.onActivate(evt);
+      break;
     case 'message':
     case 'beforeevicted':
     case 'evicted':
       this.forwardEvent(evt);
       break;
     default:
-      debug('Unhandled event ' + evt.type);
   }
 };
 
@@ -379,6 +424,7 @@ function (middleware, current, request, response) {
   }
 
   var mw = middleware[current];
+  if (request) { request.parameters = mw.__params; }
   var endWith = ServiceWorkerWare.endWith;
   var answer = mw(request, response, endWith);
   var normalized =
@@ -480,17 +526,42 @@ ServiceWorkerWare.normalizeMwAnswer = function (answer, request, response) {
 };
 
 /**
- * Walk all the middle ware installed asking if they have prerequisites
- * (on the way of a promise to be resolved) when installing the SW
+ * Walk all the middleware installed asking if they have prerequisites
+ * (on the way of a promise to be resolved) when installing the SW.
  */
 ServiceWorkerWare.prototype.onInstall = function sww_oninstall(evt) {
-  var waitingList = [];
-  this.middleware.forEach(function(mw) {
-    if (typeof mw.onInstall !== 'undefined') {
-      waitingList.push(mw.onInstall());
+  var installation = this.getFromMiddleware('onInstall');
+  evt.waitUntil(installation);
+};
+
+/**
+ * Walk all the installed middleware asking if they have prerequisites
+ * (on the way of a promise to be resolved) when SW activates.
+ */
+ServiceWorkerWare.prototype.onActivate = function sww_activate(evt) {
+  var activation = this.getFromMiddleware('onActivate');
+  if (this.autoClaim) {
+    activation =
+      activation.then(function claim() { return self.clients.claim(); });
+  }
+  evt.waitUntil(activation);
+};
+
+/**
+ * Returns a promise gathering the results for executing the same method for
+ * all the middleware.
+ * @param {Function} the method to be executed.
+ * @param {Promise} a promise resolving once all the results have been gathered.
+ */
+ServiceWorkerWare.prototype.getFromMiddleware =
+function sww_getFromMiddleware(method) {
+  var tasks = this.middleware.reduce(function (tasks, mw) {
+    if (typeof mw[method] === 'function') {
+      tasks.push(mw[method]());
     }
-  });
-  evt.waitUntil(Promise.all(waitingList));
+    return tasks;
+  }, []);
+  return Promise.all(tasks);
 };
 
 /**
@@ -620,52 +691,4 @@ module.exports = {
   SimpleOfflineCache: SimpleOfflineCache
 };
 
-},{"./router.js":2,"./simpleofflinecache.js":3,"./staticcacher.js":4}],6:[function(require,module,exports){
-/* global caches, fetch, Promise, Request, module*/
-(function() {
-  'use strict';
-
-  var CacheHelper = {
-    defaultCacheName: 'offline',
-    getCache: function getCache(name) {
-      return caches.open(name);
-    },
-    getDefaultCache: function getDefaultCache() {
-      return this.getCache(this.defaultCacheName);
-    },
-    fetchAndCache: function fetchAndChache(request, cache) {
-      return fetch(request.clone()).then(function(response) {
-        var clone = response.clone();
-        if (parseInt(clone.status) < 400) {
-          cache.put(request.clone(), response.clone());
-        }
-
-        return response.clone();
-      });
-    },
-    addAll: function addAll(cache, urls) {
-      if (!cache) {
-        throw new Error('Need a cache to store things');
-      }
-      // Polyfill until chrome implements it
-      if (typeof cache.addAll !== 'undefined') {
-        return cache.addAll(urls);
-      }
-
-      var promises = [];
-      var self = this;
-      urls.forEach(function(url) {
-        promises.push(self.fetchAndCache(new Request(url), cache));
-      });
-
-      return Promise.all(promises);
-    }
-  };
-
-  module.exports = CacheHelper;
-})();
-
-},{}]},{},[1])
-
-
-//# sourceMappingURL=sww.js.map
+},{"./router.js":2,"./simpleofflinecache.js":3,"./staticcacher.js":4}]},{},[1]);

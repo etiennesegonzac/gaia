@@ -22,6 +22,10 @@ sww_repo="gaia-components/serviceworkerware#master"
 sww_dist="$bower_path/serviceworkerware/dist/sww.js"
 sww_path="lib/sww.js"
 
+fast_list_repo="gaia-components/fast-list#~0.1.0"
+gaia_component_repo="gaia-components/gaia-component#~0.3.8"
+dom_scheduler_repo="etiennesegonzac/dom-scheduler"
+
 ###############################################################################
 # Main script
 
@@ -30,7 +34,7 @@ if [ ! -x "`which bower`" -o ! -x "`which browserify`" ] ; then
   exit 1
 fi
 
-bower install $threads_repo $sww_repo
+bower install $threads_repo $sww_repo $fast_list_repo $gaia_component $dom_scheduler
 
 # Threads lib preparing.
 [ -d "$threads_destination" ] || mkdir "$threads_destination"

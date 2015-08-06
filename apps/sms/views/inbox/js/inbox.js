@@ -613,8 +613,8 @@ var InboxView = {
   },
 
   prepareRendering: function inbox_prepareRendering() {
-    this.container.innerHTML = '';
-    this.renderDrafts();
+    // this.container.innerHTML = '';
+    // this.renderDrafts();
   },
 
   startRendering: function inbox_startRenderingThreads() {
@@ -641,7 +641,112 @@ var InboxView = {
     window.performance.mark('willRenderThreads');
 
     var hasThreads = false;
+    var chunkSize = this.FIRST_PANEL_THREAD_COUNT;
     var firstPanelCount = this.FIRST_PANEL_THREAD_COUNT;
+    var queue = [];
+    this.list = document.querySelector('thread-list');
+
+    this.list.configure({
+      getSectionTime(data) {
+        return data.timestamp;
+      },
+
+      populateItem(li, record) {
+        // update DOM element
+        // var timestamp = +record.timestamp;
+        // var type = record.lastMessageType;
+        var participants = record.participants;
+        var number = participants[0];
+        var id = record.id;
+        var bodyHTML = record.body;
+        var thread = Threads.get(id);
+        // var iconLabel = '';
+        // A new conversation "is" a draft
+        var isDraft = thread.isDraft;
+
+        // Fetch elements
+        var link = li.firstChild;
+        var div = link.firstChild;
+        var title = div.firstChild;
+        var body = title.nextSibling;
+        // var image = div.nextSibling;
+
+        link.href = isDraft ? '#composer' : '#thread=' + id;
+        title.firstChild.data = number;
+        body.firstChild.data = bodyHTML;
+
+      //   // update DOM element
+      //   var timestamp = +record.timestamp;
+      //   var type = record.lastMessageType;
+      //   var participants = record.participants;
+      //   var number = participants[0];
+      //   var id = record.id;
+      //   var bodyHTML = record.body;
+      //   var thread = Threads.get(id);
+      //   var iconLabel = '';
+      //   // A new conversation "is" a draft
+      //   var isDraft = thread.isDraft;
+
+      //   // A an existing conversation has draft.
+      //   var draft = thread.getDraft();
+
+      //   var link = li.querySelector('a');
+      //   var input = li.querySelector('input');
+      //   var aside = li.querySelector('aside');
+      //   var time = li.querySelector('time');
+      //   var title = li.querySelector('.threadlist-item-title');
+      //   var bodyText = li.querySelector('.body-text');
+
+      //   if (!isDraft && draft) {
+      //     // If the draft is newer than the message, update
+      //     // the body with the draft content's first string.
+      //     if (draft.timestamp >= record.timestamp) {
+      //       bodyHTML = draft.content.find(function(content) {
+      //         if (typeof content === 'string') {
+      //           return true;
+      //         }
+      //       });
+      //       type = draft.type;
+      //     }
+      //   }
+
+      //   bodyHTML = Template.escape(bodyHTML || '');
+
+      //   li.id = 'thread-' + id;
+      //   li.dataset.threadId = id;
+      //   li.dataset.time = timestamp;
+      //   li.dataset.lastMessageType = type;
+      //   li.classList.add('threadlist-item');
+
+      //   if (draft) {
+      //     // Set the "draft" visual indication
+      //     li.classList.add('draft');
+
+      //     if (isDraft) {
+      //       li.dataset.draftId = draft.id;
+      //       li.classList.add('is-draft');
+      //       iconLabel = 'is-draft';
+      //     } else {
+      //       li.classList.add('has-draft');
+      //       iconLabel = 'has-draft';
+      //     }
+      //   }
+
+      //   if (record.unreadCount > 0) {
+      //     li.classList.add('unread');
+      //     iconLabel = 'unread-thread';
+      //   }
+
+      //   // Render markup with thread data
+      //   link.href = isDraft ? '#composer' : '#thread=' + id;
+      //   input.dataset.mode =  isDraft ? 'drafts' : 'threads';
+      //   input.value =  isDraft ? draft.id : id;
+      //   title.textContent = number;
+      //   bodyText = bodyHTML;
+      //   time.dataset.time = String(timestamp);
+      //   aside.dataset.l10nId = iconLabel;
+      }
+    });
 
     this.prepareRendering();
 
@@ -655,7 +760,21 @@ var InboxView = {
         this.startRendering();
       }
 
-      this.appendThread(thread);
+      // this.appendThread(thread);
+
+      if (queue.length < chunkSize) {
+        queue.push(thread);
+      } else {
+        // Flush the queue for rendering
+        if (this.list.model) {
+          this.list.model.push(...queue);
+        } else {
+          this.list.model = queue;
+        }
+        // this.list.list.reloadData();
+        queue = [];
+        queue.push(thread);
+      }
 
       // Dispatch visually-loaded when rendered threads could fill up the top of
       // the visible area.
@@ -666,6 +785,13 @@ var InboxView = {
 
     function onThreadsRendered() {
       /* jshint validthis: true */
+
+      if (queue.length > 0) {
+        // Flush the remaining threads in queue for rendering
+        this.list.model.push(...queue);
+        this.list.list.reloadData();
+        queue = [];
+      }
 
       /* We set the view as empty only if there's no threads and no drafts,
        * this is done to prevent races between renering threads and drafts. */
