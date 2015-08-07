@@ -56,6 +56,7 @@
     <script defer src="lib/dom-scheduler.js"></script>
     <script defer src="lib/fast-list.js"></script>
     <script defer src="lib/gaia-component.js"></script>
+    <script defer src="lib/gaia-fast-list.js"></script>
     <link rel="localization" href="/shared/elements/gaia_menu/locales/gaia_menu.{locale}.properties">
     <link rel="localization" href="/shared/elements/gaia_sim_picker/locales/gaia_sim_picker.{locale}.properties">
     <!--
@@ -72,7 +73,7 @@
     <script defer src="shared/js/template.js"></script>
     <script defer src="shared/js/async_storage.js"></script>
     <script defer src="shared/js/lazy_loader.js"></script>
-    <script defer src="shared/js/sticky_header.js"></script>
+    <!--<script defer src="shared/js/sticky_header.js"></script> --> 
     <script defer src="shared/js/contact_photo_helper.js"></script>
     <script defer src="shared/js/fb/fb_request.js"></script>
     <script defer src="shared/js/fb/fb_data_reader.js"></script>
@@ -85,7 +86,6 @@
     <script defer src="services/js/drafts.js"></script>
     <script defer src="services/js/threads.js"></script>
     <script defer src="views/shared/js/utils.js"></script>
-    <script defer src="views/inbox/js/thread-list.js"></script>
     <script defer src="views/inbox/js/inbox.js"></script>
     <script defer src="views/shared/js/settings.js"></script>
     <script defer src="services/js/message_manager.js"></script>
@@ -145,7 +145,7 @@
           <a id="threads-settings-button" data-icon="settings" data-l10n-id="settingsButton"></a>
         </gaia-header>
         <article id="threads-container" class="view-body edit-container" data-type="list">
-          <thread-list/>
+          <gaia-fast-list/>
         </article>
 
         <div id="threads-no-messages">

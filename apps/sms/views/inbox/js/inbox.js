@@ -128,7 +128,7 @@ var InboxView = {
     });
 
     this.once('visually-loaded', () => {
-      this.initStickyHeader();
+      // this.initStickyHeader();
     });
 
     this.sticky = null;
@@ -432,7 +432,7 @@ var InboxView = {
       parent.previousSibling.remove();
       parent.remove();
 
-      this.sticky && this.sticky.refresh();
+      // this.sticky && this.sticky.refresh();
 
       // if we have no more elements, set empty classes
       if (!this.container.querySelector('li')) {
@@ -608,7 +608,7 @@ var InboxView = {
         }
       }
 
-      this.sticky && this.sticky.refresh();
+      // this.sticky && this.sticky.refresh();
     });
   },
 
@@ -630,7 +630,7 @@ var InboxView = {
       TimeHeaders.updateAll('header[data-time-update]');
     }
 
-    this.sticky && this.sticky.refresh();
+    // this.sticky && this.sticky.refresh();
   },
 
   ensureReadAheadSetting: function inbox_ensureReadAheadSettting() {
@@ -644,107 +644,20 @@ var InboxView = {
     var chunkSize = this.FIRST_PANEL_THREAD_COUNT;
     var firstPanelCount = this.FIRST_PANEL_THREAD_COUNT;
     var queue = [];
-    this.list = document.querySelector('thread-list');
+    var model = [];
+    this.list = document.querySelector('gaia-fast-list');
 
     this.list.configure({
-      getSectionTime(data) {
-        return data.timestamp;
+      model: model,
+      getSectionName: (data) => {
+        return Utils.getDayDate(data.timestamp);
       },
-
-      populateItem(li, record) {
-        // update DOM element
-        // var timestamp = +record.timestamp;
-        // var type = record.lastMessageType;
-        var participants = record.participants;
-        var number = participants[0];
-        var id = record.id;
-        var bodyHTML = record.body;
-        var thread = Threads.get(id);
-        // var iconLabel = '';
-        // A new conversation "is" a draft
-        var isDraft = thread.isDraft;
-
-        // Fetch elements
-        var link = li.firstChild;
-        var div = link.firstChild;
-        var title = div.firstChild;
-        var body = title.nextSibling;
-        // var image = div.nextSibling;
-
-        link.href = isDraft ? '#composer' : '#thread=' + id;
-        title.firstChild.data = number;
-        body.firstChild.data = bodyHTML;
-
-      //   // update DOM element
-      //   var timestamp = +record.timestamp;
-      //   var type = record.lastMessageType;
-      //   var participants = record.participants;
-      //   var number = participants[0];
-      //   var id = record.id;
-      //   var bodyHTML = record.body;
-      //   var thread = Threads.get(id);
-      //   var iconLabel = '';
-      //   // A new conversation "is" a draft
-      //   var isDraft = thread.isDraft;
-
-      //   // A an existing conversation has draft.
-      //   var draft = thread.getDraft();
-
-      //   var link = li.querySelector('a');
-      //   var input = li.querySelector('input');
-      //   var aside = li.querySelector('aside');
-      //   var time = li.querySelector('time');
-      //   var title = li.querySelector('.threadlist-item-title');
-      //   var bodyText = li.querySelector('.body-text');
-
-      //   if (!isDraft && draft) {
-      //     // If the draft is newer than the message, update
-      //     // the body with the draft content's first string.
-      //     if (draft.timestamp >= record.timestamp) {
-      //       bodyHTML = draft.content.find(function(content) {
-      //         if (typeof content === 'string') {
-      //           return true;
-      //         }
-      //       });
-      //       type = draft.type;
-      //     }
-      //   }
-
-      //   bodyHTML = Template.escape(bodyHTML || '');
-
-      //   li.id = 'thread-' + id;
-      //   li.dataset.threadId = id;
-      //   li.dataset.time = timestamp;
-      //   li.dataset.lastMessageType = type;
-      //   li.classList.add('threadlist-item');
-
-      //   if (draft) {
-      //     // Set the "draft" visual indication
-      //     li.classList.add('draft');
-
-      //     if (isDraft) {
-      //       li.dataset.draftId = draft.id;
-      //       li.classList.add('is-draft');
-      //       iconLabel = 'is-draft';
-      //     } else {
-      //       li.classList.add('has-draft');
-      //       iconLabel = 'has-draft';
-      //     }
-      //   }
-
-      //   if (record.unreadCount > 0) {
-      //     li.classList.add('unread');
-      //     iconLabel = 'unread-thread';
-      //   }
-
-      //   // Render markup with thread data
-      //   link.href = isDraft ? '#composer' : '#thread=' + id;
-      //   input.dataset.mode =  isDraft ? 'drafts' : 'threads';
-      //   input.value =  isDraft ? draft.id : id;
-      //   title.textContent = number;
-      //   bodyText = bodyHTML;
-      //   time.dataset.time = String(timestamp);
-      //   aside.dataset.l10nId = iconLabel;
+      itemKey: {
+        title: 'title',
+        body: 'body',
+        image: 'image',
+        link: 'link',
+        timestamp: 'timestamp'
       }
     });
 
@@ -760,18 +673,28 @@ var InboxView = {
         this.startRendering();
       }
 
+      var participants = thread.participants;
+      var number = participants[0];
+      var id = thread.id;
+      var bodyHTML = thread.body;
+      var formatedThread = Threads.get(id);
+      // var iconLabel = '';
+      // A new conversation "is" a draft
+      var isDraft = formatedThread.isDraft;
+
       // this.appendThread(thread);
 
       if (queue.length < chunkSize) {
-        queue.push(thread);
+        queue.push({
+          title: number,
+          body: thread.body,
+          image: '',
+          link: isDraft ? '#composer' : '#thread=' + id,
+          timestamp: thread.timestamp
+        });
       } else {
-        // Flush the queue for rendering
-        if (this.list.model) {
-          this.list.model.push(...queue);
-        } else {
-          this.list.model = queue;
-        }
-        // this.list.list.reloadData();
+        this.list.model = this.list.model.concat(queue);
+
         queue = [];
         queue.push(thread);
       }
@@ -788,8 +711,9 @@ var InboxView = {
 
       if (queue.length > 0) {
         // Flush the remaining threads in queue for rendering
-        this.list.model.push(...queue);
-        this.list.list.reloadData();
+        this.list.model = this.list.model.concat(queue);
+        // this.list.model.push(...queue);
+        // this.list.refreshData();
         queue = [];
       }
 
@@ -948,7 +872,7 @@ var InboxView = {
 
     this.setEmpty(false);
     if (this.appendThread(thread)) {
-      this.sticky && this.sticky.refresh();
+      // this.sticky && this.sticky.refresh();
     }
   },
 

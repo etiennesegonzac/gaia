@@ -760,7 +760,7 @@
     ]
   };
 
-  if (options.generateManyThreads) {
+  if (true) {
     (function() {
       var threads = messagesDb.threads;
       var id = threads[threads.length - 1].id + 1;
