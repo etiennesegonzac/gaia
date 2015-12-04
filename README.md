@@ -16,7 +16,8 @@ Flash the alternate system app
 
 ```shell
 cd gaia
-APP=system NO_LOCK_SCREEN=1 make install-gaia
+adb root
+NOFTU=1 DEVICE_DEBUG=1 make reset-gaia
 ```
 
 # Emergency step
