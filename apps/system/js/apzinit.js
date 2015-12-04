@@ -1,5 +1,5 @@
 window.addEventListener('load', function() {
-  document.getElementById('screen').style.opacity = '0';
+  document.getElementById('screen').style.opacity = '0.01';
   var apzFrame = document.createElement('iframe');
   apzFrame.style.border = '0';
   apzFrame.style.zIndex = '10000000000';
