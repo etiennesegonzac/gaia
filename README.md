@@ -2,7 +2,10 @@
 Checkout the APZ-gambler in the directory where gaia is checked out.
 
 ```shell
-git clone https://github.com/etiennesegonzac/APZ-gambler.git apz-gambler
+git clone https://github.com/etiennesegonzac/hope.git apz-gambler
+cd apz-gambler
+git checkout mozlando
+cd ..
 ls
 > gaia apz-gambler
 ```
