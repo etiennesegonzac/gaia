@@ -1,7 +1,7 @@
 window.addEventListener('load', function() {
   var apzFrame = document.createElement('iframe');
   apzFrame.style.border = '0';
-  apzFrame.style.zIndex = '10000';
+  apzFrame.style.zIndex = '4'; // on top of the homescreen
   apzFrame.style.position = 'absolute';
   apzFrame.style.top = 'var(--statusbar-height)';
   apzFrame.style.left = apzFrame.style.right = apzFrame.style.bottom = '0';
@@ -15,8 +15,10 @@ window.addEventListener('load', function() {
   sheet.setAttribute('type', 'text/css');
 
   var styleText = document.createTextNode([
-    '#statusbar { background: #333333 !important }',
+    '#statusbar { background: #333333 !important; }',
+    '#statusbar.light { filter:none !important; }',
     '#windows .appWindow .titlebar { background: #333333 !important }',
+    '#windows .appWindow.homescreen { animation: none !important }',
     '#software-home-ring { outline: none; background: no-repeat center/70% url(/hope/assets/Home.png); }',
     '#hope-back {',
     'position: absolute;',
