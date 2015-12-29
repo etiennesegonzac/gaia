@@ -18,7 +18,7 @@ window.addEventListener('load', function() {
     '#statusbar { background: #333333 !important; }',
     '#statusbar.light { filter:none !important; }',
     '#windows .appWindow .titlebar { background: #333333 !important }',
-    '#windows .appWindow.homescreen { animation: none !important }',
+    '#windows .appWindow.homescreen { display:none !important; animation: none !important }',
     '#software-home-ring { outline: none; background: no-repeat center/70% url(/hope/assets/Home.png); }',
     '#hope-back {',
     'position: absolute;',
